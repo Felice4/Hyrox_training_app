@@ -1,0 +1,32 @@
+# Abhängigkeiten (werden per npm install neu erzeugt)
+node_modules/
+
+# Build-Ausgaben
+dist/
+dist-ssr/
+coverage/
+
+# Umgebungsvariablen & Geheimnisse – NIEMALS committen
+.env
+.env.*
+!.env.example
+
+# Supabase CLI (lokale Temp-Dateien)
+supabase/.temp/
+supabase/.branches/
+
+# Claude Code – persönliche lokale Einstellungen
+.claude/settings.local.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor & Betriebssystem
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db
+*.local
