@@ -1,0 +1,12 @@
+# HTTP-Header für Cloudflare Pages (https://developers.cloudflare.com/pages/configuration/headers/)
+
+# Gebaute Dateien haben einen Hash im Namen und ändern sich nie → dauerhaft cachen
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Grundlegende Sicherheits-Header für alle Seiten
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
