@@ -1,0 +1,32 @@
+@import 'tailwindcss';
+
+/*
+ * Design-Tokens (siehe docs/ARCHITECTURE.md §8).
+ * Farben hier ändern → wirkt in der ganzen App, z. B. bg-canvas, text-fg-muted, bg-accent.
+ */
+@theme {
+  --color-canvas: #0a0a0b;
+  --color-surface: #141416;
+  --color-surface-raised: #1c1c1f;
+  --color-line: #2a2a2e;
+  --color-fg: #f4f4f5;
+  --color-fg-muted: #a1a1aa;
+  --color-accent: #c6f432;
+  --color-on-accent: #0a0a0b;
+  --color-hyrox: #ff7a1a;
+  --color-danger: #f04444;
+
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Barlow Condensed', ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-canvas font-sans text-fg antialiased;
+  }
+}
