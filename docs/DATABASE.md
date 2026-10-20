@@ -263,6 +263,8 @@ Die fachliche Berechnung (z. B. welche Werte ein neuer Rekord sind) erfolgt in `
 
 ## 7. Migrationsreihenfolge (Phase 2/3)
 
+Dateinamen folgen der Supabase-CLI: `supabase/migrations/<Zeitstempel>_<name>.sql`, angelegt mit `npx supabase migration new <name>`. Die Nummern unten bezeichnen nur die Reihenfolge. Angewendet werden Migrationen mit `npm run db:push`, danach werden die TypeScript-Typen mit `npm run db:types` neu erzeugt.
+
 | Nr. | Migration | Schritt |
 |---|---|---|
 | 0001 | Basis: `set_updated_at()`, `profiles`, `training_goals`, RLS | 2.3 |

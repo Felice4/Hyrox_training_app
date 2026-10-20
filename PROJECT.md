@@ -12,11 +12,11 @@
 
 | | |
 |---|---|
-| **Aktuelle Phase** | Phase 2 – Schritt 2.2 Deployment & PWA-Grundlage (PWA lokal umgesetzt; Deployment offen) |
-| **Letzter verifizierter Meilenstein** | Schritt 2.1 Projektsetup (vom Nutzer getestet) |
-| **Nächster Schritt** | Commit + Push (Freigabe des Nutzers) → Cloudflare Pages einrichten → Installation am Handy testen |
-| **Blocker** | Deployment braucht Push auf GitHub und ein Cloudflare-Konto |
-| **Git** | Auf Wunsch des Nutzers wird erst committet, wenn er es ausdrücklich sagt. Phase 1, 2.1 und 2.2 sind noch nicht committet. |
+| **Aktuelle Phase** | Phase 2 – Schritt 2.4 Übungsbibliothek (als Nächstes) |
+| **Letzter verifizierter Meilenstein** | Schritt 2.3 – Login mit Supabase Auth, Routenschutz, Migration 0001 (vom Nutzer getestet) |
+| **Nächster Schritt** | Schritt 2.4 Übungsbibliothek |
+| **Blocker** | keine |
+| **Git** | Commits und Pushes nur auf ausdrückliche Anweisung des Nutzers. Stand auf GitHub: `587d7d7`. |
 
 ---
 
@@ -97,7 +97,7 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 |---|---|---|
 | Setup 1–4 | Werkzeuge, Git, Dokumentation, GitHub | ✅ erledigt |
 | Phase 1 | Planung: Architektur, DB-Schema, Ordnerstruktur, Generator-Algorithmus, Roadmap | ✅ abgenommen |
-| Phase 2 | Funktionsfähige Basisversion | 🔄 in Arbeit (2.1 erledigt, 2.2 läuft) |
+| Phase 2 | Funktionsfähige Basisversion | 🔄 in Arbeit (2.1–2.3 erledigt) |
 | Phase 3 | Erweiterung | offen |
 | Phase 4 | Fertigstellung | offen |
 
@@ -106,8 +106,8 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | Schritt | Inhalt | Test durch den Nutzer |
 |---|---|---|
 | **2.1 Projektsetup** ✅ | Vite + React + TS strict, Tailwind mit Design-Tokens, oxlint/Prettier, Vitest, React Router, TanStack Query; Skripte `dev`, `typecheck`, `test`, `build`, `lint`; App-Rahmen mit Bottom-Navigation und leeren Bereichsseiten | App lokal starten, am Handy im Heimnetz öffnen, Navigation durchklicken |
-| **2.2 Deployment & PWA-Grundlage** 🔄 | Cloudflare Pages mit GitHub verbinden (Auto-Deploy von `main`), Manifest + Icons, App installierbar | HTTPS-Adresse am Handy öffnen, „Zum Startbildschirm hinzufügen", App startet im Vollbild |
-| **2.3 Supabase & Login** | Projekt anlegen (Anleitung), Registrierung aus, Konto manuell anlegen, `.env.local`, Migration 0001 (`profiles`, `training_goals`, RLS), Login/Logout, Routenschutz | Login mit richtigem/falschem Passwort, Abmelden, geschützte Seiten nicht ohne Login erreichbar |
+| **2.2 Deployment & PWA-Grundlage** ✅ | Cloudflare Pages mit GitHub verbinden (Auto-Deploy von `main`), Manifest + Icons, App installierbar | HTTPS-Adresse am Handy öffnen, „Zum Startbildschirm hinzufügen", App startet im Vollbild |
+| **2.3 Supabase & Login** ✅ | Projekt anlegen (Anleitung), Registrierung aus, Konto manuell anlegen, `.env.local`, Migration 0001 (`profiles`, `training_goals`, RLS), Login/Logout, Routenschutz | Login mit richtigem/falschem Passwort, Abmelden, geschützte Seiten nicht ohne Login erreichbar |
 | **2.4 Übungsbibliothek** | Datenstruktur + Zod-Schema, Wertelisten (Muskeln, Equipment), 200+ Übungen (in Teilschritten), Validierungstests, Migration 0002, Synchronisierung, Bibliotheksseite mit Suche/Filter und Detailansicht | Bibliothek durchsuchen/filtern; Übung im Code ändern → nach Neuladen in der App sichtbar |
 | **2.5 Onboarding & Profil** | Migration 0003, mehrstufiges Onboarding (Körperdaten, Hintergrund, Ziele, Bedingungen, Präferenzen, Bestleistungen), Profilseite zum Bearbeiten | Onboarding durchlaufen, Daten im Profil ändern, nach erneutem Login noch vorhanden |
 | **2.6 Trainingsgenerator** | `domain/generator` mit allen Pflichttests, Generator-Seite mit Eingaben, Vorschau, Erklärung, „Neu erzeugen", Übung austauschen | Verschiedene Schwerpunkte/Dauern erzeugen, Geräte abwählen, Erklärung prüfen |
@@ -145,18 +145,24 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | 16.10.2026 | Setup 2 – Git-Repository mit `.gitignore` und `.gitattributes` initialisiert | `6daabbe` |
 | 16.10.2026 | Setup 3 – Projektdokumentation und VS Code-Einstellungen angelegt | `31a6287` |
 | 19.10.2026 | Setup 4 – GitHub-Repository `Felice4/Hyrox_training_app` verbunden | `daa68b2` |
-| 19.10.2026 | Phase 1 – Architektur, Datenbankkonzept, Generator-Algorithmus, Roadmap (`docs/ARCHITECTURE.md`, `docs/DATABASE.md`, `docs/GENERATOR.md`) | noch nicht committet |
-| 19.10.2026 | Schritt 2.1 – Projektsetup (Vite 8, React 19, TS 7, Tailwind 4, App-Rahmen mit Bottom-Navigation) | noch nicht committet |
+| 19.10.2026 | Phase 1 – Architektur, Datenbankkonzept, Generator-Algorithmus, Roadmap (`docs/ARCHITECTURE.md`, `docs/DATABASE.md`, `docs/GENERATOR.md`) | `bef66eb` |
+| 19.10.2026 | Schritt 2.1 – Projektsetup (Vite 8, React 19, TS 7, Tailwind 4, App-Rahmen mit Bottom-Navigation) | `32a4213` |
+| 20.10.2026 | Schritt 2.2 – PWA-Grundlage, Deployment über Cloudflare Pages, Installation am Smartphone | `587d7d7` |
+| 20.10.2026 | Schritt 2.3 – Supabase-Projekt, Migration 0001 (Profil, Ziele, RLS), Login/Logout, Routenschutz | siehe `git log` (`feat: Anmeldung …`) |
 
 ---
 
 ## 8. Bekannte Bugs und Einschränkungen
 
-*Keine Bugs.*
+*Keine offenen Bugs.*
+
+Behoben:
+- 20.10.2026: `VITE_SUPABASE_URL` war mit `/rest/v1/` eingetragen, deshalb schlugen alle Anfragen mit `PGRST125` fehl. `.env.local` ist korrigiert. `src/lib/env.ts` lehnt URLs mit Pfad jetzt mit klarer Meldung ab.
 
 Offene Kleinigkeiten:
 - `npm install` warnt vor einem veralteten `glob@11` (kommt über `vite-plugin-pwa` → `workbox-build`, nur Entwicklungswerkzeug, nicht in der App). Verschwindet mit einem Update von workbox.
-- Der Service Worker speichert alle Zeichensätze der Schrift Inter vor (Precache gesamt ca. 650 KB). Das wird in Schritt 4.2 optimiert.
+- Der Service Worker speichert alle Zeichensätze der Schrift Inter vor (Precache gesamt ca. 950 KB). Das wird in Schritt 4.2 optimiert.
+- Das JavaScript-Bundle ist mit Supabase-Client und Zod ca. 650 KB groß (190 KB gzip). Vite warnt deshalb beim Build. Das wird in Schritt 4.1/4.2 per Code-Splitting der Seiten optimiert.
 
 Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 - Supabase Free Tier pausiert Projekte nach 7 Tagen ohne Aktivität (Fortsetzen per Klick, Daten bleiben).
@@ -166,12 +172,11 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 
 ## 9. Nächste Aufgaben
 
-1. Commits und Push auf Freigabe des Nutzers. Vorgeschlagen:
-   `docs: Phase 1 – Architektur, Datenbankkonzept und Generator-Algorithmus`,
-   `chore: Projektsetup mit Vite, React, Tailwind und Vitest`,
-   `feat: PWA-Grundlage mit Manifest, Icons und Service Worker`.
-2. Cloudflare Pages mit dem GitHub-Repository verbinden (Anleitung im Chat) und die Installation am Handy testen.
-3. Schritt 2.3 Supabase & Login.
+1. Nutzer: In Cloudflare `VITE_SUPABASE_URL` als Basis-URL (ohne `/rest/v1/`) prüfen; Login am Handy testen.
+2. Optional: In Supabase unter Authentication → URL Configuration die Site URL auf die Cloudflare-Adresse setzen.
+3. Schritt 2.4 Übungsbibliothek.
+
+**Prüfergebnis Supabase (20.10.2026):** Migration lokal = remote. `profiles` und `training_goals` mit aktivem RLS und je 3 Policies (select/insert/update, `to authenticated`, `auth.uid() = user_id`). `anon` hat keine Tabellenrechte, Lesen/Schreiben ohne Login liefert HTTP 401. Registrierung deaktiviert (Signup liefert `signup_disabled`), anonyme Anmeldung aus, 1 bestätigtes Konto vorhanden.
 
 ---
 
@@ -210,6 +215,12 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 | 19.10.2026 | PWA: vite-plugin-pwa 2 mit `generateSW` und `registerType: 'autoUpdate'`; Hochformat, `standalone` | Minimaler Aufwand; ein Update-Hinweis folgt in 4.2 |
 | 19.10.2026 | App-Icons als PNG aus `public/app-icon.svg`, einmalig erzeugt (sharp im Scratch-Ordner, keine Projektabhängigkeit) | Kein schweres natives Paket im Projekt |
 | 19.10.2026 | Cloudflare Pages: `.node-version` (24), `public/_headers` (Caching für `/assets/*`, Sicherheits-Header); SPA-Fallback automatisch, weil keine `404.html` existiert | Reproduzierbarer Build, schnelle Ladezeiten |
+| 20.10.2026 | Supabase-CLI als Entwicklungsabhängigkeit (`npx supabase …`, Skripte `db:push`, `db:types`); Migrationen mit Zeitstempel im Dateinamen | Versionierte, reproduzierbare DB-Änderungen ohne Docker |
+| 20.10.2026 | Umgebungsvariable `VITE_SUPABASE_PUBLISHABLE_KEY` (neuer publishable Key, alter anon Key ebenfalls zulässig); Prüfung mit Zod beim Start, geheime Schlüssel werden abgelehnt, bei Fehlern erscheint eine Konfigurationsseite | Aktuelle Supabase-Benennung; Schutz vor versehentlich veröffentlichten Geheimnissen |
+| 20.10.2026 | Supabase-Client wird in `main.tsx` erzeugt und per React-Kontext (`useSupabase`) bereitgestellt; Anmeldestatus über `AuthProvider`/`useAuth` | Keine globale Variable, testbar, klare Abhängigkeit |
+| 20.10.2026 | Abmelden nur auf dem aktuellen Gerät (`scope: 'local'`); beim Abmelden wird der Query-Cache geleert | Laptop bleibt angemeldet, wenn man sich am Handy abmeldet; keine fremden Daten im Cache |
+| 20.10.2026 | Tabellenrechte explizit: `anon` hat keinen Zugriff, `authenticated` nur `select/insert/update` (kein `delete`) auf Profil und Ziele, zusätzlich RLS mit `auth.uid()` | Doppelte Absicherung, unabhängig von Supabase-Standardrechten |
+| 20.10.2026 | `supabase/config.toml` (nur lokale Supabase-Umgebung): Registrierung aus, Mindestlänge Passwort 12 | Gleiche Regeln wie im Cloud-Projekt, das im Dashboard konfiguriert wird |
 
 ---
 

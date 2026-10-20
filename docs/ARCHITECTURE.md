@@ -109,7 +109,7 @@ hyrox-coach/
 │  ├─ lib/                    supabase-Client, env-Prüfung, queryClient, Datums-/Formatierungshelfer, seeded RNG
 │  ├─ types/database.ts       Aus dem Schema generierte Supabase-Typen
 │  └─ styles/index.css        Tailwind, Design-Tokens
-├─ .env.example               Platzhalter: VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY
+├─ .env.example               Platzhalter: VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY
 ├─ CLAUDE.md · PROJECT.md · README.md
 └─ package.json, vite.config.ts (inkl. Vitest), tsconfig*.json, .oxlintrc.json, .prettierrc.json
 ```
@@ -189,7 +189,7 @@ Siehe [`DATABASE.md` §4](DATABASE.md#4-synchronisierung-der-übungsbibliothek).
 
 ## 7. Sicherheit
 
-- Im Frontend nur `VITE_SUPABASE_URL` und `VITE_SUPABASE_ANON_KEY` (öffentlich und unkritisch, weil RLS den Zugriff regelt). Der `service_role`-Key wird nirgends verwendet.
+- Im Frontend nur `VITE_SUPABASE_URL` und `VITE_SUPABASE_PUBLISHABLE_KEY` (publishable bzw. alter anon Key; öffentlich und unkritisch, weil RLS den Zugriff regelt). `src/lib/env.ts` verweigert den Start, wenn versehentlich ein geheimer Schlüssel eingetragen wird. Der `service_role`-Key wird nirgends verwendet.
 - `.env.local` ist git-ignoriert; `.env.example` enthält Platzhalter. Auf Cloudflare Pages werden die Werte als Umgebungsvariablen hinterlegt.
 - Supabase Auth: Option „Allow new users to sign up" **aus**. Das Konto wird einmalig im Supabase-Dashboard angelegt.
 - Jede Tabelle: RLS aktiv, Policies `to authenticated` mit `user_id = auth.uid()`. Jede Tabelle hat eine eigene `user_id`-Spalte, damit die Policies einfach und schnell bleiben.

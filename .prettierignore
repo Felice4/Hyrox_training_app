@@ -4,3 +4,6 @@ node_modules
 package-lock.json
 # Dokumentation wird von Hand formatiert (Tabellen, Diagramme)
 *.md
+# Automatisch erzeugt (npm run db:types)
+src/types/database.ts
+supabase/.temp
