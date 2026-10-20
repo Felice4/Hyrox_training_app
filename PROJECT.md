@@ -12,9 +12,9 @@
 
 | | |
 |---|---|
-| **Aktuelle Phase** | Phase 2 – Schritt 2.4b Übungsbibliothek: 211 Übungen (umgesetzt, Durchsicht durch den Nutzer offen) |
+| **Aktuelle Phase** | Phase 2 – Schritt 2.4c Abgleich der Übungsbibliothek (umgesetzt; Test durch Login des Nutzers offen) |
 | **Letzter verifizierter Meilenstein** | Schritt 2.3 – Login mit Supabase Auth, Routenschutz, Migration 0001 (vom Nutzer getestet) |
-| **Nächster Schritt** | 2.4c Migration 0002 + Abgleich der Bibliothek mit der Datenbank |
+| **Nächster Schritt** | Nutzer meldet sich an → Abgleich prüfen → 2.4d Bibliotheksseite |
 | **Blocker** | keine |
 | **Git** | Commits und Pushes nur auf ausdrückliche Anweisung des Nutzers. Stand auf GitHub: `587d7d7`. |
 
@@ -176,8 +176,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 2. Optional: In Supabase unter Authentication → URL Configuration die Site URL auf die Cloudflare-Adresse setzen.
 3. Schritt 2.4 Übungsbibliothek in Teilschritten:
    - **2.4a** ✅ Datenmodell (`src/data/exercises/`), Wertelisten mit deutschen Bezeichnungen, Zod-Schema, Tests, 63 Übungen (28 HYROX, 15 Warm-up, 11 Mobility, 9 Cool-down/Regeneration). Commit `ed087cb`.
-   - **2.4b** ✅ umgesetzt: +148 Übungen → **211** (Unterkörper 33, Push 24, Pull 23, Rumpf 21, Explosiv/Ganzkörper 22, Ausdauer 25). `LIBRARY_VERSION` = 2. Tests: mind. 200 Übungen, alle Kategorien vertreten.
-   - **2.4c**: Migration 0002 (`exercises`) + `sync_exercise_library()` + Abgleich nach dem Login.
+   - **2.4b** ✅ +148 Übungen → **211** (Unterkörper 33, Push 24, Pull 23, Rumpf 21, Explosiv/Ganzkörper 22, Ausdauer 25). `LIBRARY_VERSION` = 2. Tests: mind. 200 Übungen, alle Kategorien vertreten. Commit `f29f55f`.
+   - **2.4c** ✅ umgesetzt: Migration 0002 (`exercises`, RLS, kein DELETE) + `sync_exercise_library()` angewendet, in zurückgerollter Transaktion getestet. App gleicht nach dem Login einmal pro Sitzung ab (`src/api/exerciseLibrary.ts`, `useLibrarySync`) und zeigt nur bei Fehlern einen Hinweis.
    - **2.4d**: Bibliotheksseite mit Suche, Filter und Detailansicht.
 
 **Prüfergebnis Supabase (20.10.2026):** Migration lokal = remote. `profiles` und `training_goals` mit aktivem RLS und je 3 Policies (select/insert/update, `to authenticated`, `auth.uid() = user_id`). `anon` hat keine Tabellenrechte, Lesen/Schreiben ohne Login liefert HTTP 401. Registrierung deaktiviert (Signup liefert `signup_disabled`), anonyme Anmeldung aus, 1 bestätigtes Konto vorhanden.

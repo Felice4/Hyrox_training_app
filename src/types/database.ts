@@ -14,6 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
+      exercises: {
+        Row: {
+          alternative_slugs: string[]
+          category: string
+          created_at: string
+          description: string
+          difficulty: number
+          equipment: string[]
+          hyrox_station: string | null
+          id: string
+          instructions: string[]
+          is_archived: boolean
+          library_version: number | null
+          load_params: Json
+          measurement: string
+          movement_pattern: string
+          name: string
+          preference: string
+          primary_muscles: string[]
+          secondary_muscles: string[]
+          slug: string
+          source: string
+          stress_regions: string[]
+          training_types: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alternative_slugs?: string[]
+          category: string
+          created_at?: string
+          description?: string
+          difficulty: number
+          equipment?: string[]
+          hyrox_station?: string | null
+          id?: string
+          instructions?: string[]
+          is_archived?: boolean
+          library_version?: number | null
+          load_params: Json
+          measurement: string
+          movement_pattern: string
+          name: string
+          preference?: string
+          primary_muscles: string[]
+          secondary_muscles?: string[]
+          slug: string
+          source: string
+          stress_regions?: string[]
+          training_types: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          alternative_slugs?: string[]
+          category?: string
+          created_at?: string
+          description?: string
+          difficulty?: number
+          equipment?: string[]
+          hyrox_station?: string | null
+          id?: string
+          instructions?: string[]
+          is_archived?: boolean
+          library_version?: number | null
+          load_params?: Json
+          measurement?: string
+          movement_pattern?: string
+          name?: string
+          preference?: string
+          primary_muscles?: string[]
+          secondary_muscles?: string[]
+          slug?: string
+          source?: string
+          stress_regions?: string[]
+          training_types?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           available_equipment: string[]
@@ -115,7 +196,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      sync_exercise_library: {
+        Args: { p_exercises: Json; p_version: number }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

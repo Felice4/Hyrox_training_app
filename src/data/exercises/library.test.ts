@@ -26,6 +26,10 @@ describe('Übungsbibliothek', () => {
     expect(duplicates).toEqual([])
   })
 
+  it('Slugs beginnen nicht mit „custom-" (reserviert für eigene Übungen)', () => {
+    expect(EXERCISE_LIBRARY.filter((e) => e.slug.startsWith('custom-'))).toEqual([])
+  })
+
   it('Namen sind eindeutig', () => {
     const names = EXERCISE_LIBRARY.map((e) => e.name.toLowerCase())
     expect(new Set(names).size).toBe(names.length)

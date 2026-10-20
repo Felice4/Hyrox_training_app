@@ -222,7 +222,7 @@ Unique (`user_id`, `exercise_id`, `record_type`, `context_key`): pro Bedingung g
 
 **Quelle der Wahrheit für Bibliotheksübungen ist der Code** (`src/data/exercises/*.ts`). Jede Übung hat einen stabilen `slug`. Die Bibliothek hat eine Versionsnummer `LIBRARY_VERSION`, die bei jeder Änderung erhöht wird.
 
-Ablauf (nach dem Login, wenn die gespeicherte Version kleiner als `LIBRARY_VERSION` ist):
+Ablauf (umgesetzt in `src/api/exerciseLibrary.ts` und Migration 0002): Nach dem Login liest die App die höchste gespeicherte `library_version`. Nur wenn sie kleiner als `LIBRARY_VERSION` ist, wird die Bibliothek übertragen. Gleichzeitige Abgleiche (zwei Geräte) werden per Advisory Lock nacheinander ausgeführt.
 
 1. Die App ruft die RPC-Funktion `sync_exercise_library(p_version, p_exercises jsonb)` auf.
 2. Für jede Bibliotheksübung: **Upsert über (`user_id`, `slug`)**. Aktualisiert werden nur Bibliotheksfelder (Name, Beschreibung, Muskeln, …), **nicht** `preference`.
@@ -232,7 +232,9 @@ Ablauf (nach dem Login, wenn die gespeicherte Version kleiner als `LIBRARY_VERSI
 
 Bibliotheksübungen sind in der App nicht direkt editierbar (sonst würde der nächste Abgleich die Änderung überschreiben). Möglich sind Präferenz setzen, ausblenden und „als eigene Übung kopieren". Eigene Übungen sind voll editierbar.
 
-Tests: Die Bibliothek wird per Vitest geprüft: alle Felder gültig laut Zod, Slugs eindeutig, `alternative_slugs` verweisen auf existierende Übungen, mindestens 200 Übungen, alle 9 HYROX-Stationen vorhanden.
+Tests: Die Bibliothek wird per Vitest geprüft: alle Felder gültig laut Zod, Slugs eindeutig und nicht mit `custom-` beginnend, `alternative_slugs` verweisen auf existierende Übungen, mindestens 200 Übungen, alle 9 HYROX-Stationen vorhanden. Die Datenbankfunktion wurde am 20.10.2026 in einer zurückgerollten Transaktion gegen das Cloud-Projekt getestet: Ersteinspielen, unveränderte Version, Archivieren, Umbenennen, eigene Übung und Präferenz bleiben erhalten.
+
+Die Datenbank prüft bei `exercises` nur die Grundstruktur (Slug-Format, Pflichtfelder, Schwierigkeit 1–3, `source`, `preference`). Die Wertelisten prüft die App mit Zod, damit neue Werte im Code keine Migration erfordern.
 
 ---
 
