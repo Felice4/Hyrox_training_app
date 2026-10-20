@@ -12,17 +12,29 @@
  *   Die Tests prüfen alle Übungen (Felder, doppelte Slugs, Verweise auf Alternativen).
  */
 import { COOLDOWN_EXERCISES } from './cooldown'
+import { CORE_EXERCISES } from './core'
+import { ENDURANCE_EXERCISES } from './endurance'
 import { HYROX_EXERCISES } from './hyrox'
 import { MOBILITY_EXERCISES } from './mobility'
+import { POWER_EXERCISES } from './power'
 import { exerciseDefinitionSchema, type ExerciseDefinition, type ExerciseInput } from './schema'
+import { STRENGTH_LOWER_EXERCISES } from './strength-lower'
+import { STRENGTH_PULL_EXERCISES } from './strength-pull'
+import { STRENGTH_PUSH_EXERCISES } from './strength-push'
 import { WARMUP_EXERCISES } from './warmup'
 
 /** Bei JEDER Änderung an der Bibliothek um 1 erhöhen (löst den Abgleich mit der Datenbank aus). */
-export const LIBRARY_VERSION = 1
+export const LIBRARY_VERSION = 2
 
 /** Alle Übungen in Rohform, wie sie in den Dateien stehen. */
 export const RAW_EXERCISES: readonly ExerciseInput[] = [
   ...HYROX_EXERCISES,
+  ...STRENGTH_LOWER_EXERCISES,
+  ...STRENGTH_PUSH_EXERCISES,
+  ...STRENGTH_PULL_EXERCISES,
+  ...CORE_EXERCISES,
+  ...POWER_EXERCISES,
+  ...ENDURANCE_EXERCISES,
   ...WARMUP_EXERCISES,
   ...MOBILITY_EXERCISES,
   ...COOLDOWN_EXERCISES,

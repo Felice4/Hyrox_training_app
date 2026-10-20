@@ -12,9 +12,9 @@
 
 | | |
 |---|---|
-| **Aktuelle Phase** | Phase 2 – Schritt 2.4a Übungsbibliothek: Datenmodell + erste 63 Übungen (Review durch den Nutzer offen) |
+| **Aktuelle Phase** | Phase 2 – Schritt 2.4b Übungsbibliothek: 211 Übungen (umgesetzt, Durchsicht durch den Nutzer offen) |
 | **Letzter verifizierter Meilenstein** | Schritt 2.3 – Login mit Supabase Auth, Routenschutz, Migration 0001 (vom Nutzer getestet) |
-| **Nächster Schritt** | Nutzer prüft HYROX-Übungen → 2.4b Kraft- und Ausdauerübungen (200+) |
+| **Nächster Schritt** | 2.4c Migration 0002 + Abgleich der Bibliothek mit der Datenbank |
 | **Blocker** | keine |
 | **Git** | Commits und Pushes nur auf ausdrückliche Anweisung des Nutzers. Stand auf GitHub: `587d7d7`. |
 
@@ -175,8 +175,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 1. Nutzer: In Cloudflare `VITE_SUPABASE_URL` als Basis-URL (ohne `/rest/v1/`) prüfen; Login am Handy testen.
 2. Optional: In Supabase unter Authentication → URL Configuration die Site URL auf die Cloudflare-Adresse setzen.
 3. Schritt 2.4 Übungsbibliothek in Teilschritten:
-   - **2.4a** ✅ umgesetzt: Datenmodell (`src/data/exercises/`), Wertelisten mit deutschen Bezeichnungen, Zod-Schema, Tests, 63 Übungen (28 HYROX, 15 Warm-up, 11 Mobility, 9 Cool-down/Regeneration). Review durch den Nutzer offen.
-   - **2.4b**: Kraft (Unterkörper, Push, Pull, Core, Explosiv/Ganzkörper) und Ausdauer, damit die Bibliothek 200+ Übungen enthält.
+   - **2.4a** ✅ Datenmodell (`src/data/exercises/`), Wertelisten mit deutschen Bezeichnungen, Zod-Schema, Tests, 63 Übungen (28 HYROX, 15 Warm-up, 11 Mobility, 9 Cool-down/Regeneration). Commit `ed087cb`.
+   - **2.4b** ✅ umgesetzt: +148 Übungen → **211** (Unterkörper 33, Push 24, Pull 23, Rumpf 21, Explosiv/Ganzkörper 22, Ausdauer 25). `LIBRARY_VERSION` = 2. Tests: mind. 200 Übungen, alle Kategorien vertreten.
    - **2.4c**: Migration 0002 (`exercises`) + `sync_exercise_library()` + Abgleich nach dem Login.
    - **2.4d**: Bibliotheksseite mit Suche, Filter und Detailansicht.
 

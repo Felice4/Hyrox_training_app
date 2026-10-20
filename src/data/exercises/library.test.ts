@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { EXERCISE_LIBRARY, getLibraryExercise, LIBRARY_VERSION, RAW_EXERCISES } from './index'
 import { exerciseDefinitionSchema } from './schema'
-import { HYROX_STATIONS } from './vocabulary'
+import { CATEGORIES, HYROX_STATIONS } from './vocabulary'
 
 describe('Übungsbibliothek', () => {
   it('jede Übung erfüllt das Schema', () => {
@@ -55,7 +55,14 @@ describe('Übungsbibliothek', () => {
     expect(getLibraryExercise('gibt-es-nicht')).toBeUndefined()
   })
 
-  it.todo('enthält mindestens 200 Übungen (ab Schritt 2.4b)')
+  it('enthält mindestens 200 Übungen', () => {
+    expect(EXERCISE_LIBRARY.length).toBeGreaterThanOrEqual(200)
+  })
+
+  it('jede Kategorie ist vertreten', () => {
+    const categories = new Set(EXERCISE_LIBRARY.map((e) => e.category))
+    expect([...categories].sort()).toEqual([...CATEGORIES].sort())
+  })
 })
 
 describe('Schema-Regeln', () => {
