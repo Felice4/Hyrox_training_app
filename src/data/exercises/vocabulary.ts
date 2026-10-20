@@ -293,3 +293,13 @@ export const DIFFICULTY_LABELS: Record<Difficulty, string> = {
   2: 'Fortgeschritten',
   3: 'Erfahren',
 }
+
+/** Persönliche Einstellung zu einer Übung (wird vom Bibliotheksabgleich nie überschrieben). */
+export const PREFERENCES = ['neutral', 'preferred', 'disliked', 'hidden'] as const
+export type Preference = (typeof PREFERENCES)[number]
+export const PREFERENCE_LABELS: Record<Preference, string> = {
+  neutral: 'Neutral',
+  preferred: 'Bevorzugt',
+  disliked: 'Unbeliebt',
+  hidden: 'Ausgeblendet',
+}

@@ -12,9 +12,9 @@
 
 | | |
 |---|---|
-| **Aktuelle Phase** | Phase 2 – Schritt 2.4c Abgleich der Übungsbibliothek (umgesetzt; Test durch Login des Nutzers offen) |
+| **Aktuelle Phase** | Phase 2 – Schritt 2.4 Übungsbibliothek (2.4a–d umgesetzt; Test durch den Nutzer offen) |
 | **Letzter verifizierter Meilenstein** | Schritt 2.3 – Login mit Supabase Auth, Routenschutz, Migration 0001 (vom Nutzer getestet) |
-| **Nächster Schritt** | Nutzer meldet sich an → Abgleich prüfen → 2.4d Bibliotheksseite |
+| **Nächster Schritt** | Nutzer testet Bibliothek (lokal) → Schritt 2.5 Onboarding & Profil |
 | **Blocker** | keine |
 | **Git** | Commits und Pushes nur auf ausdrückliche Anweisung des Nutzers. Stand auf GitHub: `587d7d7`. |
 
@@ -177,8 +177,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 3. Schritt 2.4 Übungsbibliothek in Teilschritten:
    - **2.4a** ✅ Datenmodell (`src/data/exercises/`), Wertelisten mit deutschen Bezeichnungen, Zod-Schema, Tests, 63 Übungen (28 HYROX, 15 Warm-up, 11 Mobility, 9 Cool-down/Regeneration). Commit `ed087cb`.
    - **2.4b** ✅ +148 Übungen → **211** (Unterkörper 33, Push 24, Pull 23, Rumpf 21, Explosiv/Ganzkörper 22, Ausdauer 25). `LIBRARY_VERSION` = 2. Tests: mind. 200 Übungen, alle Kategorien vertreten. Commit `f29f55f`.
-   - **2.4c** ✅ umgesetzt: Migration 0002 (`exercises`, RLS, kein DELETE) + `sync_exercise_library()` angewendet, in zurückgerollter Transaktion getestet. App gleicht nach dem Login einmal pro Sitzung ab (`src/api/exerciseLibrary.ts`, `useLibrarySync`) und zeigt nur bei Fehlern einen Hinweis.
-   - **2.4d**: Bibliotheksseite mit Suche, Filter und Detailansicht.
+   - **2.4c** ✅ umgesetzt: Migration 0002 (`exercises`, RLS, kein DELETE) + `sync_exercise_library()` angewendet, in zurückgerollter Transaktion getestet. App gleicht nach dem Login einmal pro Sitzung ab (`src/api/exerciseLibrary.ts`, `useLibrarySync`) und zeigt nur bei Fehlern einen Hinweis. Commit `09fef07`.
+   - **2.4d** ✅ umgesetzt: Bibliotheksseite `/exercises` (Suche ohne Umlaut-Probleme, Kategorie-Chips, Muskel- und Gerätefilter, Filter bleiben in der Adresse erhalten) und Detailseite `/exercises/:slug` (Ausführung, Belastung, Muskeln, Geräte, Alternativen). Erreichbar über „Mehr".
 
 **Prüfergebnis Supabase (20.10.2026):** Migration lokal = remote. `profiles` und `training_goals` mit aktivem RLS und je 3 Policies (select/insert/update, `to authenticated`, `auth.uid() = user_id`). `anon` hat keine Tabellenrechte, Lesen/Schreiben ohne Login liefert HTTP 401. Registrierung deaktiviert (Signup liefert `signup_disabled`), anonyme Anmeldung aus, 1 bestätigtes Konto vorhanden.
 
@@ -229,6 +229,11 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 | 20.10.2026 | Übungen haben `trainingTypes` (Liste statt Einzelwert); neue Trainingstypen `stability`, `coordination`; neue Bewegungsmuster `jump`, `mobility`; neue Messarten `weight_distance` (z. B. Sled Push) und `weight_time` (z. B. Farmers Hold) | Viele Übungen dienen mehreren Zielen (z. B. Kraft und Muskelaufbau); HYROX-Stationen brauchen Gewicht × Strecke |
 | 20.10.2026 | `hyroxStation` nur bei echten Stationsübungen und direkten Varianten; Kombinationen und Vorbereitungsübungen ohne Station | Die Stationsabdeckung im Generator soll nur echtes Stationstraining zählen |
 | 20.10.2026 | Übungsnamen auf Deutsch; etablierte Fachbegriffe (Sled Push, Wall Balls, Burpee …) bleiben englisch | So, wie sie im Studio und bei HYROX genannt werden |
+| 20.10.2026 | Migrationen wendet Claude per `npx supabase db push --linked` an (vorher `--dry-run`); Datenbankfunktionen werden in zurückgerollten Transaktionen gegen das Cloud-Projekt getestet | CLI braucht kein DB-Passwort mehr (temporäre Login-Rolle); Tests ohne Spuren in den echten Daten |
+| 20.10.2026 | Bibliotheks-Abgleich nur, wenn die gespeicherte `library_version` kleiner als `LIBRARY_VERSION` ist; einmal pro Sitzung über TanStack Query | Die ca. 470 KB große Übungsliste wird nicht bei jedem Start übertragen |
+| 20.10.2026 | App liest Übungen aus der Datenbank (nicht direkt aus dem Code) und prüft jede Zeile mit dem Zod-Schema | Eigene Übungen und Präferenzen sind nur in der Datenbank vorhanden; ungültige Zeilen werden übersprungen statt die App abstürzen zu lassen |
+| 20.10.2026 | Filter der Bibliothek in der Adresse (Query-Parameter), Übungen per Slug adressiert (`/exercises/hyrox-sled-push`) | Zurück-Navigation behält die Filter; lesbare, stabile Adressen |
+| 20.10.2026 | Native Auswahlfelder (`<select>`) für Muskel- und Gerätefilter | Am Smartphone öffnet sich die gewohnte System-Auswahl |
 
 ---
 

@@ -3,6 +3,8 @@ import { LoginPage } from '@/features/auth/LoginPage'
 import { RequireAuth } from '@/features/auth/RequireAuth'
 import { CalendarPage } from '@/features/calendar/CalendarPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
+import { ExerciseDetailPage } from '@/features/exercises/ExerciseDetailPage'
+import { ExerciseListPage } from '@/features/exercises/ExerciseListPage'
 import { GeneratorPage } from '@/features/generator/GeneratorPage'
 import { MorePage } from '@/features/more/MorePage'
 import { StatsPage } from '@/features/progress/StatsPage'
@@ -28,6 +30,8 @@ export const router = createBrowserRouter([
           { path: 'calendar', element: <CalendarPage /> },
           { path: 'stats', element: <StatsPage /> },
           { path: 'more', element: <MorePage /> },
+          { path: 'exercises', element: <ExerciseListPage /> },
+          { path: 'exercises/:slug', element: <ExerciseDetailPage /> },
         ],
       },
     ],

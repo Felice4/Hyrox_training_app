@@ -154,7 +154,7 @@ Auf dem Laptop (ab `md`) wird die Bottom-Navigation zu einer Seitenleiste; die I
 | `/calendar` | Kalender, `/calendar/:date` Tagesdetails |
 | `/history/:sessionId` | Details eines absolvierten Trainings |
 | `/stats` | Statistiken |
-| `/exercises`, `/exercises/:id` | Bibliothek und Detail |
+| `/exercises`, `/exercises/:slug` | Bibliothek (Filter in der Adresse: `?q=…&kategorie=…&muskel=…&geraet=…`) und Detail; Tab „Mehr" bleibt hervorgehoben |
 | `/more` | Übersicht weiterer Bereiche |
 | `/profile`, `/settings` | Profil & Ziele, Einstellungen |
 

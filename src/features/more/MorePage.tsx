@@ -1,3 +1,5 @@
+import { Link } from 'react-router'
+import { BookIcon, ChevronRightIcon } from '@/components/icons'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -6,7 +8,6 @@ import { useSignOut } from '@/features/auth/useSignOut'
 
 /** Bereiche, die über „Mehr" erreichbar sein werden, mit dem Schritt, in dem sie entstehen. */
 const UPCOMING_SECTIONS = [
-  { label: 'Übungsbibliothek', step: 'Schritt 2.4' },
   { label: 'Profil & Ziele', step: 'Schritt 2.5' },
   { label: 'Datenexport', step: 'Schritt 4.3' },
 ] as const
@@ -20,6 +21,17 @@ export function MorePage() {
     <>
       <PageHeader title="Mehr" subtitle="Bibliothek, Profil und Einstellungen" />
       <Card className="p-0">
+        <Link
+          to="/exercises"
+          className="flex min-h-16 items-center gap-3 rounded-2xl px-5 hover:bg-surface-raised"
+        >
+          <BookIcon className="text-accent" />
+          <span className="flex-1 font-medium">Übungsbibliothek</span>
+          <ChevronRightIcon width={20} height={20} className="text-fg-muted" />
+        </Link>
+      </Card>
+
+      <Card className="mt-4 p-0">
         <ul className="divide-y divide-line">
           {UPCOMING_SECTIONS.map(({ label, step }) => (
             <li key={label} className="flex min-h-14 items-center justify-between px-5">
