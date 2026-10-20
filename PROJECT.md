@@ -12,9 +12,9 @@
 
 | | |
 |---|---|
-| **Aktuelle Phase** | Phase 2 – Schritt 2.4 Übungsbibliothek (als Nächstes) |
+| **Aktuelle Phase** | Phase 2 – Schritt 2.4a Übungsbibliothek: Datenmodell + erste 63 Übungen (Review durch den Nutzer offen) |
 | **Letzter verifizierter Meilenstein** | Schritt 2.3 – Login mit Supabase Auth, Routenschutz, Migration 0001 (vom Nutzer getestet) |
-| **Nächster Schritt** | Schritt 2.4 Übungsbibliothek |
+| **Nächster Schritt** | Nutzer prüft HYROX-Übungen → 2.4b Kraft- und Ausdauerübungen (200+) |
 | **Blocker** | keine |
 | **Git** | Commits und Pushes nur auf ausdrückliche Anweisung des Nutzers. Stand auf GitHub: `587d7d7`. |
 
@@ -108,7 +108,7 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | **2.1 Projektsetup** ✅ | Vite + React + TS strict, Tailwind mit Design-Tokens, oxlint/Prettier, Vitest, React Router, TanStack Query; Skripte `dev`, `typecheck`, `test`, `build`, `lint`; App-Rahmen mit Bottom-Navigation und leeren Bereichsseiten | App lokal starten, am Handy im Heimnetz öffnen, Navigation durchklicken |
 | **2.2 Deployment & PWA-Grundlage** ✅ | Cloudflare Pages mit GitHub verbinden (Auto-Deploy von `main`), Manifest + Icons, App installierbar | HTTPS-Adresse am Handy öffnen, „Zum Startbildschirm hinzufügen", App startet im Vollbild |
 | **2.3 Supabase & Login** ✅ | Projekt anlegen (Anleitung), Registrierung aus, Konto manuell anlegen, `.env.local`, Migration 0001 (`profiles`, `training_goals`, RLS), Login/Logout, Routenschutz | Login mit richtigem/falschem Passwort, Abmelden, geschützte Seiten nicht ohne Login erreichbar |
-| **2.4 Übungsbibliothek** | Datenstruktur + Zod-Schema, Wertelisten (Muskeln, Equipment), 200+ Übungen (in Teilschritten), Validierungstests, Migration 0002, Synchronisierung, Bibliotheksseite mit Suche/Filter und Detailansicht | Bibliothek durchsuchen/filtern; Übung im Code ändern → nach Neuladen in der App sichtbar |
+| **2.4 Übungsbibliothek** 🔄 | Datenstruktur + Zod-Schema, Wertelisten (Muskeln, Equipment), 200+ Übungen (in Teilschritten), Validierungstests, Migration 0002, Synchronisierung, Bibliotheksseite mit Suche/Filter und Detailansicht | Bibliothek durchsuchen/filtern; Übung im Code ändern → nach Neuladen in der App sichtbar |
 | **2.5 Onboarding & Profil** | Migration 0003, mehrstufiges Onboarding (Körperdaten, Hintergrund, Ziele, Bedingungen, Präferenzen, Bestleistungen), Profilseite zum Bearbeiten | Onboarding durchlaufen, Daten im Profil ändern, nach erneutem Login noch vorhanden |
 | **2.6 Trainingsgenerator** | `domain/generator` mit allen Pflichttests, Generator-Seite mit Eingaben, Vorschau, Erklärung, „Neu erzeugen", Übung austauschen | Verschiedene Schwerpunkte/Dauern erzeugen, Geräte abwählen, Erklärung prüfen |
 | **2.7 Trainingsmodus & Speichern** | Migration 0004 + `save_workout_session`, aktives Training (Sätze, Gewichte, Wdh., Distanz/Zeit), Pausen-/Intervalltimer, Rundenzähler, überspringen/austauschen, pausieren, lokaler Entwurf, Abschluss mit RPE/Notizen/Zusammenfassung, letzte Gewichte & Bestleistungen | Training im Studio-Szenario durchspielen, Seite zwischendurch neu laden, teilweise abschließen, doppelt speichern → nur ein Eintrag |
@@ -174,7 +174,11 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 
 1. Nutzer: In Cloudflare `VITE_SUPABASE_URL` als Basis-URL (ohne `/rest/v1/`) prüfen; Login am Handy testen.
 2. Optional: In Supabase unter Authentication → URL Configuration die Site URL auf die Cloudflare-Adresse setzen.
-3. Schritt 2.4 Übungsbibliothek.
+3. Schritt 2.4 Übungsbibliothek in Teilschritten:
+   - **2.4a** ✅ umgesetzt: Datenmodell (`src/data/exercises/`), Wertelisten mit deutschen Bezeichnungen, Zod-Schema, Tests, 63 Übungen (28 HYROX, 15 Warm-up, 11 Mobility, 9 Cool-down/Regeneration). Review durch den Nutzer offen.
+   - **2.4b**: Kraft (Unterkörper, Push, Pull, Core, Explosiv/Ganzkörper) und Ausdauer, damit die Bibliothek 200+ Übungen enthält.
+   - **2.4c**: Migration 0002 (`exercises`) + `sync_exercise_library()` + Abgleich nach dem Login.
+   - **2.4d**: Bibliotheksseite mit Suche, Filter und Detailansicht.
 
 **Prüfergebnis Supabase (20.10.2026):** Migration lokal = remote. `profiles` und `training_goals` mit aktivem RLS und je 3 Policies (select/insert/update, `to authenticated`, `auth.uid() = user_id`). `anon` hat keine Tabellenrechte, Lesen/Schreiben ohne Login liefert HTTP 401. Registrierung deaktiviert (Signup liefert `signup_disabled`), anonyme Anmeldung aus, 1 bestätigtes Konto vorhanden.
 
@@ -221,6 +225,10 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 | 20.10.2026 | Abmelden nur auf dem aktuellen Gerät (`scope: 'local'`); beim Abmelden wird der Query-Cache geleert | Laptop bleibt angemeldet, wenn man sich am Handy abmeldet; keine fremden Daten im Cache |
 | 20.10.2026 | Tabellenrechte explizit: `anon` hat keinen Zugriff, `authenticated` nur `select/insert/update` (kein `delete`) auf Profil und Ziele, zusätzlich RLS mit `auth.uid()` | Doppelte Absicherung, unabhängig von Supabase-Standardrechten |
 | 20.10.2026 | `supabase/config.toml` (nur lokale Supabase-Umgebung): Registrierung aus, Mindestlänge Passwort 12 | Gleiche Regeln wie im Cloud-Projekt, das im Dashboard konfiguriert wird |
+| 20.10.2026 | Übungsbibliothek: `vocabulary.ts` (Wertelisten + deutsche Bezeichnungen), `schema.ts` (Zod, strikt, Typen daraus abgeleitet), eine Datei je Bereich, `index.ts` mit `LIBRARY_VERSION` und Pflegeanleitung | Alles an einer Stelle, Tippfehler werden durch Tests sofort gefunden |
+| 20.10.2026 | Übungen haben `trainingTypes` (Liste statt Einzelwert); neue Trainingstypen `stability`, `coordination`; neue Bewegungsmuster `jump`, `mobility`; neue Messarten `weight_distance` (z. B. Sled Push) und `weight_time` (z. B. Farmers Hold) | Viele Übungen dienen mehreren Zielen (z. B. Kraft und Muskelaufbau); HYROX-Stationen brauchen Gewicht × Strecke |
+| 20.10.2026 | `hyroxStation` nur bei echten Stationsübungen und direkten Varianten; Kombinationen und Vorbereitungsübungen ohne Station | Die Stationsabdeckung im Generator soll nur echtes Stationstraining zählen |
+| 20.10.2026 | Übungsnamen auf Deutsch; etablierte Fachbegriffe (Sled Push, Wall Balls, Burpee …) bleiben englisch | So, wie sie im Studio und bei HYROX genannt werden |
 
 ---
 

@@ -87,14 +87,14 @@ Check: Summe > 0. Der Generator normalisiert die Werte, die Summe muss also nich
 | name | text | deutsch |
 | description | text | |
 | category | text | `hyrox`, `strength`, `endurance`, `mobility`, `warmup`, `cooldown`, `recovery` |
-| training_type | text | `strength`, `hypertrophy`, `power`, `conditioning`, `endurance`, `mobility`, `skill` |
-| movement_pattern | text | `squat`, `hinge`, `lunge`, `push_horizontal`, `push_vertical`, `pull_horizontal`, `pull_vertical`, `carry`, `core`, `locomotion`, `full_body`, `isolation` |
+| training_types | text[] | mind. 1 aus `strength`, `hypertrophy`, `power`, `conditioning`, `endurance`, `mobility`, `stability`, `coordination`, `skill` |
+| movement_pattern | text | `squat`, `hinge`, `lunge`, `push_horizontal`, `push_vertical`, `pull_horizontal`, `pull_vertical`, `carry`, `core`, `locomotion`, `jump`, `full_body`, `isolation`, `mobility` |
 | primary_muscles | text[] | Werte aus der Muskelgruppen-Liste im Code |
 | secondary_muscles | text[] | |
 | equipment | text[] | leer = Körpergewicht |
 | difficulty | smallint | 1–3 |
-| measurement | text | `weight_reps`, `reps`, `time`, `distance`, `distance_time`, `calories` |
-| load_params | jsonb | Standardvorgaben je Zielsetzung (Sätze, Wdh.-Bereich, Distanz, Dauer, Pause), Schema in `src/data/exercises/schema.ts` |
+| measurement | text | `weight_reps`, `reps`, `weight_distance`, `weight_time`, `distance`, `distance_time`, `time`, `calories` |
+| load_params | jsonb | Geeignete Bereiche [min, max] für Sätze, Wdh., Distanz, Dauer, Kalorien, Pause; Pflichtfeld je Messart; Schema in `src/data/exercises/schema.ts` |
 | instructions | text[] | Ausführungshinweise |
 | alternative_slugs | text[] | geeignete Alternativen |
 | hyrox_station | text null | `skierg`, `sled_push`, `sled_pull`, `burpee_broad_jump`, `row`, `farmers_carry`, `sandbag_lunges`, `wall_balls`, `run` |
