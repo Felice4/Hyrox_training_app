@@ -72,6 +72,7 @@ describe('totalMinutes', () => {
     const item = (estimatedSec: number) => ({
       exerciseSlug: 'x',
       exerciseName: 'X',
+      role: 'accessory' as const,
       sets: [],
       estimatedSec,
     })

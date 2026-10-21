@@ -14,7 +14,7 @@
 |---|---|
 | **Aktuelle Phase** | Phase 2 – Schritt 2.6 Trainingsgenerator |
 | **Letzter verifizierter Meilenstein** | Schritt 2.5 – Onboarding & Profilseite, Migration 0003 (vom Nutzer getestet) |
-| **Nächster Schritt** | 2.6b Generator-Kern (Pool, Vorlagen, Auswahl, Dosierung, Zeitanpassung, Erklärung, Austausch) |
+| **Nächster Schritt** | 2.6c Generator-Seite (Eingaben, Vorschau, Neu erzeugen, Austausch) |
 | **Blocker** | keine |
 | **Git** | Commits und Pushes nur auf ausdrückliche Anweisung des Nutzers. Stand auf GitHub: `587d7d7`. |
 
@@ -180,8 +180,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 
 1. Optional: In Supabase unter Authentication → URL Configuration die Site URL auf die Cloudflare-Adresse setzen.
 2. Schritt 2.6 Trainingsgenerator in Teilschritten:
-   - **2.6a** ✅ Grundlagen in `src/domain/`: Typen (`generator/types.ts`), alle Stellschrauben (`generator/config.ts`), Zufallsgenerator mit Seed (`random.ts`), Tagesform (`readiness/`), Trainingsbelastung sRPE akut/chronisch (`load/trainingLoad.ts`), Muskelermüdung (`load/muscleFatigue.ts`), Zeitschätzung (`duration/estimate.ts`). 49 Tests.
-   - **2.6b**: Generator-Kern mit Pflichttests aus SPEC §15 (Dauer, Geräte, Ermüdung, Alternativen, Determinismus).
+   - **2.6a** ✅ Grundlagen in `src/domain/`: Typen (`generator/types.ts`), alle Stellschrauben (`generator/config.ts`), Zufallsgenerator mit Seed (`random.ts`), Tagesform (`readiness/`), Trainingsbelastung sRPE akut/chronisch (`load/trainingLoad.ts`), Muskelermüdung (`load/muscleFatigue.ts`), Zeitschätzung (`duration/estimate.ts`). 49 Tests. Commit `4ca67df`.
+   - **2.6b** ✅ Generator-Kern: Vorlagen je Schwerpunkt mit Rollen und Zirkeln, Bewertung/Auswahl per Seed, Dosierung inkl. Gewichtsvorschlag (doppelte Progression), Zeitanpassung mit Rücksetzen und Stellknöpfen, Erklärung, Übungsaustausch (`suggestAlternatives`, `swapExercise`), Zod-Schema für das Ergebnis, Schnittstelle `WorkoutGenerator`. Pflichttests 1–4 aus SPEC §15 + Determinismus u. a. (39 Tests). Belastungstest mit 24 000 Workouts: 0 Abweichungen über ±10 %. Details: `docs/GENERATOR.md` §5a.
    - **2.6c**: Generator-Seite (Eingaben, Vorschau, Neu erzeugen, Austausch).
 3. Erledigt – Schritt 2.5 Onboarding & Profil:
    - **2.5a** ✅ Code fertig: Migration 0003 (`body_measurements`, `personal_records`, `profiles.hyrox_best_time_sec`, `save_profile()`), Wertelisten (`src/domain/profile/vocabulary.ts`), 8 Bestleistungs-Vorlagen (`src/domain/records/presets.ts`), Zod-Schema mit Altersprüfung, Standardwerte, Umwandlung für `save_profile`, Zeit-Hilfen (`4:05` ⇄ Sekunden), Tests. Migration eingespielt, `save_profile` in zurückgerollter Transaktion getestet. Commit `8886d97`.
@@ -254,6 +254,9 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 | 21.10.2026 | Onboarding-Entwurf in localStorage (je Nutzer), wird nach erfolgreichem Speichern gelöscht | Kein Datenverlust bei Neuladen oder App-Wechsel während der Einrichtung |
 | 21.10.2026 | Körpergewicht im Onboarding Pflicht, auf der Profilseite optional (nur bei Eingabe neuer Messwert) | Startwert für Statistiken; später kein Zwang zum erneuten Eintragen |
 | 21.10.2026 | Profilseite als eine lange Seite mit Karten statt Schritten; Speichern-Leiste klebt über der Bottom-Navigation | Gezieltes Ändern einzelner Angaben ohne Durchklicken |
+| 21.10.2026 | Generator: Rollen je Übung, Zirkel-Blöcke mit Runden, Zeitanpassung über Sätze/Übungen + Stellknöpfe (Grundlage, Einfahren 5–12 min, Ausfahren), intern ±8 % | Zuverlässig ±10 % in allen Kombinationen, ohne das Warm-up als Zeitpuffer zu missbrauchen |
+| 21.10.2026 | Gewünschte HYROX-Stationen werden verbindlich eingeplant (sofern möglich) | Ein ausdrücklicher Wunsch soll nicht vom Zufall abhängen |
+| 21.10.2026 | Gewichtsvorschläge nur aus eigener Leistung: +5 kg (Langhantel Unterkörper) bzw. kleinste Stufe, max. +5 %, Halten bei RPE > 8, −7,5 % nach zweimal deutlich verfehltem Ziel, −10 % bei sehr niedriger Tagesform | Konservativ und nachvollziehbar laut Spezifikation |
 | 21.10.2026 | Profildetails ohne automatisches Neuladen (`staleTime: Infinity`), nach dem Speichern gezielt neu geladen; Formular wird dann mit den gespeicherten Werten neu aufgebaut | Ungespeicherte Eingaben werden nie durch einen Hintergrund-Abgleich überschrieben |
 
 ---

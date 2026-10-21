@@ -111,6 +111,28 @@ export interface WorkoutRequestInput {
 
 export type BlockType = 'warmup' | 'main' | 'accessory' | 'conditioning' | 'cooldown'
 
+/**
+ * Rolle einer Übung im Workout – bestimmt Dosierung und passende Austauschübungen.
+ * Bleibt beim Austausch erhalten.
+ */
+export const SLOT_ROLES = [
+  'warmup_cardio',
+  'warmup_drill',
+  'strength_main',
+  'hypertrophy',
+  'accessory',
+  'core',
+  'run',
+  'station',
+  'conditioning',
+  'interval',
+  'steady',
+  'mobility',
+  'cooldown_cardio',
+  'stretch',
+] as const
+export type SlotRole = (typeof SLOT_ROLES)[number]
+
 export interface PlannedSet {
   type: SetType
   reps?: number | undefined
@@ -124,6 +146,7 @@ export interface PlannedSet {
 export interface WorkoutItem {
   exerciseSlug: string
   exerciseName: string
+  role: SlotRole
   sets: PlannedSet[]
   /** Hinweis zur Progression, z. B. „letztes Mal 3 × 8 mit RPE 7 → +2,5 kg" */
   note?: string | undefined
@@ -134,6 +157,11 @@ export interface WorkoutItem {
 export interface WorkoutBlock {
   type: BlockType
   items: WorkoutItem[]
+  /**
+   * Zirkel: Die Übungen werden im Wechsel absolviert, Runde für Runde.
+   * Jede Übung hat dann genau so viele Sätze wie Runden.
+   */
+  rounds?: number | undefined
 }
 
 export interface GeneratedWorkout {

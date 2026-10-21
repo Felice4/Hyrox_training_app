@@ -79,6 +79,8 @@ export const DURATION = {
     crawl: 2,
     default: 1,
   },
-  /** Erlaubte Abweichung von der Zieldauer */
+  /** Erlaubte Abweichung von der Zieldauer (Zusage an den Nutzer) */
   tolerance: 0.1,
+  /** Intern angestrebte Abweichung – etwas enger, damit auch gerundete Minuten passen */
+  fitTolerance: 0.08,
 }

@@ -228,6 +228,26 @@ Bearbeitung in der UI: Tag verschieben, Einheit ersetzen (neu erzeugen mit gleic
 
 ---
 
+## 5a. Umsetzung (Schritt 2.6) – Ergänzungen zur Planung
+
+Code: `src/domain/generator/` (`generateWorkout.ts`, `templates.ts`, `scoring.ts`, `dosing.ts`, `pool.ts`, `alternatives.ts`, `schema.ts`, `config.ts`), dazu `domain/readiness`, `domain/load`, `domain/duration`, `domain/progression`.
+
+| Thema | Umsetzung |
+|---|---|
+| **Rollen** | Jede Übung im Workout hat eine Rolle (`strength_main`, `hypertrophy`, `station`, `steady` …). Sie bestimmt Dosierung und Pausen und bleibt beim Austausch erhalten. |
+| **Pausen** | Hauptübung Kraft: oberes Ende der Übungs-Pausenspanne; Ergänzung/Rumpf: unteres Ende; sonst Mitte. |
+| **Zirkel** | HYROX-Hauptteil und Mixed-Finisher als Block mit `rounds`: alle Übungen haben so viele Sätze wie Runden, Pause nur nach der letzten Übung einer Runde, 30 s Wechselzeit je Station und Runde. Stationsumfang im Zirkel geringer (z. B. 500 m SkiErg statt 650 m). |
+| **Zeitanpassung** | Intern ±8 % (damit auch gerundete Minuten ±10 % einhalten). Reihenfolge: kürzen (Zusatz-Sätze → optionale Übungen → Runden → Hauptsätze) bzw. verlängern (Sätze → Runde → Zusatzübungen aus der Vorlage; jeder Schritt wird zurückgenommen, wenn er die Obergrenze überschreitet). Danach Feinabstimmung über „Stellknöpfe": Dauer/Strecke der Grundlageneinheit, Einfahren (5–12 min) und Ausfahren (2–10 min). Warm-up/Cool-down sind kein Ersatz für Training und werden nur zur Feinabstimmung verlängert. |
+| **Zusatzübungen** | Nur Kandidaten, die in die verbleibende Zeit passen; keine Übung darf allein mehr als 60 % der Zeit belegen. Bei langer Ausdauer/Regeneration kann eine zweite Grundlageneinheit mit anderem Gerät dazukommen. |
+| **Stationswunsch** | Ausdrücklich gewünschte HYROX-Stationen werden verbindlich eingeplant, sofern eine passende Übung verfügbar ist (statt nur +5 Punkte). |
+| **Ermüdung** | Stark ermüdete Muskeln werden in belastenden Rollen ausgeschlossen, in lockeren Rollen (Einfahren, Grundlage, Mobility, Dehnen) nur abgewertet. |
+| **Erklärung** | Beginnt mit einem Satz zum Aufbau des Schwerpunkts, endet mit geschätzter Dauer und Intensität. |
+| **Noch nicht umgesetzt** | Tempo-Progression für Lauf/Rudern/SkiErg (folgt, sobald Trainingsdaten gespeichert werden, Schritt 2.7+); Wochenplan (Schritt 3.1). |
+
+**Prüfung der Dauer:** Ein Belastungstest mit 24 000 Workouts (6 Schwerpunkte × 5 Dauern × 100 Seeds × 8 Szenarien: Standard, Anfänger, Erfahren, Heim-Studio, ohne HYROX-Geräte, nach Beintag, müde, Knieproblem) ergab 0 Abweichungen über ±10 % (21.10.2026). Der reguläre Test prüft 6 × 4 × 12 Kombinationen.
+
+---
+
 ## 6. Tests (Vitest)
 
 Pflichttests laut Spezifikation §15 und ihre Umsetzung:
