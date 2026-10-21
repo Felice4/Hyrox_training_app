@@ -14,7 +14,7 @@
 |---|---|
 | **Aktuelle Phase** | Phase 2 – Schritt 2.6 Trainingsgenerator |
 | **Letzter verifizierter Meilenstein** | Schritt 2.5 – Onboarding & Profilseite, Migration 0003 (vom Nutzer getestet) |
-| **Nächster Schritt** | 2.6a Domänentypen, Belastung, Ermüdung, Tagesform, Zeitschätzung |
+| **Nächster Schritt** | 2.6b Generator-Kern (Pool, Vorlagen, Auswahl, Dosierung, Zeitanpassung, Erklärung, Austausch) |
 | **Blocker** | keine |
 | **Git** | Commits und Pushes nur auf ausdrückliche Anweisung des Nutzers. Stand auf GitHub: `587d7d7`. |
 
@@ -179,7 +179,11 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 ## 9. Nächste Aufgaben
 
 1. Optional: In Supabase unter Authentication → URL Configuration die Site URL auf die Cloudflare-Adresse setzen.
-2. Schritt 2.5 Onboarding & Profil in Teilschritten:
+2. Schritt 2.6 Trainingsgenerator in Teilschritten:
+   - **2.6a** ✅ Grundlagen in `src/domain/`: Typen (`generator/types.ts`), alle Stellschrauben (`generator/config.ts`), Zufallsgenerator mit Seed (`random.ts`), Tagesform (`readiness/`), Trainingsbelastung sRPE akut/chronisch (`load/trainingLoad.ts`), Muskelermüdung (`load/muscleFatigue.ts`), Zeitschätzung (`duration/estimate.ts`). 49 Tests.
+   - **2.6b**: Generator-Kern mit Pflichttests aus SPEC §15 (Dauer, Geräte, Ermüdung, Alternativen, Determinismus).
+   - **2.6c**: Generator-Seite (Eingaben, Vorschau, Neu erzeugen, Austausch).
+3. Erledigt – Schritt 2.5 Onboarding & Profil:
    - **2.5a** ✅ Code fertig: Migration 0003 (`body_measurements`, `personal_records`, `profiles.hyrox_best_time_sec`, `save_profile()`), Wertelisten (`src/domain/profile/vocabulary.ts`), 8 Bestleistungs-Vorlagen (`src/domain/records/presets.ts`), Zod-Schema mit Altersprüfung, Standardwerte, Umwandlung für `save_profile`, Zeit-Hilfen (`4:05` ⇄ Sekunden), Tests. Migration eingespielt, `save_profile` in zurückgerollter Transaktion getestet. Commit `8886d97`.
    - **2.5b** ✅ umgesetzt: Onboarding `/onboarding` in 5 Schritten (Über dich, Hintergrund inkl. Bestleistungen, Ziele, Trainingsbedingungen, Vorlieben). Prüfung je Schritt, Entwurf wird lokal gesichert, Speichern über `save_profile`. `RequireOnboarding` leitet alle Hauptbereiche zum Onboarding, solange es offen ist. Neue UI-Bausteine: ChoiceChips, OptionCards, Stepper, RangeField, TextArea. Begrüßung im Dashboard mit Namen. Commit `69dbec4`, vom Nutzer getestet und gepusht.
    - **2.5c** ✅ umgesetzt: Profilseite `/profile` (über „Mehr") mit allen Abschnitten des Onboardings auf einer Seite. Speichern nur bei Änderungen, „Verwerfen", Warnung beim Verlassen mit ungespeicherten Änderungen. Gewicht/Körperfett leer mit Hinweis auf den letzten Wert; eine Eingabe legt einen neuen Messwert für heute an. Daten werden parallel geladen (`fetchProfileDetails`) und nicht automatisch überschrieben, solange man bearbeitet. Commit `058512a`, vom Nutzer getestet.
