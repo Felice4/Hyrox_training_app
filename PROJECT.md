@@ -14,7 +14,7 @@
 |---|---|
 | **Aktuelle Phase** | Phase 2 – Schritt 2.6 Trainingsgenerator |
 | **Letzter verifizierter Meilenstein** | Schritt 2.5 – Onboarding & Profilseite, Migration 0003 (vom Nutzer getestet) |
-| **Nächster Schritt** | 2.6c Generator-Seite (Eingaben, Vorschau, Neu erzeugen, Austausch) |
+| **Nächster Schritt** | Nutzer testet Generator-Seite → Schritt 2.7 Trainingsmodus & Speichern |
 | **Blocker** | keine |
 | **Git** | Commits und Pushes nur auf ausdrückliche Anweisung des Nutzers. Stand auf GitHub: `587d7d7`. |
 
@@ -165,6 +165,7 @@ Behoben:
 - 20.10.2026: `VITE_SUPABASE_URL` war mit `/rest/v1/` eingetragen, deshalb schlugen alle Anfragen mit `PGRST125` fehl. `.env.local` ist korrigiert. `src/lib/env.ts` lehnt URLs mit Pfad jetzt mit klarer Meldung ab.
 
 Offene Kleinigkeiten:
+- **Für Schritt 2.7 merken:** Der Generator erhält derzeit einen leeren Trainingsverlauf (`NO_HISTORY_YET` in `GeneratorPage.tsx`). Mit gespeicherten Trainings den Verlauf der letzten 28 Tage laden und übergeben – erst dann wirken Ermüdung, Abwechslung, Belastung und Gewichtsvorschläge.
 - **Für Schritt 2.7 merken:** Die Profilseite zeigt bei den Bestleistungen nur manuelle Einträge. Sobald Trainings Rekorde speichern, sollte sie Rekorde aus Trainings als Info anzeigen (nur lesbar), damit ein leeres Feld nicht so wirkt, als gäbe es keinen Rekord.
 - `npm install` warnt vor einem veralteten `glob@11` (kommt über `vite-plugin-pwa` → `workbox-build`, nur Entwicklungswerkzeug, nicht in der App). Verschwindet mit einem Update von workbox.
 - Der Service Worker speichert alle Zeichensätze der Schrift Inter vor (Precache gesamt ca. 950 KB). Das wird in Schritt 4.2 optimiert.
@@ -181,8 +182,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 1. Optional: In Supabase unter Authentication → URL Configuration die Site URL auf die Cloudflare-Adresse setzen.
 2. Schritt 2.6 Trainingsgenerator in Teilschritten:
    - **2.6a** ✅ Grundlagen in `src/domain/`: Typen (`generator/types.ts`), alle Stellschrauben (`generator/config.ts`), Zufallsgenerator mit Seed (`random.ts`), Tagesform (`readiness/`), Trainingsbelastung sRPE akut/chronisch (`load/trainingLoad.ts`), Muskelermüdung (`load/muscleFatigue.ts`), Zeitschätzung (`duration/estimate.ts`). 49 Tests. Commit `4ca67df`.
-   - **2.6b** ✅ Generator-Kern: Vorlagen je Schwerpunkt mit Rollen und Zirkeln, Bewertung/Auswahl per Seed, Dosierung inkl. Gewichtsvorschlag (doppelte Progression), Zeitanpassung mit Rücksetzen und Stellknöpfen, Erklärung, Übungsaustausch (`suggestAlternatives`, `swapExercise`), Zod-Schema für das Ergebnis, Schnittstelle `WorkoutGenerator`. Pflichttests 1–4 aus SPEC §15 + Determinismus u. a. (39 Tests). Belastungstest mit 24 000 Workouts: 0 Abweichungen über ±10 %. Details: `docs/GENERATOR.md` §5a.
-   - **2.6c**: Generator-Seite (Eingaben, Vorschau, Neu erzeugen, Austausch).
+   - **2.6b** ✅ Generator-Kern: Vorlagen je Schwerpunkt mit Rollen und Zirkeln, Bewertung/Auswahl per Seed, Dosierung inkl. Gewichtsvorschlag (doppelte Progression), Zeitanpassung mit Rücksetzen und Stellknöpfen, Erklärung, Übungsaustausch (`suggestAlternatives`, `swapExercise`), Zod-Schema für das Ergebnis, Schnittstelle `WorkoutGenerator`. Pflichttests 1–4 aus SPEC §15 + Determinismus u. a. (39 Tests). Belastungstest mit 24 000 Workouts: 0 Abweichungen über ±10 %. Details: `docs/GENERATOR.md` §5a. Commit `ef8c233`.
+   - **2.6c** ✅ umgesetzt: Generator-Seite `/training`: Formular (Schwerpunkt, Dauer, Intensität, Tagesform; optional Muskelgruppen, HYROX-Stationen, heute fehlende Geräte), Vorschau nach Blöcken mit Zirkel-Runden, Sätzen, Gewicht, Pausen und Progressionshinweisen, „Warum dieses Training?", Recovery-Hinweis, „Neu erzeugen", „Anpassen", Austausch je Übung. Workout wird lokal gesichert. „Training starten" bis 2.7 deaktiviert. Verlauf ist bis 2.7 leer (keine gespeicherten Trainings).
 3. Erledigt – Schritt 2.5 Onboarding & Profil:
    - **2.5a** ✅ Code fertig: Migration 0003 (`body_measurements`, `personal_records`, `profiles.hyrox_best_time_sec`, `save_profile()`), Wertelisten (`src/domain/profile/vocabulary.ts`), 8 Bestleistungs-Vorlagen (`src/domain/records/presets.ts`), Zod-Schema mit Altersprüfung, Standardwerte, Umwandlung für `save_profile`, Zeit-Hilfen (`4:05` ⇄ Sekunden), Tests. Migration eingespielt, `save_profile` in zurückgerollter Transaktion getestet. Commit `8886d97`.
    - **2.5b** ✅ umgesetzt: Onboarding `/onboarding` in 5 Schritten (Über dich, Hintergrund inkl. Bestleistungen, Ziele, Trainingsbedingungen, Vorlieben). Prüfung je Schritt, Entwurf wird lokal gesichert, Speichern über `save_profile`. `RequireOnboarding` leitet alle Hauptbereiche zum Onboarding, solange es offen ist. Neue UI-Bausteine: ChoiceChips, OptionCards, Stepper, RangeField, TextArea. Begrüßung im Dashboard mit Namen. Commit `69dbec4`, vom Nutzer getestet und gepusht.

@@ -24,7 +24,9 @@ import { useExerciseCatalog } from './useExerciseCatalog'
 function getBackTarget(state: unknown): string {
   if (typeof state === 'object' && state !== null && 'backTo' in state) {
     const backTo = state.backTo
-    if (typeof backTo === 'string' && backTo.startsWith('/exercises')) return backTo
+    if (typeof backTo === 'string' && (backTo.startsWith('/exercises') || backTo === '/training')) {
+      return backTo
+    }
   }
   return '/exercises'
 }
@@ -41,7 +43,7 @@ export function ExerciseDetailPage() {
       className="-ml-2 mb-4 inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-sm text-fg-muted hover:text-fg"
     >
       <ChevronLeftIcon width={18} height={18} />
-      Übungen
+      {backTo === '/training' ? 'Training' : 'Übungen'}
     </Link>
   )
 
