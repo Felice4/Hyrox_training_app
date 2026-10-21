@@ -14,7 +14,7 @@
 |---|---|
 | **Aktuelle Phase** | Phase 2 – Schritt 2.7 Trainingsmodus & Speichern |
 | **Letzter verifizierter Meilenstein** | Schritt 2.6 – Trainingsgenerator mit Generator-Seite (vom Nutzer getestet) |
-| **Nächster Schritt** | Schritt 2.7 Trainingsmodus & Speichern |
+| **Nächster Schritt** | 2.7b Oberfläche des Trainingsmodus |
 | **Blocker** | keine |
 | **Git** | Commits und Pushes nur auf ausdrückliche Anweisung des Nutzers. Stand auf GitHub: `587d7d7`. |
 
@@ -181,7 +181,11 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 ## 9. Nächste Aufgaben
 
 1. Optional: In Supabase unter Authentication → URL Configuration die Site URL auf die Cloudflare-Adresse setzen.
-2. Schritt 2.6 Trainingsgenerator in Teilschritten:
+2. Schritt 2.7 Trainingsmodus & Speichern in Teilschritten:
+   - **2.7a** ✅ Migration 0004 (`workout_sessions`, `session_exercises`, `session_sets`, FK für `personal_records.session_id`) + `save_workout_session()` (idempotent, in zurückgerollter Transaktion getestet). Trainingsablauf als reine Funktionen (`src/domain/session/`): Start aus generiertem Workout, Reihenfolge inkl. Zirkel, Abhaken mit Übernahme der Vorgabe, Pausentimer per Zeitstempel, Sätze hinzufügen/entfernen, Überspringen, Tauschen (nur unbegonnene Übungen), Pausieren, Beenden, Auswertung. Rekorderkennung (`src/domain/records/detect.ts`), Speicher-Nutzlast. 30 neue Tests.
+   - **2.7b**: Oberfläche des Trainingsmodus.
+   - **2.7c**: Abschluss, Speichern, Verlauf für den Generator, „Letztes Mal".
+3. Erledigt – Schritt 2.6 Trainingsgenerator:
    - **2.6a** ✅ Grundlagen in `src/domain/`: Typen (`generator/types.ts`), alle Stellschrauben (`generator/config.ts`), Zufallsgenerator mit Seed (`random.ts`), Tagesform (`readiness/`), Trainingsbelastung sRPE akut/chronisch (`load/trainingLoad.ts`), Muskelermüdung (`load/muscleFatigue.ts`), Zeitschätzung (`duration/estimate.ts`). 49 Tests. Commit `4ca67df`.
    - **2.6b** ✅ Generator-Kern: Vorlagen je Schwerpunkt mit Rollen und Zirkeln, Bewertung/Auswahl per Seed, Dosierung inkl. Gewichtsvorschlag (doppelte Progression), Zeitanpassung mit Rücksetzen und Stellknöpfen, Erklärung, Übungsaustausch (`suggestAlternatives`, `swapExercise`), Zod-Schema für das Ergebnis, Schnittstelle `WorkoutGenerator`. Pflichttests 1–4 aus SPEC §15 + Determinismus u. a. (39 Tests). Belastungstest mit 24 000 Workouts: 0 Abweichungen über ±10 %. Details: `docs/GENERATOR.md` §5a. Commit `ef8c233`.
    - **2.6c** ✅ umgesetzt: Generator-Seite `/training`: Formular (Schwerpunkt, Dauer, Intensität, Tagesform; optional Muskelgruppen, HYROX-Stationen, heute fehlende Geräte), Vorschau nach Blöcken mit Zirkel-Runden, Sätzen, Gewicht, Pausen und Progressionshinweisen, „Warum dieses Training?", Recovery-Hinweis, „Neu erzeugen", „Anpassen", Austausch je Übung. Workout wird lokal gesichert. „Training starten" bis 2.7 deaktiviert. Verlauf ist bis 2.7 leer (keine gespeicherten Trainings). Commit `a180b7b`, vom Nutzer getestet.
@@ -259,6 +263,10 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 | 21.10.2026 | Generator: Rollen je Übung, Zirkel-Blöcke mit Runden, Zeitanpassung über Sätze/Übungen + Stellknöpfe (Grundlage, Einfahren 5–12 min, Ausfahren), intern ±8 % | Zuverlässig ±10 % in allen Kombinationen, ohne das Warm-up als Zeitpuffer zu missbrauchen |
 | 21.10.2026 | Gewünschte HYROX-Stationen werden verbindlich eingeplant (sofern möglich) | Ein ausdrücklicher Wunsch soll nicht vom Zufall abhängen |
 | 21.10.2026 | Gewichtsvorschläge nur aus eigener Leistung: +5 kg (Langhantel Unterkörper) bzw. kleinste Stufe, max. +5 %, Halten bei RPE > 8, −7,5 % nach zweimal deutlich verfehltem Ziel, −10 % bei sehr niedriger Tagesform | Konservativ und nachvollziehbar laut Spezifikation |
+| 21.10.2026 | Laufendes Training als reine Zustandsfunktionen (`domain/session`) mit übergebener Zeit und ID-Erzeugung; Timer über Zeitstempel | Vollständig testbar; Timer stimmen auch nach Hintergrund/Neuladen |
+| 21.10.2026 | Abhaken ohne Eingabe übernimmt die Vorgabe („wie geplant geschafft") | Am Handy im Studio schnell: nur Abweichungen müssen eingetippt werden |
+| 21.10.2026 | Übungen nur austauschbar, solange kein Satz abgehakt ist | Eine gespeicherte Übung bleibt eindeutig einer Übung zugeordnet |
+| 21.10.2026 | Rekorde entscheidet die Datenbank („nur wenn besser"); die App liefert je Bedingung die beste Leistung des Trainings | Idempotent und unabhängig davon, was die App gerade im Cache hat |
 | 21.10.2026 | Profildetails ohne automatisches Neuladen (`staleTime: Infinity`), nach dem Speichern gezielt neu geladen; Formular wird dann mit den gespeicherten Werten neu aufgebaut | Ungespeicherte Eingaben werden nie durch einen Hintergrund-Abgleich überschrieben |
 
 ---

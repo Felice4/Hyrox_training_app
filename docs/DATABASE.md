@@ -183,6 +183,7 @@ Check: mindestens ein Messwert gesetzt. Höchstens ein Eintrag pro Tag (unique `
 | position | smallint | Reihenfolge |
 | block | text | `warmup`, `main`, `accessory`, `conditioning`, `cooldown` |
 | status | text | `completed`, `partial`, `skipped` |
+| role | text null | Rolle im Workout (z. B. `strength_main`, `station`), siehe Generator |
 | replaced_exercise_id | uuid null | ursprünglich geplante Übung, falls ausgetauscht |
 | notes | text null | |
 
@@ -193,7 +194,7 @@ Check: mindestens ein Messwert gesetzt. Höchstens ein Eintrag pro Tag (unique `
 | session_exercise_id | uuid | FK `on delete cascade` |
 | set_number | smallint | |
 | set_type | text | `warmup`, `working`, `interval`, `round` |
-| target_reps, target_weight_kg, target_distance_m, target_duration_sec | null erlaubt | Vorgabe |
+| target_reps, target_weight_kg, target_distance_m, target_duration_sec, target_calories | null erlaubt | Vorgabe |
 | reps, weight_kg, distance_m, duration_sec, calories | null erlaubt | tatsächlich absolviert |
 | rpe | numeric(3,1) null | optional pro Satz |
 | completed | boolean | |
@@ -215,7 +216,7 @@ Check-Constraints für plausible Wertebereiche (z. B. `weight_kg between 0 and 5
 | session_id | uuid null | FK, `null` bei manueller Eingabe (Onboarding) |
 | source | text | `session`, `manual` |
 
-Unique (`user_id`, `exercise_id`, `record_type`, `context_key`): pro Bedingung gibt es nur den aktuellen Bestwert. Löschen ist nur für `source = 'manual'` erlaubt (RLS). Manuelle Eingaben überschreiben nie einen Rekord aus einem Training. `session_id` erhält den Fremdschlüssel mit Migration 0004. Die Historie der Leistungsentwicklung entsteht aus `session_sets`, nicht aus dieser Tabelle. **Vergleichbarkeit:** Rekorde gelten nur unter gleichen Bedingungen (gleiche Distanz, gleiche Wiederholungszahl).
+Unique (`user_id`, `exercise_id`, `record_type`, `context_key`): pro Bedingung gibt es nur den aktuellen Bestwert. Erkennung aus Trainings (`src/domain/records/detect.ts`): Gewicht × Wdh. → geschätztes 1RM (Epley, bis 12 Wdh.) und Maximalgewicht für 1/3/5/8/10/12 Wdh.; Wiederholungen → max. Wiederholungen; Gewicht × Strecke → Maximalgewicht je Strecke; Strecke + Zeit → Bestzeit je Strecke. Warm-up, Cool-down und Aufwärmsätze zählen nicht. Löschen ist nur für `source = 'manual'` erlaubt (RLS). Manuelle Eingaben überschreiben nie einen Rekord aus einem Training. `session_id` erhält den Fremdschlüssel mit Migration 0004. Die Historie der Leistungsentwicklung entsteht aus `session_sets`, nicht aus dieser Tabelle. **Vergleichbarkeit:** Rekorde gelten nur unter gleichen Bedingungen (gleiche Distanz, gleiche Wiederholungszahl).
 
 ---
 
@@ -243,7 +244,7 @@ Die Datenbank prüft bei `exercises` nur die Grundstruktur (Slug-Format, Pflicht
 
 | Funktion | Zweck |
 |---|---|
-| `save_workout_session(p jsonb)` | Speichert Session, Übungen, Sätze und Rekorde atomar. Idempotent über Client-IDs: Upsert; Kind-Datensätze, die im Payload fehlen, werden entfernt. Setzt den zugehörigen `planned_workout` auf `completed`. |
+| `save_workout_session(p jsonb)` | Speichert Session, Übungen, Sätze und Rekorde atomar. Idempotent über Client-IDs: Upsert; Kind-Datensätze, die im Payload fehlen, werden entfernt. Rekorde nur, wenn besser (Zeiten niedriger, sonst höher); liefert die neuen Rekorde zurück. Ab Migration 0005 zusätzlich: zugehörigen `planned_workout` auf `completed` setzen. Am 21.10.2026 in zurückgerollter Transaktion getestet (Erstspeichern, Doppelspeichern ohne Dubletten, Entfernen, bessere/schlechtere Rekorde). |
 | `sync_exercise_library(p_version int, p_exercises jsonb)` | siehe §4 |
 | `replace_week_plan(p_week_start date, p_workouts jsonb)` | Ersetzt nur zukünftige, noch geplante Einheiten einer Woche |
 | `save_profile(p jsonb)` | Speichert Profil, Ziele, Körperwert des Tages, Übungspräferenzen und manuelle Bestleistungen in einer Transaktion; für Onboarding und Profilseite. Setzt `onboarding_completed_at` beim ersten Mal. |
