@@ -14,7 +14,7 @@
 |---|---|
 | **Aktuelle Phase** | Phase 2 – Schritt 2.5 Onboarding & Profil |
 | **Letzter verifizierter Meilenstein** | Schritt 2.4 – Übungsbibliothek mit 211 Übungen, Datenbank-Abgleich, Bibliotheksseite (vom Nutzer lokal und am Handy getestet) |
-| **Nächster Schritt** | 2.5a Datenmodell für Profil, Körperwerte und Bestleistungen |
+| **Nächster Schritt** | Migration 0003 einspielen (Supabase-CLI hängt derzeit) → 2.5b Onboarding-Oberfläche |
 | **Blocker** | keine |
 | **Git** | Commits und Pushes nur auf ausdrückliche Anweisung des Nutzers. Stand auf GitHub: `587d7d7`. |
 
@@ -155,7 +155,10 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 
 ## 8. Bekannte Bugs und Einschränkungen
 
-*Keine offenen Bugs.*
+*Keine offenen Bugs in der App.*
+
+Offen (Werkzeuge):
+- 21.10.2026: Supabase-CLI hängt bei „Initialising login role…“. Die Verbindung zum Pooler `aws-1-eu-central-1.pooler.supabase.com` läuft in einen Timeout, obwohl die Ports 5432/6543 per TCP erreichbar sind und das Projekt `ACTIVE_HEALTHY` ist. Betrifft `db push` und `db query`, nicht die App. Workaround: `npx supabase db push --linked -p <DB-Passwort>` oder später erneut versuchen.
 
 Behoben:
 - 20.10.2026: `VITE_SUPABASE_URL` war mit `/rest/v1/` eingetragen, deshalb schlugen alle Anfragen mit `PGRST125` fehl. `.env.local` ist korrigiert. `src/lib/env.ts` lehnt URLs mit Pfad jetzt mit klarer Meldung ab.
@@ -175,7 +178,7 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 
 1. Optional: In Supabase unter Authentication → URL Configuration die Site URL auf die Cloudflare-Adresse setzen.
 2. Schritt 2.5 Onboarding & Profil in Teilschritten:
-   - **2.5a**: Migration 0003 (`body_measurements`, `personal_records`, Profil-Ergänzung) + `save_profile()`, Wertelisten, Zod-Schema, Umwandlung, Tests.
+   - **2.5a** ✅ Code fertig: Migration 0003 (`body_measurements`, `personal_records`, `profiles.hyrox_best_time_sec`, `save_profile()`), Wertelisten (`src/domain/profile/vocabulary.ts`), 8 Bestleistungs-Vorlagen (`src/domain/records/presets.ts`), Zod-Schema mit Altersprüfung, Standardwerte, Umwandlung für `save_profile`, Zeit-Hilfen (`4:05` ⇄ Sekunden), Tests. **Migration noch nicht eingespielt.**
    - **2.5b**: Mehrstufiges Onboarding + Weiterleitung, solange das Onboarding offen ist.
    - **2.5c**: Profilseite zum Bearbeiten aller Angaben.
 3. Erledigt – Schritt 2.4 Übungsbibliothek:

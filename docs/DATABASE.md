@@ -63,6 +63,7 @@ Spalten `id`, `user_id`, `created_at`, `updated_at` sind überall vorhanden, wen
 | available_equipment | text[] | Werte aus der Equipment-Liste im Code |
 | limitation_regions | text[] | z. B. `knee`, `shoulder`, `lower_back` → Generator meidet belastende Übungen |
 | limitation_notes | text null | Freitext, nur zur Info |
+| hyrox_best_time_sec | integer null | bisherige HYROX-Bestzeit (1800–14400 s), ergänzt in Migration 0003 |
 | onboarding_completed_at | timestamptz null | `null` → Onboarding anzeigen |
 
 Körpergewicht steht **nicht** hier, sondern in `body_measurements` (Verlauf). Das aktuelle Gewicht ist der jüngste Eintrag.
@@ -115,7 +116,7 @@ Muskelgruppen, Equipment und andere Wertelisten werden im Code als Konstanten ge
 | waist_cm, chest_cm, arm_cm, thigh_cm | numeric(5,1) null | optional |
 | notes | text null | |
 
-Check: mindestens ein Messwert gesetzt. Statistiken zeigen nur tatsächlich erfasste Werte.
+Check: mindestens ein Messwert gesetzt. Höchstens ein Eintrag pro Tag (unique `user_id`, `measured_on`); erneutes Speichern am selben Tag aktualisiert ihn. Statistiken zeigen nur tatsächlich erfasste Werte.
 
 ### 3.5 `readiness_checkins`
 
@@ -214,7 +215,7 @@ Check-Constraints für plausible Wertebereiche (z. B. `weight_kg between 0 and 5
 | session_id | uuid null | FK, `null` bei manueller Eingabe (Onboarding) |
 | source | text | `session`, `manual` |
 
-Unique (`user_id`, `exercise_id`, `record_type`, `context_key`): pro Bedingung gibt es nur den aktuellen Bestwert. Die Historie der Leistungsentwicklung entsteht aus `session_sets`, nicht aus dieser Tabelle. **Vergleichbarkeit:** Rekorde gelten nur unter gleichen Bedingungen (gleiche Distanz, gleiche Wiederholungszahl).
+Unique (`user_id`, `exercise_id`, `record_type`, `context_key`): pro Bedingung gibt es nur den aktuellen Bestwert. Löschen ist nur für `source = 'manual'` erlaubt (RLS). Manuelle Eingaben überschreiben nie einen Rekord aus einem Training. `session_id` erhält den Fremdschlüssel mit Migration 0004. Die Historie der Leistungsentwicklung entsteht aus `session_sets`, nicht aus dieser Tabelle. **Vergleichbarkeit:** Rekorde gelten nur unter gleichen Bedingungen (gleiche Distanz, gleiche Wiederholungszahl).
 
 ---
 
@@ -245,7 +246,7 @@ Die Datenbank prüft bei `exercises` nur die Grundstruktur (Slug-Format, Pflicht
 | `save_workout_session(p jsonb)` | Speichert Session, Übungen, Sätze und Rekorde atomar. Idempotent über Client-IDs: Upsert; Kind-Datensätze, die im Payload fehlen, werden entfernt. Setzt den zugehörigen `planned_workout` auf `completed`. |
 | `sync_exercise_library(p_version int, p_exercises jsonb)` | siehe §4 |
 | `replace_week_plan(p_week_start date, p_workouts jsonb)` | Ersetzt nur zukünftige, noch geplante Einheiten einer Woche |
-| `complete_onboarding(p jsonb)` | Speichert Profil, Ziele, erste Körperwerte und manuelle Bestleistungen in einem Schritt |
+| `save_profile(p jsonb)` | Speichert Profil, Ziele, Körperwert des Tages, Übungspräferenzen und manuelle Bestleistungen in einer Transaktion; für Onboarding und Profilseite. Setzt `onboarding_completed_at` beim ersten Mal. |
 
 Die fachliche Berechnung (z. B. welche Werte ein neuer Rekord sind) erfolgt in `src/domain/` und ist dort getestet. Die SQL-Funktionen speichern nur und sichern die Konsistenz.
 
@@ -271,7 +272,7 @@ Dateinamen folgen der Supabase-CLI: `supabase/migrations/<Zeitstempel>_<name>.sq
 |---|---|---|
 | 0001 | Basis: `set_updated_at()`, `profiles`, `training_goals`, RLS | 2.3 |
 | 0002 | `exercises`, `sync_exercise_library()` | 2.4 |
-| 0003 | `body_measurements`, `personal_records`, `complete_onboarding()` | 2.5 |
+| 0003 | `body_measurements`, `personal_records`, `profiles.hyrox_best_time_sec`, `save_profile()` | 2.5 |
 | 0004 | `workout_sessions`, `session_exercises`, `session_sets`, `save_workout_session()` | 2.7 |
 | 0005 | `week_plans`, `planned_workouts`, `replace_week_plan()` | 3.1 |
 | 0006 | `readiness_checkins` | 3.5 |
