@@ -11,6 +11,7 @@ import { RequireOnboarding } from '@/features/onboarding/RequireOnboarding'
 import { MorePage } from '@/features/more/MorePage'
 import { ProfilePage } from '@/features/profile/ProfilePage'
 import { StatsPage } from '@/features/progress/StatsPage'
+import { TrainingPage } from '@/features/training/TrainingPage'
 import { AppShell } from './layout/AppShell'
 import { RouteErrorPage } from './RouteErrorPage'
 
@@ -29,6 +30,8 @@ export const router = createBrowserRouter([
       {
         element: <RequireOnboarding />,
         children: [
+          // Trainingsmodus im Vollbild ohne Bottom-Navigation
+          { path: '/training/active', element: <TrainingPage /> },
           {
             path: '/',
             element: <AppShell />,

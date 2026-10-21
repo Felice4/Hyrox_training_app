@@ -14,7 +14,7 @@
 |---|---|
 | **Aktuelle Phase** | Phase 2 – Schritt 2.7 Trainingsmodus & Speichern |
 | **Letzter verifizierter Meilenstein** | Schritt 2.6 – Trainingsgenerator mit Generator-Seite (vom Nutzer getestet) |
-| **Nächster Schritt** | 2.7b Oberfläche des Trainingsmodus |
+| **Nächster Schritt** | Nutzer testet Trainingsmodus → 2.7c Verlauf für Generator, „Letztes Mal", Rekorde im Profil |
 | **Blocker** | keine |
 | **Git** | Commits und Pushes nur auf ausdrückliche Anweisung des Nutzers. Stand auf GitHub: `587d7d7`. |
 
@@ -182,9 +182,9 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 
 1. Optional: In Supabase unter Authentication → URL Configuration die Site URL auf die Cloudflare-Adresse setzen.
 2. Schritt 2.7 Trainingsmodus & Speichern in Teilschritten:
-   - **2.7a** ✅ Migration 0004 (`workout_sessions`, `session_exercises`, `session_sets`, FK für `personal_records.session_id`) + `save_workout_session()` (idempotent, in zurückgerollter Transaktion getestet). Trainingsablauf als reine Funktionen (`src/domain/session/`): Start aus generiertem Workout, Reihenfolge inkl. Zirkel, Abhaken mit Übernahme der Vorgabe, Pausentimer per Zeitstempel, Sätze hinzufügen/entfernen, Überspringen, Tauschen (nur unbegonnene Übungen), Pausieren, Beenden, Auswertung. Rekorderkennung (`src/domain/records/detect.ts`), Speicher-Nutzlast. 30 neue Tests.
-   - **2.7b**: Oberfläche des Trainingsmodus.
-   - **2.7c**: Abschluss, Speichern, Verlauf für den Generator, „Letztes Mal".
+   - **2.7a** ✅ Migration 0004 (`workout_sessions`, `session_exercises`, `session_sets`, FK für `personal_records.session_id`) + `save_workout_session()` (idempotent, in zurückgerollter Transaktion getestet). Trainingsablauf als reine Funktionen (`src/domain/session/`): Start aus generiertem Workout, Reihenfolge inkl. Zirkel, Abhaken mit Übernahme der Vorgabe, Pausentimer per Zeitstempel, Sätze hinzufügen/entfernen, Überspringen, Tauschen (nur unbegonnene Übungen), Pausieren, Beenden, Auswertung. Rekorderkennung (`src/domain/records/detect.ts`), Speicher-Nutzlast. 30 neue Tests. Commit `e4fae64`.
+   - **2.7b** ✅ umgesetzt: Trainingsmodus `/training/active` (Vollbild): Trainingszeit, Pause/Fortsetzen, Fortschritt, aktueller Satz mit Ziel, Progressionshinweis und Anleitung, große Zahlenfelder mit ± (Gewichtsstufe je Gerät), Zeitfeld m:ss, Arbeitstimer (Countdown bzw. Stoppuhr, Zeit wird eingetragen), optionale Satz-RPE, „Satz geschafft" übernimmt die Vorgabe, Satzpause mit ±15 s, Vibration am Ende, Bildschirm bleibt an (Wake Lock), Vorschau „Als Nächstes", Übersicht aller Sätze zum Springen, + Satz, Tauschen (nur unbegonnene Übungen), Überspringen. Abschluss: Zusammenfassung, Gesamt-RPE, Notizen, Speichern (idempotent, 2 automatische Wiederholungen), „Doch weiter trainieren", Bestätigung mit neuen Bestleistungen. Start aus der Generator-Vorschau, Hinweis „Laufendes Training fortsetzen". Alles lokal gesichert bis zum erfolgreichen Speichern.
+   - **2.7c**: Verlauf aus gespeicherten Trainings für den Generator (Ermüdung, Abwechslung, Gewichtsvorschläge), „Letztes Mal" im Trainingsmodus, Rekorde aus Trainings auf der Profilseite.
 3. Erledigt – Schritt 2.6 Trainingsgenerator:
    - **2.6a** ✅ Grundlagen in `src/domain/`: Typen (`generator/types.ts`), alle Stellschrauben (`generator/config.ts`), Zufallsgenerator mit Seed (`random.ts`), Tagesform (`readiness/`), Trainingsbelastung sRPE akut/chronisch (`load/trainingLoad.ts`), Muskelermüdung (`load/muscleFatigue.ts`), Zeitschätzung (`duration/estimate.ts`). 49 Tests. Commit `4ca67df`.
    - **2.6b** ✅ Generator-Kern: Vorlagen je Schwerpunkt mit Rollen und Zirkeln, Bewertung/Auswahl per Seed, Dosierung inkl. Gewichtsvorschlag (doppelte Progression), Zeitanpassung mit Rücksetzen und Stellknöpfen, Erklärung, Übungsaustausch (`suggestAlternatives`, `swapExercise`), Zod-Schema für das Ergebnis, Schnittstelle `WorkoutGenerator`. Pflichttests 1–4 aus SPEC §15 + Determinismus u. a. (39 Tests). Belastungstest mit 24 000 Workouts: 0 Abweichungen über ±10 %. Details: `docs/GENERATOR.md` §5a. Commit `ef8c233`.
@@ -267,6 +267,9 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 | 21.10.2026 | Abhaken ohne Eingabe übernimmt die Vorgabe („wie geplant geschafft") | Am Handy im Studio schnell: nur Abweichungen müssen eingetippt werden |
 | 21.10.2026 | Übungen nur austauschbar, solange kein Satz abgehakt ist | Eine gespeicherte Übung bleibt eindeutig einer Übung zugeordnet |
 | 21.10.2026 | Rekorde entscheidet die Datenbank („nur wenn besser"); die App liefert je Bedingung die beste Leistung des Trainings | Idempotent und unabhängig davon, was die App gerade im Cache hat |
+| 21.10.2026 | Abschluss und Speichern bereits in 2.7b (statt 2.7c) | Ein vollständiges Training ist damit direkt testbar |
+| 21.10.2026 | Trainingsmodus als eigene Vollbild-Route außerhalb des App-Rahmens; laufendes Training in localStorage bis zum erfolgreichen Speichern | Kein Datenverlust; Navigation lenkt im Studio nicht ab |
+| 21.10.2026 | Zahlenfelder zeigen die Vorgabe als Platzhalter; ± startet bei der Vorgabe; Gewichtsschritt je Gerät (Langhantel 2,5 / Kurzhantel 1 / Kettlebell 2 kg) | Schnelle Bedienung mit einer Hand |
 | 21.10.2026 | Profildetails ohne automatisches Neuladen (`staleTime: Infinity`), nach dem Speichern gezielt neu geladen; Formular wird dann mit den gespeicherten Werten neu aufgebaut | Ungespeicherte Eingaben werden nie durch einen Hintergrund-Abgleich überschrieben |
 
 ---

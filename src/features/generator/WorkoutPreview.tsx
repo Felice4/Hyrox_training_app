@@ -16,6 +16,7 @@ interface WorkoutPreviewProps {
   /** Liefert Austauschvorschläge für eine Übung */
   alternativesFor: (exerciseSlug: string) => ExerciseSuggestion[]
   onSwap: (blockIndex: number, itemIndex: number, suggestion: ExerciseSuggestion) => void
+  onStart: () => void
 }
 
 export function WorkoutPreview({
@@ -25,6 +26,7 @@ export function WorkoutPreview({
   onSwitchToRecovery,
   alternativesFor,
   onSwap,
+  onStart,
 }: WorkoutPreviewProps) {
   const [showWhy, setShowWhy] = useState(false)
   const [swapping, setSwapping] = useState<string | null>(null)
@@ -115,12 +117,9 @@ export function WorkoutPreview({
       })}
 
       <div className="flex flex-col gap-3">
-        <Button disabled fullWidth className="min-h-14 text-lg">
+        <Button fullWidth className="min-h-14 text-lg" onClick={onStart}>
           Training starten
         </Button>
-        <p className="-mt-1 text-center text-xs text-fg-muted">
-          Der Trainingsmodus folgt im nächsten Schritt (2.7).
-        </p>
         <div className="flex gap-3">
           <Button variant="secondary" fullWidth onClick={onRegenerate}>
             <RefreshIcon width={20} height={20} />

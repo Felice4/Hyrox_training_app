@@ -16,6 +16,11 @@ import {
   goToSet,
   isEverythingDone,
   pauseSession,
+  reopenSession,
+  startWorkTimer,
+  stopWorkTimer,
+  workTimerRemaining,
+  cancelWorkTimer,
   removeSet,
   reopenSet,
   replaceExercise,
@@ -26,6 +31,7 @@ import {
   setActual,
   skipExercise,
   skipRest,
+  summarizeSession,
   upcomingStep,
 } from './session'
 import type { ActiveSession } from './types'
@@ -296,7 +302,104 @@ describe('Pausen und Zeit', () => {
   })
 })
 
+describe('Arbeitstimer', () => {
+  /** Session mit einem 45-s-Plank und einem 1-km-Lauf */
+  function timed(): ActiveSession {
+    const base = start()
+    return {
+      ...base,
+      exercises: [
+        {
+          ...ex(base, 'pull-up'),
+          id: 'plank',
+          exerciseSlug: 'plank',
+          measurement: 'time',
+          sets: [
+            {
+              id: 'p1',
+              setNumber: 1,
+              type: 'working',
+              target: { durationSec: 45, restSec: 30 },
+              actual: {},
+              completed: false,
+            },
+          ],
+        },
+        {
+          ...ex(base, 'hyrox-run'),
+          id: 'run',
+          inCircuit: false,
+          sets: [
+            {
+              id: 'r1',
+              setNumber: 1,
+              type: 'interval',
+              target: { distanceM: 1000, restSec: 0 },
+              actual: {},
+              completed: false,
+            },
+          ],
+        },
+      ],
+    }
+  }
+
+  it('zählt bei Zeitvorgaben herunter und trägt die gearbeitete Zeit ein', () => {
+    let s = startWorkTimer(timed(), 'plank', 'p1', at(0))
+    expect(s.workTimer?.mode).toBe('countdown')
+    expect(workTimerRemaining(s, at(30))).toBe(15)
+    s = stopWorkTimer(s, at(60))
+    expect(s.exercises[0]?.sets[0]?.actual.durationSec).toBe(45)
+    expect(s.workTimer).toBeUndefined()
+  })
+
+  it('misst bei Strecken die Zeit als Stoppuhr und übernimmt sie beim Abhaken', () => {
+    let s = startWorkTimer(timed(), 'run', 'r1', at(0))
+    expect(s.workTimer?.mode).toBe('stopwatch')
+    s = completeSet(s, 'run', 'r1', at(287))
+    expect(s.exercises[1]?.sets[0]?.actual).toEqual({ distanceM: 1000, durationSec: 287 })
+  })
+
+  it('friert den Timer während einer Trainingspause ein', () => {
+    let s = startWorkTimer(timed(), 'plank', 'p1', at(0))
+    s = pauseSession(s, at(10))
+    s = resumeSession(s, at(100))
+    expect(workTimerRemaining(s, at(105))).toBe(30)
+  })
+
+  it('kann abgebrochen werden, ohne etwas einzutragen', () => {
+    const s = cancelWorkTimer(startWorkTimer(timed(), 'plank', 'p1', at(0)))
+    expect(s.workTimer).toBeUndefined()
+    expect(s.exercises[0]?.sets[0]?.actual).toEqual({})
+  })
+})
+
+describe('Beenden zurücknehmen', () => {
+  it('setzt das Training fort und zählt die Zwischenzeit als Pause', () => {
+    let s = finishSession(start(), at(600))
+    s = reopenSession(s, at(900))
+    expect(s.finishedAt).toBeUndefined()
+    expect(activeSeconds(s, at(1000))).toBe(700)
+  })
+})
+
 describe('Auswertung', () => {
+  it('fasst das Training zusammen (Volumen nur aus Arbeitssätzen)', () => {
+    let s = start()
+    for (let i = 0; i < 5; i++) s = completeCurrent(s, i * 120)
+    s = finishSession(s, at(1800))
+    expect(summarizeSession(s, at(9999))).toEqual({
+      activeMinutes: 30,
+      completedSets: 5,
+      totalSets: 8,
+      completedExercises: 2,
+      partialExercises: 1,
+      skippedExercises: 1,
+      volumeKg: 1000,
+      distanceM: 1000,
+    })
+  })
+
   it('unterscheidet vollständig und teilweise absolvierte Trainings', () => {
     let s = start()
     expect(sessionOutcome(s)).toBe('partial')

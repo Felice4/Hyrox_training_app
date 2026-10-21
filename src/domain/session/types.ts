@@ -45,6 +45,19 @@ export interface RestTimer {
   durationSec: number
 }
 
+/**
+ * Arbeitstimer für einen Satz: Countdown bei Zeitvorgaben (z. B. 45 s Plank),
+ * Stoppuhr bei Strecken (z. B. 1 km Lauf – die Zeit wird gemessen).
+ */
+export interface WorkTimer {
+  exerciseId: string
+  setId: string
+  mode: 'countdown' | 'stopwatch'
+  startedAt: string
+  /** Nur beim Countdown */
+  durationSec?: number | undefined
+}
+
 /** Ein laufendes Training. Wird bei jeder Änderung lokal gesichert. */
 export interface ActiveSession {
   id: string
@@ -57,6 +70,7 @@ export interface ActiveSession {
   pausedSince?: string | undefined
   pausedSec: number
   rest?: RestTimer | undefined
+  workTimer?: WorkTimer | undefined
   finishedAt?: string | undefined
 }
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router'
 import { DumbbellIcon } from '@/components/icons'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -14,6 +15,13 @@ import {
 } from '@/domain/generator'
 import { useAuth } from '@/features/auth/authContext'
 import { useExerciseCatalog } from '@/features/exercises/useExerciseCatalog'
+import { createSession } from '@/domain/session/session'
+import { storageKeys } from '@/features/training/storage'
+import {
+  readActiveSession,
+  useActiveSessionKey,
+  writeActiveSession,
+} from '@/features/training/useActiveSession'
 import { useProfileDetails } from '@/features/profile/useProfile'
 import { clearDraft, loadDraft, saveDraft } from '@/lib/localDraft'
 import { GeneratorForm } from './GeneratorForm'
@@ -71,7 +79,12 @@ function Generator({
   exercises: CatalogExercise[]
 }) {
   const auth = useAuth()
-  const storageKey = `hyrox-coach:generated-workout:${auth.status === 'signedIn' ? auth.session.user.id : 'unbekannt'}`
+  const navigate = useNavigate()
+  const storageKey = storageKeys.generatedWorkout(
+    auth.status === 'signedIn' ? auth.session.user.id : 'unbekannt',
+  )
+  const activeKey = useActiveSessionKey()
+  const [hasActive] = useState(() => readActiveSession(activeKey) !== null)
   const profile = toGeneratorProfile(details)
   const goals = toGoalWeights(details)
 
@@ -107,44 +120,80 @@ function Generator({
     window.scrollTo({ top: 0 })
   }
 
+  function startTraining(workout: StoredWorkout['workout']) {
+    if (
+      readActiveSession(activeKey) &&
+      !window.confirm('Es läuft bereits ein Training. Dieses verwerfen und neu starten?')
+    ) {
+      return
+    }
+    const measurementOf = (slug: string) =>
+      exercises.find((e) => e.slug === slug)?.measurement ?? 'reps'
+    const session = createSession(
+      workout,
+      new Date().toISOString(),
+      () => crypto.randomUUID(),
+      measurementOf,
+    )
+    writeActiveSession(activeKey, session)
+    void navigate('/training/active')
+  }
+
+  const activeBanner = hasActive && (
+    <Link
+      to="/training/active"
+      className="mb-4 flex min-h-14 items-center justify-between rounded-xl border border-accent/40 bg-accent/10 px-4 font-semibold"
+    >
+      Laufendes Training fortsetzen
+      <span aria-hidden="true">→</span>
+    </Link>
+  )
+
   if (editing || !stored) {
     return (
-      <GeneratorForm
-        initial={stored?.request ?? defaultRequest}
-        profileEquipment={profile.availableEquipment}
-        onSubmit={generate}
-      />
+      <>
+        {activeBanner}
+        <GeneratorForm
+          initial={stored?.request ?? defaultRequest}
+          profileEquipment={profile.availableEquipment}
+          onSubmit={generate}
+        />
+      </>
     )
   }
 
   const slugsInWorkout = stored.workout.blocks.flatMap((b) => b.items.map((i) => i.exerciseSlug))
 
   return (
-    <WorkoutPreview
-      workout={stored.workout}
-      onRegenerate={() => generate(stored.request)}
-      onEdit={() => setEditing(true)}
-      onSwitchToRecovery={() =>
-        generate({ ...stored.request, focus: 'recovery', intensity: 'easy' })
-      }
-      alternativesFor={(slug) =>
-        ruleBasedGenerator.suggestAlternatives({
-          exerciseSlug: slug,
-          exercises,
-          profile,
-          unavailableEquipment: stored.request.unavailableEquipment,
-          excludeSlugs: slugsInWorkout,
-        })
-      }
-      onSwap={(blockIndex, itemIndex, suggestion) =>
-        setStored({
-          ...stored,
-          workout: swapExercise(stored.workout, blockIndex, itemIndex, suggestion.exercise, {
-            level: profile.trainingLevel,
-            history: NO_HISTORY_YET,
-          }),
-        })
-      }
-    />
+    <>
+      {activeBanner}
+      <WorkoutPreview
+        workout={stored.workout}
+        onStart={() => startTraining(stored.workout)}
+        onRegenerate={() => generate(stored.request)}
+        onEdit={() => setEditing(true)}
+        onSwitchToRecovery={() =>
+          generate({ ...stored.request, focus: 'recovery', intensity: 'easy' })
+        }
+        alternativesFor={(slug) =>
+          ruleBasedGenerator.suggestAlternatives({
+            exerciseSlug: slug,
+            exercises,
+            profile,
+            unavailableEquipment: stored.request.unavailableEquipment,
+            excludeSlugs: slugsInWorkout,
+          })
+        }
+        onSwap={(blockIndex, itemIndex, suggestion) =>
+          setStored({
+            ...stored,
+            workout: swapExercise(stored.workout, blockIndex, itemIndex, suggestion.exercise, {
+              level: profile.trainingLevel,
+              history: NO_HISTORY_YET,
+            }),
+          })
+        }
+      />
+    </>
   )
 }

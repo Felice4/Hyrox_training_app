@@ -1,6 +1,6 @@
 import type { Measurement } from '@/data/exercises/vocabulary'
 import type { GeneratedWorkout, PlannedSet } from '@/domain/generator/types'
-import type { ActiveExercise, ActiveSession, ActiveSet, SetValues, Step } from './types'
+import type { ActiveExercise, ActiveSession, ActiveSet, SetValues, Step, WorkTimer } from './types'
 
 /**
  * Trainingsablauf als reine Funktionen: jede Aktion liefert eine neue Session.
@@ -200,6 +200,8 @@ export function completeSet(
   setId: string,
   now: string,
 ): ActiveSession {
+  // Läuft der Timer dieses Satzes noch, wird er gestoppt und die Zeit übernommen
+  if (session.workTimer?.setId === setId) session = stopWorkTimer(session, now)
   const exercise = session.exercises.find((e) => e.id === exerciseId)
   const set = exercise?.sets.find((s) => s.id === setId)
   if (!exercise || !set || set.completed) return session
@@ -355,7 +357,7 @@ export function pauseSession(session: ActiveSession, now: string): ActiveSession
   return session.pausedSince || session.finishedAt ? session : { ...session, pausedSince: now }
 }
 
-/** Setzt fort; ein laufender Pausentimer wird um die Unterbrechung verschoben. */
+/** Setzt fort; laufende Timer werden um die Unterbrechung verschoben. */
 export function resumeSession(session: ActiveSession, now: string): ActiveSession {
   if (!session.pausedSince) return session
   const paused = seconds(session.pausedSince, now)
@@ -366,7 +368,68 @@ export function resumeSession(session: ActiveSession, now: string): ActiveSessio
     rest: session.rest
       ? { ...session.rest, startedAt: addSeconds(session.rest.startedAt, paused) }
       : undefined,
+    workTimer: session.workTimer
+      ? { ...session.workTimer, startedAt: addSeconds(session.workTimer.startedAt, paused) }
+      : undefined,
   }
+}
+
+// -----------------------------------------------------------------------------
+// Arbeitstimer (Countdown für Zeitvorgaben, Stoppuhr für Strecken)
+// -----------------------------------------------------------------------------
+
+/** Startet den Arbeitstimer für einen Satz; eine laufende Satzpause endet damit. */
+export function startWorkTimer(
+  session: ActiveSession,
+  exerciseId: string,
+  setId: string,
+  now: string,
+): ActiveSession {
+  const set = session.exercises.find((e) => e.id === exerciseId)?.sets.find((s) => s.id === setId)
+  if (!set || set.completed) return session
+  const durationSec = set.actual.durationSec ?? set.target.durationSec
+  const hasDistance = (set.actual.distanceM ?? set.target.distanceM) !== undefined
+  const timer: WorkTimer =
+    durationSec !== undefined && !hasDistance
+      ? { exerciseId, setId, mode: 'countdown', startedAt: now, durationSec }
+      : { exerciseId, setId, mode: 'stopwatch', startedAt: now }
+  return { ...session, workTimer: timer, rest: undefined }
+}
+
+/** Vergangene Sekunden des Arbeitstimers (eingefroren während einer Trainingspause). */
+export function workTimerElapsed(session: ActiveSession, now: string): number {
+  if (!session.workTimer) return 0
+  return Math.floor(seconds(session.workTimer.startedAt, session.pausedSince ?? now))
+}
+
+/** Verbleibende Sekunden beim Countdown (0 = abgelaufen). */
+export function workTimerRemaining(session: ActiveSession, now: string): number {
+  const timer = session.workTimer
+  if (!timer || timer.mode !== 'countdown' || timer.durationSec === undefined) return 0
+  return Math.max(0, timer.durationSec - workTimerElapsed(session, now))
+}
+
+/**
+ * Stoppt den Arbeitstimer. Stoppuhr: gemessene Zeit wird als tatsächliche Dauer eingetragen.
+ * Countdown: tatsächlich gearbeitete Zeit, höchstens die Vorgabe.
+ */
+export function stopWorkTimer(session: ActiveSession, now: string): ActiveSession {
+  const timer = session.workTimer
+  if (!timer) return session
+  const elapsed = workTimerElapsed(session, now)
+  const measured =
+    timer.mode === 'countdown' && timer.durationSec !== undefined
+      ? Math.min(elapsed, timer.durationSec)
+      : elapsed
+  const next = { ...session, workTimer: undefined }
+  return measured > 0
+    ? setActual(next, timer.exerciseId, timer.setId, { durationSec: measured })
+    : next
+}
+
+/** Bricht den Arbeitstimer ab, ohne etwas einzutragen. */
+export function cancelWorkTimer(session: ActiveSession): ActiveSession {
+  return { ...session, workTimer: undefined }
 }
 
 /** Verbleibende Pausenzeit in Sekunden (0 = vorbei oder keine Pause). */
@@ -398,7 +461,18 @@ export function activeSeconds(session: ActiveSession, now: string): number {
 
 export function finishSession(session: ActiveSession, now: string): ActiveSession {
   const resumed = resumeSession(session, now)
-  return { ...resumed, finishedAt: now, rest: undefined }
+  return { ...resumed, finishedAt: now, rest: undefined, workTimer: undefined }
+}
+
+/** Nimmt das Beenden zurück (solange noch nicht gespeichert). */
+export function reopenSession(session: ActiveSession, now: string): ActiveSession {
+  if (!session.finishedAt) return session
+  // Die Zeit zwischen Beenden und Fortsetzen zählt als Pause
+  return {
+    ...session,
+    finishedAt: undefined,
+    pausedSec: session.pausedSec + seconds(session.finishedAt, now),
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -436,4 +510,40 @@ export function sessionProgress(session: ActiveSession): SessionProgress {
 
 export function isEverythingDone(session: ActiveSession): boolean {
   return nextPending(session, buildSteps(session.exercises), 0) === -1
+}
+
+export interface SessionSummary {
+  activeMinutes: number
+  completedSets: number
+  totalSets: number
+  completedExercises: number
+  partialExercises: number
+  skippedExercises: number
+  /** Σ Gewicht × Wiederholungen der abgehakten Arbeitssätze (kg) */
+  volumeKg: number
+  /** Σ gelaufene/geruderte/gezogene Meter der abgehakten Sätze */
+  distanceM: number
+}
+
+/** Kennzahlen für die Zusammenfassung nach dem Training. */
+export function summarizeSession(session: ActiveSession, now: string): SessionSummary {
+  const outcomes = session.exercises.map(exerciseOutcome)
+  const doneSets = session.exercises.flatMap((e) =>
+    e.sets.filter((s) => s.completed && s.type !== 'warmup'),
+  )
+  return {
+    activeMinutes: Math.round(activeSeconds(session, now) / 60),
+    completedSets: session.exercises.reduce(
+      (n, e) => n + e.sets.filter((s) => s.completed).length,
+      0,
+    ),
+    totalSets: session.exercises.reduce((n, e) => n + e.sets.length, 0),
+    completedExercises: outcomes.filter((o) => o === 'completed').length,
+    partialExercises: outcomes.filter((o) => o === 'partial').length,
+    skippedExercises: outcomes.filter((o) => o === 'skipped').length,
+    volumeKg: Math.round(
+      doneSets.reduce((sum, s) => sum + (s.actual.weightKg ?? 0) * (s.actual.reps ?? 0), 0),
+    ),
+    distanceM: Math.round(doneSets.reduce((sum, s) => sum + (s.actual.distanceM ?? 0), 0)),
+  }
 }
