@@ -12,9 +12,9 @@
 
 | | |
 |---|---|
-| **Aktuelle Phase** | Phase 2 – Schritt 2.5 Onboarding & Profil |
-| **Letzter verifizierter Meilenstein** | Schritt 2.4 – Übungsbibliothek mit 211 Übungen, Datenbank-Abgleich, Bibliotheksseite (vom Nutzer lokal und am Handy getestet) |
-| **Nächster Schritt** | Nutzer testet Profilseite → Schritt 2.6 Trainingsgenerator |
+| **Aktuelle Phase** | Phase 2 – Schritt 2.6 Trainingsgenerator |
+| **Letzter verifizierter Meilenstein** | Schritt 2.5 – Onboarding & Profilseite, Migration 0003 (vom Nutzer getestet) |
+| **Nächster Schritt** | 2.6a Domänentypen, Belastung, Ermüdung, Tagesform, Zeitschätzung |
 | **Blocker** | keine |
 | **Git** | Commits und Pushes nur auf ausdrückliche Anweisung des Nutzers. Stand auf GitHub: `587d7d7`. |
 
@@ -97,7 +97,7 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 |---|---|---|
 | Setup 1–4 | Werkzeuge, Git, Dokumentation, GitHub | ✅ erledigt |
 | Phase 1 | Planung: Architektur, DB-Schema, Ordnerstruktur, Generator-Algorithmus, Roadmap | ✅ abgenommen |
-| Phase 2 | Funktionsfähige Basisversion | 🔄 in Arbeit (2.1–2.4 erledigt) |
+| Phase 2 | Funktionsfähige Basisversion | 🔄 in Arbeit (2.1–2.5 erledigt) |
 | Phase 3 | Erweiterung | offen |
 | Phase 4 | Fertigstellung | offen |
 
@@ -109,7 +109,7 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | **2.2 Deployment & PWA-Grundlage** ✅ | Cloudflare Pages mit GitHub verbinden (Auto-Deploy von `main`), Manifest + Icons, App installierbar | HTTPS-Adresse am Handy öffnen, „Zum Startbildschirm hinzufügen", App startet im Vollbild |
 | **2.3 Supabase & Login** ✅ | Projekt anlegen (Anleitung), Registrierung aus, Konto manuell anlegen, `.env.local`, Migration 0001 (`profiles`, `training_goals`, RLS), Login/Logout, Routenschutz | Login mit richtigem/falschem Passwort, Abmelden, geschützte Seiten nicht ohne Login erreichbar |
 | **2.4 Übungsbibliothek** ✅ | Datenstruktur + Zod-Schema, Wertelisten (Muskeln, Equipment), 200+ Übungen (in Teilschritten), Validierungstests, Migration 0002, Synchronisierung, Bibliotheksseite mit Suche/Filter und Detailansicht | Bibliothek durchsuchen/filtern; Übung im Code ändern → nach Neuladen in der App sichtbar |
-| **2.5 Onboarding & Profil** | Migration 0003, mehrstufiges Onboarding (Körperdaten, Hintergrund, Ziele, Bedingungen, Präferenzen, Bestleistungen), Profilseite zum Bearbeiten | Onboarding durchlaufen, Daten im Profil ändern, nach erneutem Login noch vorhanden |
+| **2.5 Onboarding & Profil** ✅ | Migration 0003, mehrstufiges Onboarding (Körperdaten, Hintergrund, Ziele, Bedingungen, Präferenzen, Bestleistungen), Profilseite zum Bearbeiten | Onboarding durchlaufen, Daten im Profil ändern, nach erneutem Login noch vorhanden |
 | **2.6 Trainingsgenerator** | `domain/generator` mit allen Pflichttests, Generator-Seite mit Eingaben, Vorschau, Erklärung, „Neu erzeugen", Übung austauschen | Verschiedene Schwerpunkte/Dauern erzeugen, Geräte abwählen, Erklärung prüfen |
 | **2.7 Trainingsmodus & Speichern** | Migration 0004 + `save_workout_session`, aktives Training (Sätze, Gewichte, Wdh., Distanz/Zeit), Pausen-/Intervalltimer, Rundenzähler, überspringen/austauschen, pausieren, lokaler Entwurf, Abschluss mit RPE/Notizen/Zusammenfassung, letzte Gewichte & Bestleistungen | Training im Studio-Szenario durchspielen, Seite zwischendurch neu laden, teilweise abschließen, doppelt speichern → nur ein Eintrag |
 | **2.8 Dashboard** | Begrüßung, Buttons, Einheiten dieser Woche, Trainingsbelastung, letzte Workouts, Fortschritte; „Nächstes Training"/„Kommende Tage" mit Leerzustand bis Phase 3 | Dashboard nach einigen Trainings prüfen |
@@ -150,6 +150,7 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | 20.10.2026 | Schritt 2.2 – PWA-Grundlage, Deployment über Cloudflare Pages, Installation am Smartphone | `587d7d7` |
 | 20.10.2026 | Schritt 2.3 – Supabase-Projekt, Migration 0001 (Profil, Ziele, RLS), Login/Logout, Routenschutz | `4813e72` |
 | 21.10.2026 | Schritt 2.4 – Übungsbibliothek: 211 Übungen im Code, Migration 0002 + Abgleich, Bibliotheksseite mit Suche/Filter/Detail | `ed087cb` … `e2e7d9d` |
+| 21.10.2026 | Schritt 2.5 – Migration 0003, Onboarding in 5 Schritten, Profilseite | `8886d97` … `058512a` |
 
 ---
 
@@ -181,7 +182,7 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 2. Schritt 2.5 Onboarding & Profil in Teilschritten:
    - **2.5a** ✅ Code fertig: Migration 0003 (`body_measurements`, `personal_records`, `profiles.hyrox_best_time_sec`, `save_profile()`), Wertelisten (`src/domain/profile/vocabulary.ts`), 8 Bestleistungs-Vorlagen (`src/domain/records/presets.ts`), Zod-Schema mit Altersprüfung, Standardwerte, Umwandlung für `save_profile`, Zeit-Hilfen (`4:05` ⇄ Sekunden), Tests. Migration eingespielt, `save_profile` in zurückgerollter Transaktion getestet. Commit `8886d97`.
    - **2.5b** ✅ umgesetzt: Onboarding `/onboarding` in 5 Schritten (Über dich, Hintergrund inkl. Bestleistungen, Ziele, Trainingsbedingungen, Vorlieben). Prüfung je Schritt, Entwurf wird lokal gesichert, Speichern über `save_profile`. `RequireOnboarding` leitet alle Hauptbereiche zum Onboarding, solange es offen ist. Neue UI-Bausteine: ChoiceChips, OptionCards, Stepper, RangeField, TextArea. Begrüßung im Dashboard mit Namen. Commit `69dbec4`, vom Nutzer getestet und gepusht.
-   - **2.5c** ✅ umgesetzt: Profilseite `/profile` (über „Mehr") mit allen Abschnitten des Onboardings auf einer Seite. Speichern nur bei Änderungen, „Verwerfen", Warnung beim Verlassen mit ungespeicherten Änderungen. Gewicht/Körperfett leer mit Hinweis auf den letzten Wert; eine Eingabe legt einen neuen Messwert für heute an. Daten werden parallel geladen (`fetchProfileDetails`) und nicht automatisch überschrieben, solange man bearbeitet.
+   - **2.5c** ✅ umgesetzt: Profilseite `/profile` (über „Mehr") mit allen Abschnitten des Onboardings auf einer Seite. Speichern nur bei Änderungen, „Verwerfen", Warnung beim Verlassen mit ungespeicherten Änderungen. Gewicht/Körperfett leer mit Hinweis auf den letzten Wert; eine Eingabe legt einen neuen Messwert für heute an. Daten werden parallel geladen (`fetchProfileDetails`) und nicht automatisch überschrieben, solange man bearbeitet. Commit `058512a`, vom Nutzer getestet.
 3. Erledigt – Schritt 2.4 Übungsbibliothek:
    - **2.4a** ✅ Datenmodell (`src/data/exercises/`), Wertelisten mit deutschen Bezeichnungen, Zod-Schema, Tests, 63 Übungen (28 HYROX, 15 Warm-up, 11 Mobility, 9 Cool-down/Regeneration). Commit `ed087cb`.
    - **2.4b** ✅ +148 Übungen → **211** (Unterkörper 33, Push 24, Pull 23, Rumpf 21, Explosiv/Ganzkörper 22, Ausdauer 25). `LIBRARY_VERSION` = 2. Tests: mind. 200 Übungen, alle Kategorien vertreten. Commit `f29f55f`.
