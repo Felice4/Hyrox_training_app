@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      body_measurements: {
+        Row: {
+          arm_cm: number | null
+          body_fat_pct: number | null
+          chest_cm: number | null
+          created_at: string
+          id: string
+          measured_on: string
+          notes: string | null
+          thigh_cm: number | null
+          updated_at: string
+          user_id: string
+          waist_cm: number | null
+          weight_kg: number | null
+        }
+        Insert: {
+          arm_cm?: number | null
+          body_fat_pct?: number | null
+          chest_cm?: number | null
+          created_at?: string
+          id?: string
+          measured_on: string
+          notes?: string | null
+          thigh_cm?: number | null
+          updated_at?: string
+          user_id?: string
+          waist_cm?: number | null
+          weight_kg?: number | null
+        }
+        Update: {
+          arm_cm?: number | null
+          body_fat_pct?: number | null
+          chest_cm?: number | null
+          created_at?: string
+          id?: string
+          measured_on?: string
+          notes?: string | null
+          thigh_cm?: number | null
+          updated_at?: string
+          user_id?: string
+          waist_cm?: number | null
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
       exercises: {
         Row: {
           alternative_slugs: string[]
@@ -95,6 +140,62 @@ export type Database = {
         }
         Relationships: []
       }
+      personal_records: {
+        Row: {
+          achieved_at: string
+          context: Json
+          context_key: string
+          created_at: string
+          exercise_id: string
+          id: string
+          record_type: string
+          session_id: string | null
+          source: string
+          unit: string
+          updated_at: string
+          user_id: string
+          value: number
+        }
+        Insert: {
+          achieved_at?: string
+          context?: Json
+          context_key?: string
+          created_at?: string
+          exercise_id: string
+          id?: string
+          record_type: string
+          session_id?: string | null
+          source: string
+          unit: string
+          updated_at?: string
+          user_id?: string
+          value: number
+        }
+        Update: {
+          achieved_at?: string
+          context?: Json
+          context_key?: string
+          created_at?: string
+          exercise_id?: string
+          id?: string
+          record_type?: string
+          session_id?: string | null
+          source?: string
+          unit?: string
+          updated_at?: string
+          user_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personal_records_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           available_equipment: string[]
@@ -105,6 +206,7 @@ export type Database = {
           endurance_experience: string | null
           fitness_notes: string | null
           height_cm: number | null
+          hyrox_best_time_sec: number | null
           hyrox_experience: string | null
           limitation_notes: string | null
           limitation_regions: string[]
@@ -126,6 +228,7 @@ export type Database = {
           endurance_experience?: string | null
           fitness_notes?: string | null
           height_cm?: number | null
+          hyrox_best_time_sec?: number | null
           hyrox_experience?: string | null
           limitation_notes?: string | null
           limitation_regions?: string[]
@@ -147,6 +250,7 @@ export type Database = {
           endurance_experience?: string | null
           fitness_notes?: string | null
           height_cm?: number | null
+          hyrox_best_time_sec?: number | null
           hyrox_experience?: string | null
           limitation_notes?: string | null
           limitation_regions?: string[]
@@ -196,6 +300,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      save_profile: { Args: { p: Json }; Returns: Json }
       sync_exercise_library: {
         Args: { p_exercises: Json; p_version: number }
         Returns: Json

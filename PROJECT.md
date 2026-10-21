@@ -14,7 +14,7 @@
 |---|---|
 | **Aktuelle Phase** | Phase 2 – Schritt 2.5 Onboarding & Profil |
 | **Letzter verifizierter Meilenstein** | Schritt 2.4 – Übungsbibliothek mit 211 Übungen, Datenbank-Abgleich, Bibliotheksseite (vom Nutzer lokal und am Handy getestet) |
-| **Nächster Schritt** | Migration 0003 einspielen (Supabase-CLI hängt derzeit) → 2.5b Onboarding-Oberfläche |
+| **Nächster Schritt** | Nutzer testet Onboarding (lokal) → 2.5c Profilseite |
 | **Blocker** | keine |
 | **Git** | Commits und Pushes nur auf ausdrückliche Anweisung des Nutzers. Stand auf GitHub: `587d7d7`. |
 
@@ -157,8 +157,8 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 
 *Keine offenen Bugs in der App.*
 
-Offen (Werkzeuge):
-- 21.10.2026: Supabase-CLI hängt bei „Initialising login role…“. Die Verbindung zum Pooler `aws-1-eu-central-1.pooler.supabase.com` läuft in einen Timeout, obwohl die Ports 5432/6543 per TCP erreichbar sind und das Projekt `ACTIVE_HEALTHY` ist. Betrifft `db push` und `db query`, nicht die App. Workaround: `npx supabase db push --linked -p <DB-Passwort>` oder später erneut versuchen.
+Hinweis (Werkzeuge):
+- Mit aktivem VPN kann die Supabase-CLI die Datenbank nicht erreichen (hängt bei „Initialising login role…“). Ohne VPN funktioniert `db push`/`db query` normal. Die App selbst ist nicht betroffen.
 
 Behoben:
 - 20.10.2026: `VITE_SUPABASE_URL` war mit `/rest/v1/` eingetragen, deshalb schlugen alle Anfragen mit `PGRST125` fehl. `.env.local` ist korrigiert. `src/lib/env.ts` lehnt URLs mit Pfad jetzt mit klarer Meldung ab.
@@ -178,8 +178,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 
 1. Optional: In Supabase unter Authentication → URL Configuration die Site URL auf die Cloudflare-Adresse setzen.
 2. Schritt 2.5 Onboarding & Profil in Teilschritten:
-   - **2.5a** ✅ Code fertig: Migration 0003 (`body_measurements`, `personal_records`, `profiles.hyrox_best_time_sec`, `save_profile()`), Wertelisten (`src/domain/profile/vocabulary.ts`), 8 Bestleistungs-Vorlagen (`src/domain/records/presets.ts`), Zod-Schema mit Altersprüfung, Standardwerte, Umwandlung für `save_profile`, Zeit-Hilfen (`4:05` ⇄ Sekunden), Tests. **Migration noch nicht eingespielt.**
-   - **2.5b**: Mehrstufiges Onboarding + Weiterleitung, solange das Onboarding offen ist.
+   - **2.5a** ✅ Code fertig: Migration 0003 (`body_measurements`, `personal_records`, `profiles.hyrox_best_time_sec`, `save_profile()`), Wertelisten (`src/domain/profile/vocabulary.ts`), 8 Bestleistungs-Vorlagen (`src/domain/records/presets.ts`), Zod-Schema mit Altersprüfung, Standardwerte, Umwandlung für `save_profile`, Zeit-Hilfen (`4:05` ⇄ Sekunden), Tests. Migration eingespielt, `save_profile` in zurückgerollter Transaktion getestet. Commit `8886d97`.
+   - **2.5b** ✅ umgesetzt: Onboarding `/onboarding` in 5 Schritten (Über dich, Hintergrund inkl. Bestleistungen, Ziele, Trainingsbedingungen, Vorlieben). Prüfung je Schritt, Entwurf wird lokal gesichert, Speichern über `save_profile`. `RequireOnboarding` leitet alle Hauptbereiche zum Onboarding, solange es offen ist. Neue UI-Bausteine: ChoiceChips, OptionCards, Stepper, RangeField, TextArea. Begrüßung im Dashboard mit Namen.
    - **2.5c**: Profilseite zum Bearbeiten aller Angaben.
 3. Erledigt – Schritt 2.4 Übungsbibliothek:
    - **2.4a** ✅ Datenmodell (`src/data/exercises/`), Wertelisten mit deutschen Bezeichnungen, Zod-Schema, Tests, 63 Übungen (28 HYROX, 15 Warm-up, 11 Mobility, 9 Cool-down/Regeneration). Commit `ed087cb`.
@@ -241,6 +241,12 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 | 20.10.2026 | App liest Übungen aus der Datenbank (nicht direkt aus dem Code) und prüft jede Zeile mit dem Zod-Schema | Eigene Übungen und Präferenzen sind nur in der Datenbank vorhanden; ungültige Zeilen werden übersprungen statt die App abstürzen zu lassen |
 | 20.10.2026 | Filter der Bibliothek in der Adresse (Query-Parameter), Übungen per Slug adressiert (`/exercises/hyrox-sled-push`) | Zurück-Navigation behält die Filter; lesbare, stabile Adressen |
 | 20.10.2026 | Native Auswahlfelder (`<select>`) für Muskel- und Gerätefilter | Am Smartphone öffnet sich die gewohnte System-Auswahl |
+| 21.10.2026 | Eine Datenbankfunktion `save_profile` für Onboarding und Profilseite statt `complete_onboarding` | Ein Speicherweg, atomar, idempotent; Onboarding-Abschluss wird beim ersten Speichern gesetzt |
+| 21.10.2026 | Körperwerte: höchstens ein Eintrag pro Tag; Bestleistungen: manuelle Einträge löschbar, Rekorde aus Trainings von Hand nie überschreibbar | Keine Dubletten; echte Trainingsleistungen haben Vorrang vor Schätzungen |
+| 21.10.2026 | 8 manuelle Bestleistungen im Onboarding (Kniebeuge/Kreuzheben/Bankdrücken 1 Wdh., Klimmzüge, 1 km, 5 km, 1000 m Rudern, 1000 m SkiErg) + HYROX-Bestzeit im Profil | Häufigste Referenzwerte für HYROX- und Krafttraining; weitere kommen automatisch aus Trainings |
+| 21.10.2026 | Formular als Text-Entwurf (`ProfileDraft`), Prüfung erst beim Weiter/Speichern; Zahlen mit Komma oder Punkt, Zeiten als m:ss bzw. h:mm:ss | Natürliche Eingabe am Handy, klare Fehlermeldungen je Feld |
+| 21.10.2026 | Onboarding-Entwurf in localStorage (je Nutzer), wird nach erfolgreichem Speichern gelöscht | Kein Datenverlust bei Neuladen oder App-Wechsel während der Einrichtung |
+| 21.10.2026 | Körpergewicht im Onboarding Pflicht, auf der Profilseite optional (nur bei Eingabe neuer Messwert) | Startwert für Statistiken; später kein Zwang zum erneuten Eintragen |
 
 ---
 

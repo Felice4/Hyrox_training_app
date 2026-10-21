@@ -86,6 +86,7 @@ export function LoginPage() {
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           error={fieldErrors.password}
+          trailingSize="wide"
           trailing={
             <Button
               variant="ghost"
