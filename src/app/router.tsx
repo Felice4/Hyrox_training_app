@@ -9,6 +9,7 @@ import { GeneratorPage } from '@/features/generator/GeneratorPage'
 import { OnboardingPage } from '@/features/onboarding/OnboardingPage'
 import { RequireOnboarding } from '@/features/onboarding/RequireOnboarding'
 import { MorePage } from '@/features/more/MorePage'
+import { ProfilePage } from '@/features/profile/ProfilePage'
 import { StatsPage } from '@/features/progress/StatsPage'
 import { AppShell } from './layout/AppShell'
 import { RouteErrorPage } from './RouteErrorPage'
@@ -39,6 +40,7 @@ export const router = createBrowserRouter([
               { path: 'more', element: <MorePage /> },
               { path: 'exercises', element: <ExerciseListPage /> },
               { path: 'exercises/:slug', element: <ExerciseDetailPage /> },
+              { path: 'profile', element: <ProfilePage /> },
             ],
           },
         ],

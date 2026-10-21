@@ -15,6 +15,7 @@ describe('NAV_ITEMS', () => {
 
   it('ordnet die Übungsbibliothek dem Bereich „Mehr" zu', () => {
     expect(isNavItemActive(NAV_ITEMS[4]!, '/exercises/back-squat')).toBe(true)
+    expect(isNavItemActive(NAV_ITEMS[4]!, '/profile')).toBe(true)
     expect(isNavItemActive(NAV_ITEMS[0]!, '/exercises')).toBe(false)
   })
 

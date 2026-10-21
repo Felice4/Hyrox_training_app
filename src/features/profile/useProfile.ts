@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { fetchProfile, saveProfile } from '@/api/profile'
+import { fetchProfile, fetchProfileDetails, saveProfile } from '@/api/profile'
 import { useSupabase } from '@/app/supabaseContext'
 import type { SaveProfilePayload } from '@/domain/profile/payload'
 import { useAuth } from '@/features/auth/authContext'
@@ -22,6 +22,26 @@ export function useProfile() {
   })
 }
 
+export const profileDetailsQueryKey = (userId: string | undefined) =>
+  ['profile-details', userId] as const
+
+/**
+ * Alle Angaben für die Profilseite. Kein automatisches Neuladen beim Zurückkehren in die App,
+ * damit ungespeicherte Eingaben nicht überschrieben werden – nach dem Speichern wird gezielt
+ * neu geladen.
+ */
+export function useProfileDetails() {
+  const supabase = useSupabase()
+  const userId = useUserId()
+  return useQuery({
+    queryKey: profileDetailsQueryKey(userId),
+    queryFn: () => fetchProfileDetails(supabase),
+    enabled: userId !== undefined,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+  })
+}
+
 /** Speichert Profilangaben und lädt danach Profil und Übungen (Präferenzen) neu. */
 export function useSaveProfile() {
   const supabase = useSupabase()
@@ -33,7 +53,7 @@ export function useSaveProfile() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: profileQueryKey(userId) }),
         queryClient.invalidateQueries({ queryKey: ['exercises', userId] }),
-        queryClient.invalidateQueries({ queryKey: ['profile-details', userId] }),
+        queryClient.invalidateQueries({ queryKey: profileDetailsQueryKey(userId) }),
       ])
     },
   })

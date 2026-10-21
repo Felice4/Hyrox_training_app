@@ -10,12 +10,20 @@ function Unit({ children }: { children: string }) {
   return <span className="mr-3 text-sm text-fg-muted">{children}</span>
 }
 
+interface PersonalSectionProps extends SectionProps {
+  weightLabel?: string
+  weightHint?: string | undefined
+  bodyFatHint?: string | undefined
+}
+
 export function PersonalSection({
   draft,
   errors,
   update,
   weightLabel = 'Körpergewicht',
-}: SectionProps & { weightLabel?: string }) {
+  weightHint,
+  bodyFatHint,
+}: PersonalSectionProps) {
   return (
     <div className="flex flex-col gap-5">
       <TextField
@@ -50,6 +58,7 @@ export function PersonalSection({
           value={draft.weightKg}
           onChange={(e) => update({ weightKg: e.target.value })}
           error={errors.weightKg}
+          hint={weightHint}
           trailing={<Unit>kg</Unit>}
         />
       </div>
@@ -60,6 +69,7 @@ export function PersonalSection({
         value={draft.bodyFatPct}
         onChange={(e) => update({ bodyFatPct: e.target.value })}
         error={errors.bodyFatPct}
+        hint={bodyFatHint}
         trailing={<Unit>%</Unit>}
       />
       <SingleChoiceChips

@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
-import { BookIcon, ChevronRightIcon } from '@/components/icons'
+import type { ComponentType, SVGProps } from 'react'
+import { BookIcon, ChevronRightIcon, UserIcon } from '@/components/icons'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -7,10 +8,12 @@ import { useAuth } from '@/features/auth/authContext'
 import { useSignOut } from '@/features/auth/useSignOut'
 
 /** Bereiche, die über „Mehr" erreichbar sein werden, mit dem Schritt, in dem sie entstehen. */
-const UPCOMING_SECTIONS = [
-  { label: 'Profil & Ziele', step: 'Schritt 2.5' },
-  { label: 'Datenexport', step: 'Schritt 4.3' },
-] as const
+const UPCOMING_SECTIONS = [{ label: 'Datenexport', step: 'Schritt 4.3' }] as const
+
+const SECTIONS: { to: string; label: string; icon: ComponentType<SVGProps<SVGSVGElement>> }[] = [
+  { to: '/profile', label: 'Profil & Ziele', icon: UserIcon },
+  { to: '/exercises', label: 'Übungsbibliothek', icon: BookIcon },
+]
 
 export function MorePage() {
   const auth = useAuth()
@@ -21,14 +24,20 @@ export function MorePage() {
     <>
       <PageHeader title="Mehr" subtitle="Bibliothek, Profil und Einstellungen" />
       <Card className="p-0">
-        <Link
-          to="/exercises"
-          className="flex min-h-16 items-center gap-3 rounded-2xl px-5 hover:bg-surface-raised"
-        >
-          <BookIcon className="text-accent" />
-          <span className="flex-1 font-medium">Übungsbibliothek</span>
-          <ChevronRightIcon width={20} height={20} className="text-fg-muted" />
-        </Link>
+        <ul className="divide-y divide-line">
+          {SECTIONS.map(({ to, label, icon: Icon }) => (
+            <li key={to}>
+              <Link
+                to={to}
+                className="flex min-h-16 items-center gap-3 px-5 first:rounded-t-2xl last:rounded-b-2xl hover:bg-surface-raised"
+              >
+                <Icon className="text-accent" />
+                <span className="flex-1 font-medium">{label}</span>
+                <ChevronRightIcon width={20} height={20} className="text-fg-muted" />
+              </Link>
+            </li>
+          ))}
+        </ul>
       </Card>
 
       <Card className="mt-4 p-0">

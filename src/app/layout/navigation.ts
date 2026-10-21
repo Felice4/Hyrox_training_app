@@ -17,7 +17,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { to: '/training', label: 'Training', icon: DumbbellIcon },
   { to: '/calendar', label: 'Kalender', icon: CalendarIcon },
   { to: '/stats', label: 'Statistik', icon: ChartIcon },
-  { to: '/more', label: 'Mehr', icon: MoreIcon, alsoActiveFor: ['/exercises'] },
+  { to: '/more', label: 'Mehr', icon: MoreIcon, alsoActiveFor: ['/exercises', '/profile'] },
 ]
 
 function matchesPath(base: string, pathname: string): boolean {

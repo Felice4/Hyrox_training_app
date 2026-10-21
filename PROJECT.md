@@ -14,7 +14,7 @@
 |---|---|
 | **Aktuelle Phase** | Phase 2 – Schritt 2.5 Onboarding & Profil |
 | **Letzter verifizierter Meilenstein** | Schritt 2.4 – Übungsbibliothek mit 211 Übungen, Datenbank-Abgleich, Bibliotheksseite (vom Nutzer lokal und am Handy getestet) |
-| **Nächster Schritt** | Nutzer testet Onboarding (lokal) → 2.5c Profilseite |
+| **Nächster Schritt** | Nutzer testet Profilseite → Schritt 2.6 Trainingsgenerator |
 | **Blocker** | keine |
 | **Git** | Commits und Pushes nur auf ausdrückliche Anweisung des Nutzers. Stand auf GitHub: `587d7d7`. |
 
@@ -164,6 +164,7 @@ Behoben:
 - 20.10.2026: `VITE_SUPABASE_URL` war mit `/rest/v1/` eingetragen, deshalb schlugen alle Anfragen mit `PGRST125` fehl. `.env.local` ist korrigiert. `src/lib/env.ts` lehnt URLs mit Pfad jetzt mit klarer Meldung ab.
 
 Offene Kleinigkeiten:
+- **Für Schritt 2.7 merken:** Die Profilseite zeigt bei den Bestleistungen nur manuelle Einträge. Sobald Trainings Rekorde speichern, sollte sie Rekorde aus Trainings als Info anzeigen (nur lesbar), damit ein leeres Feld nicht so wirkt, als gäbe es keinen Rekord.
 - `npm install` warnt vor einem veralteten `glob@11` (kommt über `vite-plugin-pwa` → `workbox-build`, nur Entwicklungswerkzeug, nicht in der App). Verschwindet mit einem Update von workbox.
 - Der Service Worker speichert alle Zeichensätze der Schrift Inter vor (Precache gesamt ca. 950 KB). Das wird in Schritt 4.2 optimiert.
 - Das JavaScript-Bundle ist mit Supabase-Client und Zod ca. 650 KB groß (190 KB gzip). Vite warnt deshalb beim Build. Das wird in Schritt 4.1/4.2 per Code-Splitting der Seiten optimiert.
@@ -179,8 +180,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 1. Optional: In Supabase unter Authentication → URL Configuration die Site URL auf die Cloudflare-Adresse setzen.
 2. Schritt 2.5 Onboarding & Profil in Teilschritten:
    - **2.5a** ✅ Code fertig: Migration 0003 (`body_measurements`, `personal_records`, `profiles.hyrox_best_time_sec`, `save_profile()`), Wertelisten (`src/domain/profile/vocabulary.ts`), 8 Bestleistungs-Vorlagen (`src/domain/records/presets.ts`), Zod-Schema mit Altersprüfung, Standardwerte, Umwandlung für `save_profile`, Zeit-Hilfen (`4:05` ⇄ Sekunden), Tests. Migration eingespielt, `save_profile` in zurückgerollter Transaktion getestet. Commit `8886d97`.
-   - **2.5b** ✅ umgesetzt: Onboarding `/onboarding` in 5 Schritten (Über dich, Hintergrund inkl. Bestleistungen, Ziele, Trainingsbedingungen, Vorlieben). Prüfung je Schritt, Entwurf wird lokal gesichert, Speichern über `save_profile`. `RequireOnboarding` leitet alle Hauptbereiche zum Onboarding, solange es offen ist. Neue UI-Bausteine: ChoiceChips, OptionCards, Stepper, RangeField, TextArea. Begrüßung im Dashboard mit Namen.
-   - **2.5c**: Profilseite zum Bearbeiten aller Angaben.
+   - **2.5b** ✅ umgesetzt: Onboarding `/onboarding` in 5 Schritten (Über dich, Hintergrund inkl. Bestleistungen, Ziele, Trainingsbedingungen, Vorlieben). Prüfung je Schritt, Entwurf wird lokal gesichert, Speichern über `save_profile`. `RequireOnboarding` leitet alle Hauptbereiche zum Onboarding, solange es offen ist. Neue UI-Bausteine: ChoiceChips, OptionCards, Stepper, RangeField, TextArea. Begrüßung im Dashboard mit Namen. Commit `69dbec4`, vom Nutzer getestet und gepusht.
+   - **2.5c** ✅ umgesetzt: Profilseite `/profile` (über „Mehr") mit allen Abschnitten des Onboardings auf einer Seite. Speichern nur bei Änderungen, „Verwerfen", Warnung beim Verlassen mit ungespeicherten Änderungen. Gewicht/Körperfett leer mit Hinweis auf den letzten Wert; eine Eingabe legt einen neuen Messwert für heute an. Daten werden parallel geladen (`fetchProfileDetails`) und nicht automatisch überschrieben, solange man bearbeitet.
 3. Erledigt – Schritt 2.4 Übungsbibliothek:
    - **2.4a** ✅ Datenmodell (`src/data/exercises/`), Wertelisten mit deutschen Bezeichnungen, Zod-Schema, Tests, 63 Übungen (28 HYROX, 15 Warm-up, 11 Mobility, 9 Cool-down/Regeneration). Commit `ed087cb`.
    - **2.4b** ✅ +148 Übungen → **211** (Unterkörper 33, Push 24, Pull 23, Rumpf 21, Explosiv/Ganzkörper 22, Ausdauer 25). `LIBRARY_VERSION` = 2. Tests: mind. 200 Übungen, alle Kategorien vertreten. Commit `f29f55f`.
@@ -247,6 +248,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 | 21.10.2026 | Formular als Text-Entwurf (`ProfileDraft`), Prüfung erst beim Weiter/Speichern; Zahlen mit Komma oder Punkt, Zeiten als m:ss bzw. h:mm:ss | Natürliche Eingabe am Handy, klare Fehlermeldungen je Feld |
 | 21.10.2026 | Onboarding-Entwurf in localStorage (je Nutzer), wird nach erfolgreichem Speichern gelöscht | Kein Datenverlust bei Neuladen oder App-Wechsel während der Einrichtung |
 | 21.10.2026 | Körpergewicht im Onboarding Pflicht, auf der Profilseite optional (nur bei Eingabe neuer Messwert) | Startwert für Statistiken; später kein Zwang zum erneuten Eintragen |
+| 21.10.2026 | Profilseite als eine lange Seite mit Karten statt Schritten; Speichern-Leiste klebt über der Bottom-Navigation | Gezieltes Ändern einzelner Angaben ohne Durchklicken |
+| 21.10.2026 | Profildetails ohne automatisches Neuladen (`staleTime: Infinity`), nach dem Speichern gezielt neu geladen; Formular wird dann mit den gespeicherten Werten neu aufgebaut | Ungespeicherte Eingaben werden nie durch einen Hintergrund-Abgleich überschrieben |
 
 ---
 

@@ -8,6 +8,8 @@ interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   trailing?: ReactNode
   /** Platz für das Element rechts: schmal (Einheit, Icon) oder breit (Button). */
   trailingSize?: 'narrow' | 'wide'
+  /** Zusatzinfo unter dem Feld (wird bei einem Fehler durch die Fehlermeldung ersetzt). */
+  hint?: string | undefined
 }
 
 export function TextField({
@@ -15,6 +17,7 @@ export function TextField({
   error,
   trailing,
   trailingSize = 'narrow',
+  hint,
   className,
   id,
   ...props
@@ -43,10 +46,12 @@ export function TextField({
         />
         {trailing && <div className="absolute inset-y-0 right-1 flex items-center">{trailing}</div>}
       </div>
-      {error && (
+      {error ? (
         <p id={errorId} className="text-sm text-danger">
           {error}
         </p>
+      ) : (
+        hint && <p className="text-xs text-fg-muted">{hint}</p>
       )}
     </div>
   )

@@ -11,6 +11,88 @@ export async function fetchProfile(supabase: AppSupabaseClient): Promise<Profile
   return data
 }
 
+export type GoalsRow = Tables<'training_goals'>
+
+export interface LatestValue {
+  value: number
+  measuredOn: string
+}
+
+export interface StoredRecord {
+  exerciseSlug: string
+  recordType: string
+  contextKey: string
+  value: number
+  source: 'manual' | 'session'
+}
+
+/** Alles, was die Profilseite zum Bearbeiten braucht. */
+export interface ProfileDetails {
+  profile: ProfileRow | null
+  goals: GoalsRow | null
+  latestWeight: LatestValue | null
+  latestBodyFat: LatestValue | null
+  records: StoredRecord[]
+  preferredExercises: string[]
+  dislikedExercises: string[]
+}
+
+/** Lädt Profil, Ziele, letzte Körperwerte, Bestleistungen und Übungspräferenzen parallel. */
+export async function fetchProfileDetails(supabase: AppSupabaseClient): Promise<ProfileDetails> {
+  const [profile, goals, measurements, records, preferences] = await Promise.all([
+    supabase.from('profiles').select('*').maybeSingle(),
+    supabase.from('training_goals').select('*').maybeSingle(),
+    supabase
+      .from('body_measurements')
+      .select('measured_on, weight_kg, body_fat_pct')
+      .order('measured_on', { ascending: false })
+      .limit(60),
+    supabase
+      .from('personal_records')
+      .select('record_type, context_key, value, source, exercise:exercises(slug)'),
+    supabase
+      .from('exercises')
+      .select('slug, preference')
+      .in('preference', ['preferred', 'disliked'])
+      .eq('is_archived', false),
+  ])
+  for (const result of [profile, goals, measurements, records, preferences]) {
+    if (result.error) throw result.error
+  }
+
+  const rows = measurements.data ?? []
+  const latest = (pick: (row: (typeof rows)[number]) => number | null): LatestValue | null => {
+    const row = rows.find((r) => pick(r) !== null)
+    return row ? { value: pick(row) as number, measuredOn: row.measured_on } : null
+  }
+
+  return {
+    profile: profile.data,
+    goals: goals.data,
+    latestWeight: latest((r) => r.weight_kg),
+    latestBodyFat: latest((r) => r.body_fat_pct),
+    records: (records.data ?? []).flatMap((r) =>
+      r.exercise && (r.source === 'manual' || r.source === 'session')
+        ? [
+            {
+              exerciseSlug: r.exercise.slug,
+              recordType: r.record_type,
+              contextKey: r.context_key,
+              value: r.value,
+              source: r.source,
+            },
+          ]
+        : [],
+    ),
+    preferredExercises: (preferences.data ?? [])
+      .filter((e) => e.preference === 'preferred')
+      .map((e) => e.slug),
+    dislikedExercises: (preferences.data ?? [])
+      .filter((e) => e.preference === 'disliked')
+      .map((e) => e.slug),
+  }
+}
+
 export interface SaveProfileResult {
   status: 'saved'
   first_completion: boolean
