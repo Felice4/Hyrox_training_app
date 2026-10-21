@@ -12,9 +12,9 @@
 
 | | |
 |---|---|
-| **Aktuelle Phase** | Phase 2 – Schritt 2.4 Übungsbibliothek (2.4a–d umgesetzt; Test durch den Nutzer offen) |
-| **Letzter verifizierter Meilenstein** | Schritt 2.3 – Login mit Supabase Auth, Routenschutz, Migration 0001 (vom Nutzer getestet) |
-| **Nächster Schritt** | Nutzer testet Bibliothek (lokal) → Schritt 2.5 Onboarding & Profil |
+| **Aktuelle Phase** | Phase 2 – Schritt 2.5 Onboarding & Profil |
+| **Letzter verifizierter Meilenstein** | Schritt 2.4 – Übungsbibliothek mit 211 Übungen, Datenbank-Abgleich, Bibliotheksseite (vom Nutzer lokal und am Handy getestet) |
+| **Nächster Schritt** | 2.5a Datenmodell für Profil, Körperwerte und Bestleistungen |
 | **Blocker** | keine |
 | **Git** | Commits und Pushes nur auf ausdrückliche Anweisung des Nutzers. Stand auf GitHub: `587d7d7`. |
 
@@ -97,7 +97,7 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 |---|---|---|
 | Setup 1–4 | Werkzeuge, Git, Dokumentation, GitHub | ✅ erledigt |
 | Phase 1 | Planung: Architektur, DB-Schema, Ordnerstruktur, Generator-Algorithmus, Roadmap | ✅ abgenommen |
-| Phase 2 | Funktionsfähige Basisversion | 🔄 in Arbeit (2.1–2.3 erledigt) |
+| Phase 2 | Funktionsfähige Basisversion | 🔄 in Arbeit (2.1–2.4 erledigt) |
 | Phase 3 | Erweiterung | offen |
 | Phase 4 | Fertigstellung | offen |
 
@@ -108,7 +108,7 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | **2.1 Projektsetup** ✅ | Vite + React + TS strict, Tailwind mit Design-Tokens, oxlint/Prettier, Vitest, React Router, TanStack Query; Skripte `dev`, `typecheck`, `test`, `build`, `lint`; App-Rahmen mit Bottom-Navigation und leeren Bereichsseiten | App lokal starten, am Handy im Heimnetz öffnen, Navigation durchklicken |
 | **2.2 Deployment & PWA-Grundlage** ✅ | Cloudflare Pages mit GitHub verbinden (Auto-Deploy von `main`), Manifest + Icons, App installierbar | HTTPS-Adresse am Handy öffnen, „Zum Startbildschirm hinzufügen", App startet im Vollbild |
 | **2.3 Supabase & Login** ✅ | Projekt anlegen (Anleitung), Registrierung aus, Konto manuell anlegen, `.env.local`, Migration 0001 (`profiles`, `training_goals`, RLS), Login/Logout, Routenschutz | Login mit richtigem/falschem Passwort, Abmelden, geschützte Seiten nicht ohne Login erreichbar |
-| **2.4 Übungsbibliothek** 🔄 | Datenstruktur + Zod-Schema, Wertelisten (Muskeln, Equipment), 200+ Übungen (in Teilschritten), Validierungstests, Migration 0002, Synchronisierung, Bibliotheksseite mit Suche/Filter und Detailansicht | Bibliothek durchsuchen/filtern; Übung im Code ändern → nach Neuladen in der App sichtbar |
+| **2.4 Übungsbibliothek** ✅ | Datenstruktur + Zod-Schema, Wertelisten (Muskeln, Equipment), 200+ Übungen (in Teilschritten), Validierungstests, Migration 0002, Synchronisierung, Bibliotheksseite mit Suche/Filter und Detailansicht | Bibliothek durchsuchen/filtern; Übung im Code ändern → nach Neuladen in der App sichtbar |
 | **2.5 Onboarding & Profil** | Migration 0003, mehrstufiges Onboarding (Körperdaten, Hintergrund, Ziele, Bedingungen, Präferenzen, Bestleistungen), Profilseite zum Bearbeiten | Onboarding durchlaufen, Daten im Profil ändern, nach erneutem Login noch vorhanden |
 | **2.6 Trainingsgenerator** | `domain/generator` mit allen Pflichttests, Generator-Seite mit Eingaben, Vorschau, Erklärung, „Neu erzeugen", Übung austauschen | Verschiedene Schwerpunkte/Dauern erzeugen, Geräte abwählen, Erklärung prüfen |
 | **2.7 Trainingsmodus & Speichern** | Migration 0004 + `save_workout_session`, aktives Training (Sätze, Gewichte, Wdh., Distanz/Zeit), Pausen-/Intervalltimer, Rundenzähler, überspringen/austauschen, pausieren, lokaler Entwurf, Abschluss mit RPE/Notizen/Zusammenfassung, letzte Gewichte & Bestleistungen | Training im Studio-Szenario durchspielen, Seite zwischendurch neu laden, teilweise abschließen, doppelt speichern → nur ein Eintrag |
@@ -148,7 +148,8 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | 19.10.2026 | Phase 1 – Architektur, Datenbankkonzept, Generator-Algorithmus, Roadmap (`docs/ARCHITECTURE.md`, `docs/DATABASE.md`, `docs/GENERATOR.md`) | `bef66eb` |
 | 19.10.2026 | Schritt 2.1 – Projektsetup (Vite 8, React 19, TS 7, Tailwind 4, App-Rahmen mit Bottom-Navigation) | `32a4213` |
 | 20.10.2026 | Schritt 2.2 – PWA-Grundlage, Deployment über Cloudflare Pages, Installation am Smartphone | `587d7d7` |
-| 20.10.2026 | Schritt 2.3 – Supabase-Projekt, Migration 0001 (Profil, Ziele, RLS), Login/Logout, Routenschutz | siehe `git log` (`feat: Anmeldung …`) |
+| 20.10.2026 | Schritt 2.3 – Supabase-Projekt, Migration 0001 (Profil, Ziele, RLS), Login/Logout, Routenschutz | `4813e72` |
+| 21.10.2026 | Schritt 2.4 – Übungsbibliothek: 211 Übungen im Code, Migration 0002 + Abgleich, Bibliotheksseite mit Suche/Filter/Detail | `ed087cb` … `e2e7d9d` |
 
 ---
 
@@ -172,13 +173,16 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 
 ## 9. Nächste Aufgaben
 
-1. Nutzer: In Cloudflare `VITE_SUPABASE_URL` als Basis-URL (ohne `/rest/v1/`) prüfen; Login am Handy testen.
-2. Optional: In Supabase unter Authentication → URL Configuration die Site URL auf die Cloudflare-Adresse setzen.
-3. Schritt 2.4 Übungsbibliothek in Teilschritten:
+1. Optional: In Supabase unter Authentication → URL Configuration die Site URL auf die Cloudflare-Adresse setzen.
+2. Schritt 2.5 Onboarding & Profil in Teilschritten:
+   - **2.5a**: Migration 0003 (`body_measurements`, `personal_records`, Profil-Ergänzung) + `save_profile()`, Wertelisten, Zod-Schema, Umwandlung, Tests.
+   - **2.5b**: Mehrstufiges Onboarding + Weiterleitung, solange das Onboarding offen ist.
+   - **2.5c**: Profilseite zum Bearbeiten aller Angaben.
+3. Erledigt – Schritt 2.4 Übungsbibliothek:
    - **2.4a** ✅ Datenmodell (`src/data/exercises/`), Wertelisten mit deutschen Bezeichnungen, Zod-Schema, Tests, 63 Übungen (28 HYROX, 15 Warm-up, 11 Mobility, 9 Cool-down/Regeneration). Commit `ed087cb`.
    - **2.4b** ✅ +148 Übungen → **211** (Unterkörper 33, Push 24, Pull 23, Rumpf 21, Explosiv/Ganzkörper 22, Ausdauer 25). `LIBRARY_VERSION` = 2. Tests: mind. 200 Übungen, alle Kategorien vertreten. Commit `f29f55f`.
-   - **2.4c** ✅ umgesetzt: Migration 0002 (`exercises`, RLS, kein DELETE) + `sync_exercise_library()` angewendet, in zurückgerollter Transaktion getestet. App gleicht nach dem Login einmal pro Sitzung ab (`src/api/exerciseLibrary.ts`, `useLibrarySync`) und zeigt nur bei Fehlern einen Hinweis. Commit `09fef07`.
-   - **2.4d** ✅ umgesetzt: Bibliotheksseite `/exercises` (Suche ohne Umlaut-Probleme, Kategorie-Chips, Muskel- und Gerätefilter, Filter bleiben in der Adresse erhalten) und Detailseite `/exercises/:slug` (Ausführung, Belastung, Muskeln, Geräte, Alternativen). Erreichbar über „Mehr".
+   - **2.4c** ✅ Migration 0002 (`exercises`, RLS, kein DELETE) + `sync_exercise_library()` angewendet, in zurückgerollter Transaktion getestet. App gleicht nach dem Login einmal pro Sitzung ab (`src/api/exerciseLibrary.ts`, `useLibrarySync`) und zeigt nur bei Fehlern einen Hinweis. Commit `09fef07`.
+   - **2.4d** ✅ Bibliotheksseite `/exercises` (Suche ohne Umlaut-Probleme, Kategorie-Chips, Muskel- und Gerätefilter, Filter bleiben in der Adresse erhalten) und Detailseite `/exercises/:slug` (Ausführung, Belastung, Muskeln, Geräte, Alternativen). Erreichbar über „Mehr". Commit `e2e7d9d`; vom Nutzer lokal und am Handy getestet (211 Übungen sichtbar).
 
 **Prüfergebnis Supabase (20.10.2026):** Migration lokal = remote. `profiles` und `training_goals` mit aktivem RLS und je 3 Policies (select/insert/update, `to authenticated`, `auth.uid() = user_id`). `anon` hat keine Tabellenrechte, Lesen/Schreiben ohne Login liefert HTTP 401. Registrierung deaktiviert (Signup liefert `signup_disabled`), anonyme Anmeldung aus, 1 bestätigtes Konto vorhanden.
 
