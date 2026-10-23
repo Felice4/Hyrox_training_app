@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import type { CatalogExercise } from '@/api/exercises'
 import type { ProfileDetails } from '@/api/profile'
+import type { PlannedWorkout } from '@/api/weekPlans'
 import { ChevronRightIcon, DumbbellIcon } from '@/components/icons'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -12,9 +13,12 @@ import type { HistorySession } from '@/domain/generator/types'
 import { summarizeTrainingLoad } from '@/domain/load/trainingLoad'
 import { WEEKDAY_SHORT_LABELS } from '@/domain/profile/vocabulary'
 import { useAuth } from '@/features/auth/authContext'
+import { formatShortDay } from '@/features/calendar/format'
+import { useUpcomingPlanned } from '@/features/calendar/usePlannedWorkouts'
+import { nextPlanned } from '@/features/calendar/week'
 import { useExerciseCatalog } from '@/features/exercises/useExerciseCatalog'
 import { restoreStoredWorkout } from '@/features/generator/inputs'
-import { FOCUS_LABELS } from '@/features/generator/labels'
+import { FOCUS_LABELS, INTENSITY_LABELS } from '@/features/generator/labels'
 import { useProfileDetails } from '@/features/profile/useProfile'
 import { describeRecord } from '@/features/training/format'
 import { storageKeys } from '@/features/training/storage'
@@ -22,6 +26,7 @@ import { readActiveSession, useActiveSessionKey } from '@/features/training/useA
 import { useStartTraining } from '@/features/training/useStartTraining'
 import { useTrainingHistory } from '@/features/training/useTrainingHistory'
 import { cn } from '@/lib/cn'
+import { toLocalIsoDate } from '@/lib/date'
 import { loadDraft } from '@/lib/localDraft'
 import { loadStatus, nextPreferredDay, weekStats, weekStrip, type LoadLevel } from './stats'
 
@@ -51,6 +56,11 @@ export function DashboardPage() {
     loadDraft(storageKeys.generatedWorkout(userId), null, restoreStoredWorkout),
   )
   const startTraining = useStartTraining(catalog.data?.exercises ?? [])
+  const today = toLocalIsoDate(now)
+  const upcoming = useUpcomingPlanned(today)
+  const next = nextPlanned(upcoming.data ?? [], today)
+  // Heute geplante Einheit hat Vorrang vor dem zuletzt erzeugten Workout
+  const plannedToday = next?.date === today && next.workout ? next : undefined
 
   const name = details.data?.profile?.display_name
   const sessions = history.data ?? []
@@ -74,7 +84,11 @@ export function DashboardPage() {
         )}
 
         <Card className="flex flex-col gap-3">
-          <NextTraining details={details.data} sessions={sessions} now={now} />
+          {next ? (
+            <NextPlanned planned={next} today={today} />
+          ) : (
+            <NextTraining details={details.data} sessions={sessions} now={now} />
+          )}
           <div className="grid grid-cols-2 gap-3">
             <Link
               to="/training"
@@ -85,19 +99,25 @@ export function DashboardPage() {
             <Button
               variant="secondary"
               className="min-h-14"
-              disabled={!storedWorkout || hasActive || catalog.isPending}
-              onClick={() => storedWorkout && startTraining(storedWorkout.workout)}
+              disabled={(!plannedToday && !storedWorkout) || hasActive || catalog.isPending}
+              onClick={() => {
+                if (plannedToday?.workout) startTraining(plannedToday.workout, plannedToday.id)
+                else if (storedWorkout) startTraining(storedWorkout.workout)
+              }}
             >
               Training starten
             </Button>
           </div>
-          {storedWorkout && !hasActive && (
+          {plannedToday && !hasActive && (
+            <p className="text-xs text-fg-muted">Startet die heute geplante Einheit.</p>
+          )}
+          {!plannedToday && storedWorkout && !hasActive && (
             <p className="text-xs text-fg-muted">
               Startet dein zuletzt erstelltes Workout ({FOCUS_LABELS[storedWorkout.workout.focus]},{' '}
               {storedWorkout.workout.estimatedDurationMin} min).
             </p>
           )}
-          {!storedWorkout && !hasActive && (
+          {!plannedToday && !storedWorkout && !hasActive && (
             <p className="text-xs text-fg-muted">
               Erstelle zuerst ein Workout – danach kannst du es hier direkt starten.
             </p>
@@ -180,11 +200,32 @@ function NextTraining({
         </p>
         <p className="text-xs text-fg-muted">
           {next
-            ? 'Laut deinen bevorzugten Trainingstagen · Wochenplan folgt in Phase 3'
-            : 'Bevorzugte Trainingstage kannst du im Profil festlegen.'}
+            ? 'Laut deinen bevorzugten Trainingstagen · Plane deine Woche im Kalender.'
+            : 'Plane deine Woche im Kalender oder lege im Profil bevorzugte Tage fest.'}
         </p>
       </div>
     </div>
+  )
+}
+
+/** Nächste Einheit aus dem Wochenplan. */
+function NextPlanned({ planned, today }: { planned: PlannedWorkout; today: string }) {
+  return (
+    <Link to={`/calendar/planned/${planned.id}`} className="flex items-center gap-3">
+      <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-surface-raised text-accent">
+        <DumbbellIcon />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm text-fg-muted">
+          Nächstes Training · {planned.date === today ? 'Heute' : formatShortDay(planned.date)}
+        </p>
+        <p className="font-display text-2xl font-bold uppercase">{FOCUS_LABELS[planned.focus]}</p>
+        <p className="text-xs text-fg-muted">
+          {planned.durationMin} min · {INTENSITY_LABELS[planned.intensity]} · laut Wochenplan
+        </p>
+      </div>
+      <ChevronRightIcon className="shrink-0 text-fg-muted" />
+    </Link>
   )
 }
 

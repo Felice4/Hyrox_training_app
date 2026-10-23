@@ -197,6 +197,17 @@ describe('toSaveSessionPayload', () => {
     expect(payload.session.notes).toBeNull()
   })
 
+  it('gibt die geplante Einheit aus dem Wochenplan mit', () => {
+    expect(toSaveSessionPayload(s, { sessionRpe: 7, notes: undefined }).session).toMatchObject({
+      planned_workout_id: null,
+    })
+    const planned = toSaveSessionPayload(
+      { ...s, plannedWorkoutId: 'plan-1' },
+      { sessionRpe: 7, notes: undefined },
+    )
+    expect(planned.session.planned_workout_id).toBe('plan-1')
+  })
+
   it('verlangt ein beendetes Training', () => {
     expect(() =>
       toSaveSessionPayload({ ...s, finishedAt: undefined }, { sessionRpe: 5, notes: undefined }),

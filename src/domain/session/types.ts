@@ -64,6 +64,8 @@ export interface ActiveSession {
   startedAt: string
   /** Ursprünglich erzeugtes Workout (für den Vergleich Plan ↔ Ist) */
   workout: GeneratedWorkout
+  /** Geplante Einheit aus dem Wochenplan, aus der das Training gestartet wurde */
+  plannedWorkoutId?: string | undefined
   exercises: ActiveExercise[]
   /** Index im Ablauf (siehe `buildSteps`) */
   cursor: number

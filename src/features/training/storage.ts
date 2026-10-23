@@ -19,6 +19,7 @@ export function restoreActiveSession(stored: unknown): ActiveSession | null {
     typeof s.startedAt === 'string' &&
     typeof s.cursor === 'number' &&
     typeof s.pausedSec === 'number' &&
+    (s.plannedWorkoutId === undefined || typeof s.plannedWorkoutId === 'string') &&
     Array.isArray(s.exercises) &&
     s.exercises.every(
       (e) =>

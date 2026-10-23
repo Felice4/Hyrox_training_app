@@ -12,7 +12,8 @@ export function useStartTraining(exercises: readonly CatalogExercise[]) {
   const navigate = useNavigate()
   const activeKey = useActiveSessionKey()
 
-  return (workout: GeneratedWorkout) => {
+  /** `plannedWorkoutId`: geplante Einheit, die mit dem Speichern als erledigt gilt */
+  return (workout: GeneratedWorkout, plannedWorkoutId?: string) => {
     if (
       readActiveSession(activeKey) &&
       !window.confirm('Es läuft bereits ein Training. Dieses verwerfen und neu starten?')
@@ -27,7 +28,7 @@ export function useStartTraining(exercises: readonly CatalogExercise[]) {
       () => crypto.randomUUID(),
       measurementOf,
     )
-    writeActiveSession(activeKey, session)
+    writeActiveSession(activeKey, { ...session, plannedWorkoutId })
     void navigate('/training/active')
   }
 }

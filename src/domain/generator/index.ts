@@ -6,7 +6,7 @@ import type { GeneratedWorkout, WorkoutRequestInput } from './types'
 /**
  * Schnittstelle für Trainingsgeneratoren. Der regelbasierte Generator ist die einzige
  * Umsetzung; eine spätere KI-Variante liefert dieselben Strukturen (Prüfung über
- * `generatedWorkoutSchema`). Die Wochenplanung folgt in Schritt 3.1.
+ * `generatedWorkoutSchema`). Die Wochenplanung: `weekPlan.ts`.
  */
 export interface WorkoutGenerator {
   readonly version: string

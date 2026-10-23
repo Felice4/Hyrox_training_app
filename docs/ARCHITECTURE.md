@@ -151,7 +151,7 @@ Auf dem Laptop (ab `md`) wird die Bottom-Navigation zu einer Seitenleiste; die I
 | `/training` | Generator-Formular und Vorschau |
 | `/training/active` | Laufendes Training (Vollbild, ohne Bottom-Navigation) |
 | `/training/summary/:sessionId` | Zusammenfassung nach dem Training |
-| `/calendar` | Kalender, `/calendar/:date` Tagesdetails |
+| `/calendar` | Kalender (Wochenplan, `?week=JJJJ-MM-TT`), `/calendar/planned/:id` geplante Einheit, `/calendar/new/:date` spontane Einheit hinzufügen |
 | `/history/:sessionId` | Details eines absolvierten Trainings |
 | `/stats` | Statistiken |
 | `/exercises`, `/exercises/:slug` | Bibliothek (Filter in der Adresse: `?q=…&kategorie=…&muskel=…&geraet=…`) und Detail; Tab „Mehr" bleibt hervorgehoben |

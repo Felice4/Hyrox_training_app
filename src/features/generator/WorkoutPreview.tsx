@@ -17,6 +17,11 @@ interface WorkoutPreviewProps {
   alternativesFor: (exerciseSlug: string) => ExerciseSuggestion[]
   onSwap: (blockIndex: number, itemIndex: number, suggestion: ExerciseSuggestion) => void
   onStart: () => void
+  /** Rücksprung aus den Übungsdetails (Standard: Training) */
+  backTo?: string
+  /** Hinweis unter „Training starten" (z. B. dass die Einheit auf heute verschoben wird) */
+  startHint?: string
+  startDisabled?: boolean
 }
 
 export function WorkoutPreview({
@@ -27,6 +32,9 @@ export function WorkoutPreview({
   alternativesFor,
   onSwap,
   onStart,
+  backTo = '/training',
+  startHint,
+  startDisabled = false,
 }: WorkoutPreviewProps) {
   const [showWhy, setShowWhy] = useState(false)
   const [swapping, setSwapping] = useState<string | null>(null)
@@ -96,6 +104,7 @@ export function WorkoutPreview({
                     <ItemRow
                       item={item}
                       inCircuit={inCircuit}
+                      backTo={backTo}
                       isSwapping={swapping === key}
                       onToggleSwap={() => setSwapping(swapping === key ? null : key)}
                     />
@@ -117,9 +126,10 @@ export function WorkoutPreview({
       })}
 
       <div className="flex flex-col gap-3">
-        <Button fullWidth className="min-h-14 text-lg" onClick={onStart}>
+        <Button fullWidth className="min-h-14 text-lg" disabled={startDisabled} onClick={onStart}>
           Training starten
         </Button>
+        {startHint && <p className="-mt-1 text-center text-xs text-fg-muted">{startHint}</p>}
         <div className="flex gap-3">
           <Button variant="secondary" fullWidth onClick={onRegenerate}>
             <RefreshIcon width={20} height={20} />
@@ -137,11 +147,13 @@ export function WorkoutPreview({
 function ItemRow({
   item,
   inCircuit,
+  backTo,
   isSwapping,
   onToggleSwap,
 }: {
   item: WorkoutItem
   inCircuit: boolean
+  backTo: string
   isSwapping: boolean
   onToggleSwap: () => void
 }) {
@@ -151,7 +163,7 @@ function ItemRow({
       <div className="min-w-0 flex-1">
         <Link
           to={`/exercises/${item.exerciseSlug}`}
-          state={{ backTo: '/training' }}
+          state={{ backTo }}
           className="font-semibold hover:text-accent"
         >
           {item.exerciseName}

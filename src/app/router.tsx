@@ -2,6 +2,8 @@ import { createBrowserRouter } from 'react-router'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { RequireAuth } from '@/features/auth/RequireAuth'
 import { CalendarPage } from '@/features/calendar/CalendarPage'
+import { NewPlannedWorkoutPage } from '@/features/calendar/NewPlannedWorkoutPage'
+import { PlannedWorkoutPage } from '@/features/calendar/PlannedWorkoutPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { ExerciseDetailPage } from '@/features/exercises/ExerciseDetailPage'
 import { ExerciseListPage } from '@/features/exercises/ExerciseListPage'
@@ -39,6 +41,8 @@ export const router = createBrowserRouter([
               { index: true, element: <DashboardPage /> },
               { path: 'training', element: <GeneratorPage /> },
               { path: 'calendar', element: <CalendarPage /> },
+              { path: 'calendar/planned/:id', element: <PlannedWorkoutPage /> },
+              { path: 'calendar/new/:date', element: <NewPlannedWorkoutPage /> },
               { path: 'stats', element: <StatsPage /> },
               { path: 'more', element: <MorePage /> },
               { path: 'exercises', element: <ExerciseListPage /> },

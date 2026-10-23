@@ -18,6 +18,8 @@ export interface SaveSessionPayload {
     workout_snapshot: unknown
     generator_version: string
     training_load: number
+    /** Geplante Einheit – wird beim Speichern als erledigt markiert (Migration 0005) */
+    planned_workout_id: string | null
   }
   exercises: {
     id: string
@@ -96,6 +98,7 @@ export function toSaveSessionPayload(
         feedback.sessionRpe === undefined
           ? 0
           : sessionLoad({ sessionRpe: feedback.sessionRpe, durationMin: activeSec / 60 }),
+      planned_workout_id: orNull(session.plannedWorkoutId),
     },
     exercises: session.exercises.map((exercise, position) => ({
       id: exercise.id,

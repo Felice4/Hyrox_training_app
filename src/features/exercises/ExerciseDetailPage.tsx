@@ -26,7 +26,9 @@ function getBackTarget(state: unknown): string {
     const backTo = state.backTo
     if (
       typeof backTo === 'string' &&
-      (backTo.startsWith('/exercises') || backTo.startsWith('/training'))
+      (backTo.startsWith('/exercises') ||
+        backTo.startsWith('/training') ||
+        backTo.startsWith('/calendar'))
     ) {
       return backTo
     }
@@ -46,7 +48,11 @@ export function ExerciseDetailPage() {
       className="-ml-2 mb-4 inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-sm text-fg-muted hover:text-fg"
     >
       <ChevronLeftIcon width={18} height={18} />
-      {backTo.startsWith('/training') ? 'Training' : 'Übungen'}
+      {backTo.startsWith('/training')
+        ? 'Training'
+        : backTo.startsWith('/calendar')
+          ? 'Kalender'
+          : 'Übungen'}
     </Link>
   )
 

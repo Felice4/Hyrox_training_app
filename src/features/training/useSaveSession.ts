@@ -3,12 +3,13 @@ import { saveWorkoutSession } from '@/api/sessions'
 import { useSupabase } from '@/app/supabaseContext'
 import type { SaveSessionPayload } from '@/domain/session/payload'
 import { useAuth } from '@/features/auth/authContext'
+import { plannedWorkoutsKey } from '@/features/calendar/usePlannedWorkouts'
 import { profileDetailsQueryKey } from '@/features/profile/useProfile'
 
 export const trainingHistoryQueryKey = (userId: string | undefined) =>
   ['training-history', userId] as const
 
-/** Speichert ein Training; danach werden Verlauf und Bestleistungen neu geladen. */
+/** Speichert ein Training; danach werden Verlauf, Bestleistungen und Wochenplan neu geladen. */
 export function useSaveSession() {
   const supabase = useSupabase()
   const auth = useAuth()
@@ -22,6 +23,7 @@ export function useSaveSession() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: trainingHistoryQueryKey(userId) }),
         queryClient.invalidateQueries({ queryKey: profileDetailsQueryKey(userId) }),
+        queryClient.invalidateQueries({ queryKey: plannedWorkoutsKey(userId) }),
       ])
     },
   })
