@@ -50,10 +50,12 @@ interface FinishScreenProps {
   session: ActiveSession
   apply: (action: SessionAction) => void
   onSaved: (result: SaveSessionResult, summary: SessionSummary) => void
+  /** Training verwerfen, ohne zu speichern */
+  onDiscard: () => void
 }
 
-/** Abschluss: Anstrengung bewerten, Notiz, speichern (oder weiter trainieren). */
-export function FinishScreen({ session, apply, onSaved }: FinishScreenProps) {
+/** Abschluss: Anstrengung bewerten, Notiz, speichern – oder weiter trainieren bzw. verwerfen. */
+export function FinishScreen({ session, apply, onSaved, onDiscard }: FinishScreenProps) {
   const [sessionRpe, setSessionRpe] = useState<number | undefined>(undefined)
   const [notes, setNotes] = useState('')
   const save = useSaveSession()
@@ -103,6 +105,22 @@ export function FinishScreen({ session, apply, onSaved }: FinishScreenProps) {
         onClick={() => apply((s, now) => reopenSession(s, now))}
       >
         Doch weiter trainieren
+      </Button>
+      <Button
+        variant="ghost"
+        className="text-danger"
+        disabled={save.isPending}
+        onClick={() => {
+          if (
+            window.confirm(
+              'Training wirklich verwerfen? Alle Eingaben dieses Trainings gehen verloren – nichts wird gespeichert.',
+            )
+          ) {
+            onDiscard()
+          }
+        }}
+      >
+        Training verwerfen
       </Button>
     </div>
   )

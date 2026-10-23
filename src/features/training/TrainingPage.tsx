@@ -69,6 +69,9 @@ export function TrainingPage() {
             clearDraft(storageKeys.generatedWorkout(auth.session.user.id))
           }
         }}
+        // Verwerfen: nur das laufende Training löschen. Ohne Training leitet diese Seite
+        // zur Training-Seite weiter; das erzeugte Workout bleibt dort zum erneuten Start.
+        onDiscard={discard}
       />
     )
   }
