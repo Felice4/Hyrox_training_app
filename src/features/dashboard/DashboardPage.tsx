@@ -332,24 +332,41 @@ function RecentWorkouts({ sessions }: { sessions: readonly HistorySession[] }) {
     )
   }
   return (
-    <ul className="divide-y divide-line">
-      {sessions.slice(0, 3).map((session) => (
-        <li key={session.startedAt} className="flex items-center justify-between gap-3 py-2.5">
-          <div>
-            <p className="font-semibold">{FOCUS_LABELS[session.focus]}</p>
-            <p className="text-xs text-fg-muted">
-              {shortDate.format(new Date(session.startedAt))} · {session.exercises.length} Übungen
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="font-display text-xl font-bold">{Math.round(session.durationMin)} min</p>
-            {session.sessionRpe !== undefined && (
-              <p className="text-xs text-fg-muted">RPE {session.sessionRpe}</p>
-            )}
-          </div>
-        </li>
-      ))}
-    </ul>
+    <>
+      <ul className="divide-y divide-line">
+        {sessions.slice(0, 3).map((session) => (
+          <li key={session.startedAt}>
+            <Link
+              to={session.id ? `/history/${session.id}` : '/history'}
+              state={{ from: '/' }}
+              className="flex items-center justify-between gap-3 py-2.5 hover:text-accent"
+            >
+              <div>
+                <p className="font-semibold">{FOCUS_LABELS[session.focus]}</p>
+                <p className="text-xs text-fg-muted">
+                  {shortDate.format(new Date(session.startedAt))} · {session.exercises.length}{' '}
+                  Übungen
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="font-display text-xl font-bold">
+                  {Math.round(session.durationMin)} min
+                </p>
+                {session.sessionRpe !== undefined && (
+                  <p className="text-xs text-fg-muted">RPE {session.sessionRpe}</p>
+                )}
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <Link
+        to="/history"
+        className="mt-2 inline-flex min-h-11 items-center text-sm font-medium text-accent"
+      >
+        Alle Trainings →
+      </Link>
+    </>
   )
 }
 

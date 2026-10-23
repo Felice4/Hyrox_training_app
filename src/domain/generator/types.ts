@@ -85,6 +85,8 @@ export interface HistoryExercise {
 }
 
 export interface HistorySession {
+  /** ID des gespeicherten Trainings (für Verweise auf die Detailansicht) */
+  id?: string | undefined
   /** ISO-Zeitpunkt des Trainingsbeginns */
   startedAt: string
   focus: Focus

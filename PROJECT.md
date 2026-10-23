@@ -13,10 +13,10 @@
 | | |
 |---|---|
 | **Aktuelle Phase** | Phase 3 – Erweiterung (Start mit 3.1 Wochenplanung) |
-| **Letzter verifizierter Meilenstein** | 3.2 Trainingskalender (vom Nutzer getestet) |
-| **Nächster Schritt** | Test von 3.3 durch den Nutzer, danach 3.4 Trainingshistorie |
+| **Letzter verifizierter Meilenstein** | 3.3 Fortschrittsanalysen (vom Nutzer getestet) |
+| **Nächster Schritt** | Test von 3.4 durch den Nutzer, danach 3.5 Regenerationslogik |
 | **Blocker** | keine |
-| **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: `4882a25`. |
+| **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: `abb898b`. |
 
 ---
 
@@ -120,8 +120,8 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 |---|---|
 | **3.1 Wochenplanung** ✅ | Migration 0005, `generateWeekPlan` + Tests, Wochenplan erzeugen/bearbeiten (verschieben, ersetzen, spontane Einheit, ausgefallen), geplantes Training starten |
 | **3.2 Trainingskalender** ✅ | Monats-/Wochenansicht, Status-Kennzeichnung, Tagesdetails, zukünftige Einheiten verschieben |
-| **3.3 Fortschrittsanalysen** 🔄 | Häufigkeit, geplant vs. absolviert, Kraftentwicklung je Übung, Lauf/Ergometer/Pace, HYROX-Stationen, Bestleistungen, Körperwerte erfassen + Verlauf |
-| **3.4 Trainingshistorie** | Liste und Detailansicht absolvierter Trainings, Notizen nachträglich bearbeiten |
+| **3.3 Fortschrittsanalysen** ✅ | Häufigkeit, geplant vs. absolviert, Kraftentwicklung je Übung, Lauf/Ergometer/Pace, HYROX-Stationen, Bestleistungen, Körperwerte erfassen + Verlauf |
+| **3.4 Trainingshistorie** 🔄 | Liste und Detailansicht absolvierter Trainings, Notizen nachträglich bearbeiten |
 | **3.5 Regenerationslogik** | Migration 0006, Tagesform-Check-in vor dem Training, Anbindung an Generator und Dashboard |
 | **3.6 Erweiterte Übungsverwaltung** | Eigene Übungen anlegen/bearbeiten/archivieren, Bibliotheksübung als eigene kopieren, Präferenzen und Ausblenden |
 
@@ -190,7 +190,9 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 1. Schritt 3.3 Fortschrittsanalysen (Statistik-Tab, Reiter Übersicht · Übungen · Rekorde · Körper; Recharts, Seite wird erst beim Öffnen geladen):
    - **3.3a** ✅ Übersicht: Zeitraum 4 Wochen / 12 Wochen / 12 Monate; Kennzahlen Trainings, Trainingszeit, Ø pro Woche, Plan erfüllt (nur fällige Einheiten); Säulendiagramme Trainings, Trainingszeit sowie geplant und absolviert je Woche/Monat; jede Grafik mit Tabellenansicht. Logik `src/domain/progress/frequency.ts` (getestet). Commit `e36eb05`.
    - **3.3b** ✅ Übungen: Auswahl aller trainierten Übungen nach Kraft / HYROX-Stationen / Ausdauer & Ergometer. Verglichen wird nur Vergleichbares: Kraft über das geschätzte Maximalgewicht (Epley, bis 12 Wdh.) plus Volumen und bestes Gewicht je Wiederholungszahl; Lauf/Ergometer über die Pace je Strecke (Rudern/SkiErg je 500 m); Sled/Carry über Gewicht je Strecke. Warm-up/Cool-down zählen nicht (Verlauf enthält jetzt den Block). Logik `src/domain/progress/exercise.ts` (getestet). Commit `61e3786`.
-   - **3.3c** ✅ Rekorde: alle Bestleistungen nach Bereich, HYROX-Wettkampfzeit, „manuell"-Kennzeichnung. Körper: Werte erfassen (Gewicht, Körperfett, Taille, Brust, Oberarm, Oberschenkel, Notiz; ein Eintrag pro Tag, leere Felder bleiben unverändert), Verlauf nur für erfasste Werte, Einträge löschen.
+   - **3.3c** ✅ Rekorde: alle Bestleistungen nach Bereich, HYROX-Wettkampfzeit, „manuell"-Kennzeichnung. Körper: Werte erfassen (Gewicht, Körperfett, Taille, Brust, Oberarm, Oberschenkel, Notiz; ein Eintrag pro Tag, leere Felder bleiben unverändert), Verlauf nur für erfasste Werte, Einträge löschen. Commit `abb898b`, vom Nutzer getestet und gepusht.
+1. Schritt 3.4 Trainingshistorie:
+   - **3.4** ✅ umgesetzt: Liste `/history` (über „Mehr" → Trainingshistorie und „Alle Trainings" auf dem Dashboard), nach Monaten gruppiert, je 20 Trainings mit „Ältere Trainings laden". Detailseite `/history/:id`: Datum und Uhrzeit, aktive Zeit, RPE, Belastung, Notiz (nachträglich bearbeiten), Bestleistungen aus diesem Training, alle Übungen nach Block mit Sätzen (Ist-Werte, Vorgabe bei Abweichung, Satz-RPE, übersprungen, „statt …" bei getauschten Übungen). Erreichbar auch aus dem Kalender („Alle Details und Notiz") und den letzten Trainings auf dem Dashboard; „Zurück" führt an die Ausgangsstelle. API `src/api/sessionHistory.ts` (Umwandlung getestet).
 2. Schritt 2.8 Dashboard ✅ umgesetzt: Begrüßung mit Datum, Hinweis „Training läuft", nächstes Training (laut bevorzugten Wochentagen – Wochenplan folgt in Phase 3), „Workout generieren", „Training starten" (startet das zuletzt erzeugte Workout direkt), diese Woche (Einheiten / Ziel, Minuten, Wochenleiste mit trainierten und bevorzugten Tagen), Trainingsbelastung (Einordnung + Werte, ab 2 Wochen Verlauf), letzte 3 Trainings, letzte 3 Bestleistungen. Berechnungen in `src/features/dashboard/stats.ts` (getestet). Startlogik gemeinsam mit dem Generator (`useStartTraining`). Commit `cc1751f`, vom Nutzer getestet.
 3. Erledigt – Schritt 2.7 Trainingsmodus & Speichern:
    - **2.7a** ✅ Migration 0004 (`workout_sessions`, `session_exercises`, `session_sets`, FK für `personal_records.session_id`) + `save_workout_session()` (idempotent, in zurückgerollter Transaktion getestet). Trainingsablauf als reine Funktionen (`src/domain/session/`): Start aus generiertem Workout, Reihenfolge inkl. Zirkel, Abhaken mit Übernahme der Vorgabe, Pausentimer per Zeitstempel, Sätze hinzufügen/entfernen, Überspringen, Tauschen (nur unbegonnene Übungen), Pausieren, Beenden, Auswertung. Rekorderkennung (`src/domain/records/detect.ts`), Speicher-Nutzlast. 30 neue Tests. Commit `e4fae64`.

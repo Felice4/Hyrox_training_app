@@ -8,6 +8,8 @@ import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { ExerciseDetailPage } from '@/features/exercises/ExerciseDetailPage'
 import { ExerciseListPage } from '@/features/exercises/ExerciseListPage'
 import { GeneratorPage } from '@/features/generator/GeneratorPage'
+import { HistoryListPage } from '@/features/history/HistoryListPage'
+import { SessionDetailPage } from '@/features/history/SessionDetailPage'
 import { OnboardingPage } from '@/features/onboarding/OnboardingPage'
 import { RequireOnboarding } from '@/features/onboarding/RequireOnboarding'
 import { MorePage } from '@/features/more/MorePage'
@@ -52,6 +54,8 @@ export const router = createBrowserRouter([
               { path: 'exercises', element: <ExerciseListPage /> },
               { path: 'exercises/:slug', element: <ExerciseDetailPage /> },
               { path: 'profile', element: <ProfilePage /> },
+              { path: 'history', element: <HistoryListPage /> },
+              { path: 'history/:id', element: <SessionDetailPage /> },
             ],
           },
         ],

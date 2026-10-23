@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 import type { ComponentType, SVGProps } from 'react'
-import { BookIcon, ChevronRightIcon, UserIcon } from '@/components/icons'
+import { BookIcon, CalendarIcon, ChevronRightIcon, UserIcon } from '@/components/icons'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -12,6 +12,7 @@ const UPCOMING_SECTIONS = [{ label: 'Datenexport', step: 'Schritt 4.3' }] as con
 
 const SECTIONS: { to: string; label: string; icon: ComponentType<SVGProps<SVGSVGElement>> }[] = [
   { to: '/profile', label: 'Profil & Ziele', icon: UserIcon },
+  { to: '/history', label: 'Trainingshistorie', icon: CalendarIcon },
   { to: '/exercises', label: 'Übungsbibliothek', icon: BookIcon },
 ]
 

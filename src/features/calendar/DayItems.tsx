@@ -44,6 +44,7 @@ export function AddUnitLink({ date }: { date: string }) {
 /** Absolviertes Training – aufklappbar mit allen Übungen und geschafften Sätzen. */
 function SessionItem({ session, nameOf }: { session: HistorySession; nameOf: NameOf }) {
   const [open, setOpen] = useState(false)
+  const location = useLocation()
   const time = new Date(session.startedAt).toLocaleTimeString('de-DE', {
     hour: '2-digit',
     minute: '2-digit',
@@ -90,6 +91,17 @@ function SessionItem({ session, nameOf }: { session: HistorySession; nameOf: Nam
           })}
           {session.exercises.length === 0 && (
             <li className="py-2 text-sm text-fg-muted">Keine Übungen gespeichert.</li>
+          )}
+          {session.id && (
+            <li className="py-1">
+              <Link
+                to={`/history/${session.id}`}
+                state={{ from: location.pathname + location.search }}
+                className="inline-flex min-h-11 items-center text-sm font-medium text-accent"
+              >
+                Alle Details und Notiz →
+              </Link>
+            </li>
           )}
         </ul>
       )}

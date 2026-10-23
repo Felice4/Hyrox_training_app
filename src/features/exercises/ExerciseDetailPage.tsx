@@ -28,7 +28,8 @@ function getBackTarget(state: unknown): string {
       typeof backTo === 'string' &&
       (backTo.startsWith('/exercises') ||
         backTo.startsWith('/training') ||
-        backTo.startsWith('/calendar'))
+        backTo.startsWith('/calendar') ||
+        backTo.startsWith('/history'))
     ) {
       return backTo
     }
@@ -52,7 +53,9 @@ export function ExerciseDetailPage() {
         ? 'Training'
         : backTo.startsWith('/calendar')
           ? 'Kalender'
-          : 'Übungen'}
+          : backTo.startsWith('/history')
+            ? 'Training'
+            : 'Übungen'}
     </Link>
   )
 

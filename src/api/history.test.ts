@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { toHistorySessions, type HistoryRow } from './history'
 
 const row: HistoryRow = {
+  id: 'session-1',
   started_at: '2026-10-21T17:00:00+00:00',
   focus: 'strength',
   active_duration_sec: 3000,
@@ -62,6 +63,7 @@ describe('toHistorySessions', () => {
   it('wandelt Datenbankzeilen in den Verlauf um (sortiert, ohne leere Felder)', () => {
     const [session] = toHistorySessions([row])
     expect(session).toEqual({
+      id: 'session-1',
       startedAt: '2026-10-21T17:00:00+00:00',
       focus: 'strength',
       durationMin: 50,

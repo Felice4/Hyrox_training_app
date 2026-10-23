@@ -12,6 +12,7 @@ const SET_TYPES: readonly SetType[] = ['warmup', 'working', 'interval', 'round']
 
 /** Datenbankzeilen eines gespeicherten Trainings (Auswahl der benötigten Spalten). */
 export interface HistoryRow {
+  id: string
   started_at: string
   focus: string
   active_duration_sec: number
@@ -39,6 +40,7 @@ const orUndefined = <T>(value: T | null): T | undefined => (value === null ? und
 /** Wandelt gespeicherte Trainings in den Verlauf für Generator und Progression um. */
 export function toHistorySessions(rows: readonly HistoryRow[]): HistorySession[] {
   return rows.map((row) => ({
+    id: row.id,
     startedAt: row.started_at,
     focus: (FOCUSES as readonly string[]).includes(row.focus) ? (row.focus as Focus) : 'mixed',
     durationMin: Math.round((row.active_duration_sec / 60) * 10) / 10,
@@ -77,7 +79,7 @@ export function toHistorySessions(rows: readonly HistoryRow[]): HistorySession[]
 /** Wie weit der Verlauf zurückreicht (Generator nutzt 28 Tage, „Letztes Mal" gern länger). */
 export const HISTORY_DAYS = 90
 
-const HISTORY_SELECT = `started_at, focus, active_duration_sec, session_rpe,
+const HISTORY_SELECT = `id, started_at, focus, active_duration_sec, session_rpe,
    session_exercises (
      position, block,
      exercise:exercises!session_exercises_exercise_id_fkey ( slug ),
