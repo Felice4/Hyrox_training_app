@@ -15,6 +15,7 @@ import {
 } from '@/domain/generator'
 import { useAuth } from '@/features/auth/authContext'
 import { useExerciseCatalog } from '@/features/exercises/useExerciseCatalog'
+import { useTrainingHistory } from '@/features/training/useTrainingHistory'
 import { createSession } from '@/domain/session/session'
 import { storageKeys } from '@/features/training/storage'
 import {
@@ -34,20 +35,16 @@ import {
 } from './inputs'
 import { WorkoutPreview } from './WorkoutPreview'
 
-/**
- * Trainingsverlauf für Ermüdung, Abwechslung und Gewichtsvorschläge.
- * Gespeicherte Trainings gibt es ab Schritt 2.7 – bis dahin ist der Verlauf leer.
- */
-const NO_HISTORY_YET: readonly HistorySession[] = []
-
 export function GeneratorPage() {
   const details = useProfileDetails()
   const { catalog } = useExerciseCatalog()
+  // Verlauf für Ermüdung, Abwechslung, Belastung und Gewichtsvorschläge
+  const history = useTrainingHistory()
 
   return (
     <>
       <PageHeader title="Training" subtitle="Workout erstellen und starten" />
-      {details.isPending || catalog.isPending ? (
+      {details.isPending || catalog.isPending || history.isPending ? (
         <div role="status" className="flex justify-center py-12">
           <Spinner className="text-accent" />
         </div>
@@ -65,7 +62,22 @@ export function GeneratorPage() {
           </Button>
         </EmptyState>
       ) : (
-        <Generator details={details.data} exercises={catalog.data.exercises} />
+        <>
+          {history.isError && (
+            <p
+              role="status"
+              className="mb-4 rounded-xl border border-hyrox/40 bg-hyrox/10 px-4 py-3 text-sm"
+            >
+              Dein Trainingsverlauf konnte nicht geladen werden. Workouts werden ohne Verlauf
+              erstellt (keine Gewichtsvorschläge, keine Ermüdung).
+            </p>
+          )}
+          <Generator
+            details={details.data}
+            exercises={catalog.data.exercises}
+            history={history.data ?? []}
+          />
+        </>
       )}
     </>
   )
@@ -74,9 +86,11 @@ export function GeneratorPage() {
 function Generator({
   details,
   exercises,
+  history,
 }: {
   details: ProfileDetails
   exercises: CatalogExercise[]
+  history: readonly HistorySession[]
 }) {
   const auth = useAuth()
   const navigate = useNavigate()
@@ -111,7 +125,7 @@ function Generator({
       profile,
       goals,
       exercises,
-      history: NO_HISTORY_YET,
+      history,
       now: new Date().toISOString(),
       seed: newSeed(),
     })
@@ -189,7 +203,7 @@ function Generator({
             ...stored,
             workout: swapExercise(stored.workout, blockIndex, itemIndex, suggestion.exercise, {
               level: profile.trainingLevel,
-              history: NO_HISTORY_YET,
+              history,
             }),
           })
         }

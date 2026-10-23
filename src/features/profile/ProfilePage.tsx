@@ -10,7 +10,7 @@ import type { ProfileDetails } from '@/api/profile'
 import { toSaveProfilePayload } from '@/domain/profile/payload'
 import { toLocalIsoDate } from '@/lib/date'
 import { validateDraft, type DraftErrors, type ProfileDraft } from './draft'
-import { formatDecimalInput, profileDetailsToDraft } from './fromDetails'
+import { formatDecimalInput, profileDetailsToDraft, sessionRecordHints } from './fromDetails'
 import { BackgroundSection } from './sections/BackgroundSection'
 import { ConditionsSection } from './sections/ConditionsSection'
 import { GoalsSection } from './sections/GoalsSection'
@@ -138,7 +138,7 @@ function ProfileForm({ details, showSaved, onSaved, onEdit }: ProfileFormProps) 
         />
       </ProfileCard>
       <ProfileCard title="Hintergrund & Bestleistungen">
-        <BackgroundSection {...sectionProps} />
+        <BackgroundSection {...sectionProps} sessionRecords={sessionRecordHints(details)} />
       </ProfileCard>
       <ProfileCard title="Ziele">
         <GoalsSection {...sectionProps} />

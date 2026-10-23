@@ -14,7 +14,7 @@
 |---|---|
 | **Aktuelle Phase** | Phase 2 – Schritt 2.7 Trainingsmodus & Speichern |
 | **Letzter verifizierter Meilenstein** | Schritt 2.6 – Trainingsgenerator mit Generator-Seite (vom Nutzer getestet) |
-| **Nächster Schritt** | Nutzer testet Trainingsmodus → 2.7c Verlauf für Generator, „Letztes Mal", Rekorde im Profil |
+| **Nächster Schritt** | Nutzer testet 2.7c → Schritt 2.8 Dashboard |
 | **Blocker** | keine |
 | **Git** | Commits und Pushes nur auf ausdrückliche Anweisung des Nutzers. Stand auf GitHub: `587d7d7`. |
 
@@ -166,8 +166,6 @@ Behoben:
 - 20.10.2026: `VITE_SUPABASE_URL` war mit `/rest/v1/` eingetragen, deshalb schlugen alle Anfragen mit `PGRST125` fehl. `.env.local` ist korrigiert. `src/lib/env.ts` lehnt URLs mit Pfad jetzt mit klarer Meldung ab.
 
 Offene Kleinigkeiten:
-- **Für Schritt 2.7 merken:** Der Generator erhält derzeit einen leeren Trainingsverlauf (`NO_HISTORY_YET` in `GeneratorPage.tsx`). Mit gespeicherten Trainings den Verlauf der letzten 28 Tage laden und übergeben – erst dann wirken Ermüdung, Abwechslung, Belastung und Gewichtsvorschläge.
-- **Für Schritt 2.7 merken:** Die Profilseite zeigt bei den Bestleistungen nur manuelle Einträge. Sobald Trainings Rekorde speichern, sollte sie Rekorde aus Trainings als Info anzeigen (nur lesbar), damit ein leeres Feld nicht so wirkt, als gäbe es keinen Rekord.
 - `npm install` warnt vor einem veralteten `glob@11` (kommt über `vite-plugin-pwa` → `workbox-build`, nur Entwicklungswerkzeug, nicht in der App). Verschwindet mit einem Update von workbox.
 - Der Service Worker speichert alle Zeichensätze der Schrift Inter vor (Precache gesamt ca. 950 KB). Das wird in Schritt 4.2 optimiert.
 - Das JavaScript-Bundle ist mit Supabase-Client und Zod ca. 650 KB groß (190 KB gzip). Vite warnt deshalb beim Build. Das wird in Schritt 4.1/4.2 per Code-Splitting der Seiten optimiert.
@@ -183,8 +181,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 1. Optional: In Supabase unter Authentication → URL Configuration die Site URL auf die Cloudflare-Adresse setzen.
 2. Schritt 2.7 Trainingsmodus & Speichern in Teilschritten:
    - **2.7a** ✅ Migration 0004 (`workout_sessions`, `session_exercises`, `session_sets`, FK für `personal_records.session_id`) + `save_workout_session()` (idempotent, in zurückgerollter Transaktion getestet). Trainingsablauf als reine Funktionen (`src/domain/session/`): Start aus generiertem Workout, Reihenfolge inkl. Zirkel, Abhaken mit Übernahme der Vorgabe, Pausentimer per Zeitstempel, Sätze hinzufügen/entfernen, Überspringen, Tauschen (nur unbegonnene Übungen), Pausieren, Beenden, Auswertung. Rekorderkennung (`src/domain/records/detect.ts`), Speicher-Nutzlast. 30 neue Tests. Commit `e4fae64`.
-   - **2.7b** ✅ umgesetzt: Trainingsmodus `/training/active` (Vollbild): Trainingszeit, Pause/Fortsetzen, Fortschritt, aktueller Satz mit Ziel, Progressionshinweis und Anleitung, große Zahlenfelder mit ± (Gewichtsstufe je Gerät), Zeitfeld m:ss, Arbeitstimer (Countdown bzw. Stoppuhr, Zeit wird eingetragen), optionale Satz-RPE, „Satz geschafft" übernimmt die Vorgabe, Satzpause mit ±15 s, Vibration am Ende, Bildschirm bleibt an (Wake Lock), Vorschau „Als Nächstes", Übersicht aller Sätze zum Springen, + Satz, Tauschen (nur unbegonnene Übungen), Überspringen. Abschluss: Zusammenfassung, Gesamt-RPE, Notizen, Speichern (idempotent, 2 automatische Wiederholungen), „Doch weiter trainieren", „Training verwerfen" (mit Rückfrage, zurück zur Training-Seite; das erzeugte Workout bleibt zum erneuten Start), Bestätigung mit neuen Bestleistungen. Start aus der Generator-Vorschau, Hinweis „Laufendes Training fortsetzen". Alles lokal gesichert bis zum erfolgreichen Speichern.
-   - **2.7c**: Verlauf aus gespeicherten Trainings für den Generator (Ermüdung, Abwechslung, Gewichtsvorschläge), „Letztes Mal" im Trainingsmodus, Rekorde aus Trainings auf der Profilseite.
+   - **2.7b** ✅ umgesetzt: Trainingsmodus `/training/active` (Vollbild): Trainingszeit, Pause/Fortsetzen, Fortschritt, aktueller Satz mit Ziel, Progressionshinweis und Anleitung, große Zahlenfelder mit ± (Gewichtsstufe je Gerät), Zeitfeld m:ss, Arbeitstimer (Countdown bzw. Stoppuhr, Zeit wird eingetragen), optionale Satz-RPE, „Satz geschafft" übernimmt die Vorgabe, Satzpause mit ±15 s, Vibration am Ende, Bildschirm bleibt an (Wake Lock), Vorschau „Als Nächstes", Übersicht aller Sätze zum Springen, + Satz, Tauschen (nur unbegonnene Übungen), Überspringen. Abschluss: Zusammenfassung, Gesamt-RPE, Notizen, Speichern (idempotent, 2 automatische Wiederholungen), „Doch weiter trainieren", „Training verwerfen" (mit Rückfrage, zurück zur Training-Seite; das erzeugte Workout bleibt zum erneuten Start), Bestätigung mit neuen Bestleistungen. Start aus der Generator-Vorschau, Hinweis „Laufendes Training fortsetzen". Alles lokal gesichert bis zum erfolgreichen Speichern. Commits `506686e`, `f5d2922`, vom Nutzer getestet und gepusht.
+   - **2.7c** ✅ umgesetzt: Verlauf der letzten 90 Tage (`src/api/history.ts`, `useTrainingHistory`) fließt in den Generator (Gewichtsvorschläge, Ermüdung, Abwechslung, Belastung, Stationsabdeckung) und in den Austausch im Training. „Letztes Mal (Datum): 3 × 5 Wdh. · 100 kg" im Trainingsmodus. Profilseite zeigt Bestleistungen aus Trainings als gesperrte Felder mit Datum. Fehler beim Laden des Verlaufs: Hinweis, Workouts werden ohne Verlauf erstellt.
 3. Erledigt – Schritt 2.6 Trainingsgenerator:
    - **2.6a** ✅ Grundlagen in `src/domain/`: Typen (`generator/types.ts`), alle Stellschrauben (`generator/config.ts`), Zufallsgenerator mit Seed (`random.ts`), Tagesform (`readiness/`), Trainingsbelastung sRPE akut/chronisch (`load/trainingLoad.ts`), Muskelermüdung (`load/muscleFatigue.ts`), Zeitschätzung (`duration/estimate.ts`). 49 Tests. Commit `4ca67df`.
    - **2.6b** ✅ Generator-Kern: Vorlagen je Schwerpunkt mit Rollen und Zirkeln, Bewertung/Auswahl per Seed, Dosierung inkl. Gewichtsvorschlag (doppelte Progression), Zeitanpassung mit Rücksetzen und Stellknöpfen, Erklärung, Übungsaustausch (`suggestAlternatives`, `swapExercise`), Zod-Schema für das Ergebnis, Schnittstelle `WorkoutGenerator`. Pflichttests 1–4 aus SPEC §15 + Determinismus u. a. (39 Tests). Belastungstest mit 24 000 Workouts: 0 Abweichungen über ±10 %. Details: `docs/GENERATOR.md` §5a. Commit `ef8c233`.
@@ -270,6 +268,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 | 21.10.2026 | Abschluss und Speichern bereits in 2.7b (statt 2.7c) | Ein vollständiges Training ist damit direkt testbar |
 | 21.10.2026 | Trainingsmodus als eigene Vollbild-Route außerhalb des App-Rahmens; laufendes Training in localStorage bis zum erfolgreichen Speichern | Kein Datenverlust; Navigation lenkt im Studio nicht ab |
 | 21.10.2026 | Zahlenfelder zeigen die Vorgabe als Platzhalter; ± startet bei der Vorgabe; Gewichtsschritt je Gerät (Langhantel 2,5 / Kurzhantel 1 / Kettlebell 2 kg) | Schnelle Bedienung mit einer Hand |
+| 23.10.2026 | Verlauf für Generator und Training: 90 Tage laden (Generator wertet selbst 28 Tage / 96 h aus) | „Letztes Mal" und Progression finden auch ältere Einheiten |
+| 23.10.2026 | Bestleistungen aus Trainings auf der Profilseite nur lesbar | Manuelle Eingaben dürfen echte Leistungen nie überschreiben – ein offenes Feld wäre irreführend |
 | 21.10.2026 | Profildetails ohne automatisches Neuladen (`staleTime: Infinity`), nach dem Speichern gezielt neu geladen; Formular wird dann mit den gespeicherten Werten neu aufgebaut | Ungespeicherte Eingaben werden nie durch einen Hintergrund-Abgleich überschrieben |
 
 ---

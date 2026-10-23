@@ -24,6 +24,7 @@ export interface StoredRecord {
   contextKey: string
   value: number
   source: 'manual' | 'session'
+  achievedAt: string
 }
 
 /** Alles, was die Profilseite zum Bearbeiten braucht. */
@@ -49,7 +50,7 @@ export async function fetchProfileDetails(supabase: AppSupabaseClient): Promise<
       .limit(60),
     supabase
       .from('personal_records')
-      .select('record_type, context_key, value, source, exercise:exercises(slug)'),
+      .select('record_type, context_key, value, source, achieved_at, exercise:exercises(slug)'),
     supabase
       .from('exercises')
       .select('slug, preference')
@@ -80,6 +81,7 @@ export async function fetchProfileDetails(supabase: AppSupabaseClient): Promise<
               contextKey: r.context_key,
               value: r.value,
               source: r.source,
+              achievedAt: r.achieved_at,
             },
           ]
         : [],

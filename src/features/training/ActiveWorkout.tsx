@@ -4,7 +4,7 @@ import type { CatalogExercise } from '@/api/exercises'
 import { ChevronLeftIcon } from '@/components/icons'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { ruleBasedGenerator, type GeneratorProfile } from '@/domain/generator'
+import { ruleBasedGenerator, type GeneratorProfile, type HistorySession } from '@/domain/generator'
 import { doseExercise } from '@/domain/generator/dosing'
 import {
   activeSeconds,
@@ -24,6 +24,7 @@ import type { ActiveSession } from '@/domain/session/types'
 import { formatDurationClock } from '@/lib/time'
 import { CurrentSetCard } from './CurrentSetCard'
 import { describeTarget } from './format'
+import { lastPerformance } from './lastTime'
 import { RestCard } from './RestCard'
 import type { SessionAction } from './useActiveSession'
 import { useNow, useWakeLock, vibrate } from './useDeviceFeatures'
@@ -34,9 +35,10 @@ interface ActiveWorkoutProps {
   apply: (action: SessionAction) => void
   catalog: readonly CatalogExercise[]
   profile: GeneratorProfile
+  history: readonly HistorySession[]
 }
 
-export function ActiveWorkout({ session, apply, catalog, profile }: ActiveWorkoutProps) {
+export function ActiveWorkout({ session, apply, catalog, profile, history }: ActiveWorkoutProps) {
   const now = useNow(true)
   useWakeLock(true)
   const [view, setView] = useState<'set' | 'overview'>('set')
@@ -169,6 +171,7 @@ export function ActiveWorkout({ session, apply, catalog, profile }: ActiveWorkou
                   exerciseId={exercise.id}
                   catalog={catalog}
                   profile={profile}
+                  history={history}
                   apply={apply}
                   onDone={() => setSwapping(false)}
                 />
@@ -178,6 +181,7 @@ export function ActiveWorkout({ session, apply, catalog, profile }: ActiveWorkou
                   exercise={exercise}
                   set={set}
                   meta={meta(exercise.exerciseSlug)}
+                  lastTime={lastPerformance(history, exercise.exerciseSlug, session.startedAt)}
                   now={now}
                   apply={apply}
                   onSwap={() => setSwapping(true)}
@@ -219,6 +223,7 @@ function SwapPanel({
   exerciseId,
   catalog,
   profile,
+  history,
   apply,
   onDone,
 }: {
@@ -226,6 +231,7 @@ function SwapPanel({
   exerciseId: string
   catalog: readonly CatalogExercise[]
   profile: GeneratorProfile
+  history: readonly HistorySession[]
   apply: (action: SessionAction) => void
   onDone: () => void
 }) {
@@ -255,7 +261,7 @@ function SwapPanel({
               intensity: session.workout.intensity,
               volumeFactor: 1,
               loadFactor: 1,
-              history: [],
+              history,
               fixedSets: exercise.inCircuit ? exercise.sets.length : undefined,
             })
             // Im Zirkel bleiben die Pausen an ihrer Position (Rundenpause nach der letzten Übung)

@@ -13,12 +13,14 @@ import { ActiveWorkout } from './ActiveWorkout'
 import { FinishScreen, SavedScreen } from './FinishScreen'
 import { storageKeys } from './storage'
 import { useActiveSession } from './useActiveSession'
+import { useTrainingHistory } from './useTrainingHistory'
 
 /** Trainingsmodus (Vollbild ohne Navigation): laufendes Training, Abschluss, Bestätigung. */
 export function TrainingPage() {
   const auth = useAuth()
   const { session, apply, discard } = useActiveSession()
   const details = useProfileDetails()
+  const history = useTrainingHistory()
   const { catalog } = useExerciseCatalog()
   const [saved, setSaved] = useState<{ result: SaveSessionResult; summary: SessionSummary } | null>(
     null,
@@ -82,6 +84,7 @@ export function TrainingPage() {
       apply={apply}
       catalog={catalog.data.exercises}
       profile={toGeneratorProfile(details.data)}
+      history={history.data ?? []}
     />
   )
 }

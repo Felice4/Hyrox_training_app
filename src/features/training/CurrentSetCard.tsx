@@ -25,7 +25,10 @@ import { DurationInput } from './inputs/DurationInput'
 import { RpePicker } from './inputs/RpePicker'
 import { distanceIncrement } from './inputs/steps'
 import { ValueInput } from './inputs/ValueInput'
+import type { LastPerformance } from './lastTime'
 import type { SessionAction } from './useActiveSession'
+
+const dayFormat = new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'numeric' })
 
 interface CurrentSetCardProps {
   session: ActiveSession
@@ -36,6 +39,8 @@ interface CurrentSetCardProps {
   now: string
   apply: (action: SessionAction) => void
   onSwap: () => void
+  /** Was bei dieser Übung zuletzt geschafft wurde */
+  lastTime?: LastPerformance | undefined
 }
 
 /** Position des Satzes: „Satz 2 von 4", „Runde 3 von 5" oder „Aufwärmsatz". */
@@ -54,6 +59,7 @@ export function CurrentSetCard({
   now,
   apply,
   onSwap,
+  lastTime,
 }: CurrentSetCardProps) {
   const fields = MEASURED_FIELDS[exercise.measurement]
   const change = (patch: Parameters<typeof setActual>[3]) =>
@@ -86,6 +92,14 @@ export function CurrentSetCard({
           <p className="mt-1 text-lg">
             <span className="text-fg-muted">Ziel: </span>
             <span className="font-semibold text-accent">{describeTarget(set.target)}</span>
+          </p>
+        )}
+        {lastTime && (
+          <p className="mt-1 text-sm">
+            <span className="text-fg-muted">
+              Letztes Mal ({dayFormat.format(new Date(lastTime.date))}):{' '}
+            </span>
+            {lastTime.text}
           </p>
         )}
         {exercise.note && set.type !== 'warmup' && (

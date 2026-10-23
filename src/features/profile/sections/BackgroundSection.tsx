@@ -11,7 +11,8 @@ import {
   TRAINING_LEVEL_HINTS,
   TRAINING_LEVEL_LABELS,
 } from '@/domain/profile/vocabulary'
-import { MANUAL_RECORD_PRESETS } from '@/domain/records/presets'
+import { MANUAL_RECORD_PRESETS, type ManualRecordKey } from '@/domain/records/presets'
+import type { SessionRecordHint } from '../fromDetails'
 import type { SectionProps } from './types'
 
 const LEVEL_OPTIONS = TRAINING_LEVELS.map((level) => ({
@@ -34,7 +35,17 @@ const RECORD_PLACEHOLDERS = {
   sec: 'Zeit, z. B. 4:05',
 }
 
-export function BackgroundSection({ draft, errors, update }: SectionProps) {
+interface BackgroundSectionProps extends SectionProps {
+  /** Bestleistungen aus Trainings – diese Felder sind nur zur Anzeige */
+  sessionRecords?: Partial<Record<ManualRecordKey, SessionRecordHint>>
+}
+
+export function BackgroundSection({
+  draft,
+  errors,
+  update,
+  sessionRecords = {},
+}: BackgroundSectionProps) {
   return (
     <div className="flex flex-col gap-6">
       <OptionCards
@@ -90,19 +101,35 @@ export function BackgroundSection({ draft, errors, update }: SectionProps) {
           error={errors.hyroxBestTime}
         />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {MANUAL_RECORD_PRESETS.map((preset) => (
-            <TextField
-              key={preset.key}
-              label={preset.label}
-              inputMode={preset.unit === 'sec' ? 'numeric' : 'decimal'}
-              placeholder={RECORD_PLACEHOLDERS[preset.unit]}
-              value={draft.records[preset.key] ?? ''}
-              onChange={(e) =>
-                update({ records: { ...draft.records, [preset.key]: e.target.value } })
-              }
-              error={errors[`records.${preset.key}`]}
-            />
-          ))}
+          {MANUAL_RECORD_PRESETS.map((preset) => {
+            const fromSession = sessionRecords[preset.key]
+            if (fromSession) {
+              return (
+                <TextField
+                  key={preset.key}
+                  label={preset.label}
+                  value={fromSession.value}
+                  hint={fromSession.text}
+                  disabled
+                  readOnly
+                  className="opacity-80"
+                />
+              )
+            }
+            return (
+              <TextField
+                key={preset.key}
+                label={preset.label}
+                inputMode={preset.unit === 'sec' ? 'numeric' : 'decimal'}
+                placeholder={RECORD_PLACEHOLDERS[preset.unit]}
+                value={draft.records[preset.key] ?? ''}
+                onChange={(e) =>
+                  update({ records: { ...draft.records, [preset.key]: e.target.value } })
+                }
+                error={errors[`records.${preset.key}`]}
+              />
+            )
+          })}
         </div>
       </section>
     </div>

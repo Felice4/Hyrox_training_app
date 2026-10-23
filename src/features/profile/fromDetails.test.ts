@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { ProfileDetails } from '@/api/profile'
 import { toSaveProfilePayload } from '@/domain/profile/payload'
 import { createEmptyDraft, validateDraft } from './draft'
-import { formatDecimalInput, profileDetailsToDraft } from './fromDetails'
+import { formatDecimalInput, profileDetailsToDraft, sessionRecordHints } from './fromDetails'
 
 const TODAY = '2026-10-21'
 
@@ -47,6 +47,7 @@ const details: ProfileDetails = {
       contextKey: 'reps=1',
       value: 160,
       source: 'manual',
+      achievedAt: '2026-10-21T10:00:00Z',
     },
     {
       exerciseSlug: 'run-5k-time-trial',
@@ -54,6 +55,7 @@ const details: ProfileDetails = {
       contextKey: 'distance_m=5000',
       value: 1290,
       source: 'manual',
+      achievedAt: '2026-10-21T10:00:00Z',
     },
     {
       exerciseSlug: 'bench-press',
@@ -61,6 +63,7 @@ const details: ProfileDetails = {
       contextKey: 'reps=1',
       value: 110,
       source: 'session',
+      achievedAt: '2026-10-17T18:00:00Z',
     },
   ],
   preferredExercises: ['hyrox-sled-push'],
@@ -131,5 +134,14 @@ describe('profileDetailsToDraft', () => {
       dislikedExercises: [],
     })
     expect(empty).toEqual(createEmptyDraft())
+  })
+})
+
+describe('sessionRecordHints', () => {
+  it('zeigt Bestleistungen aus Trainings mit Datum, manuelle nicht', () => {
+    const hints = sessionRecordHints(details)
+    expect(Object.keys(hints)).toEqual(['bench_press_1rm'])
+    expect(hints.bench_press_1rm?.value).toBe('110 kg')
+    expect(hints.bench_press_1rm?.text).toContain('17.10.2026')
   })
 })
