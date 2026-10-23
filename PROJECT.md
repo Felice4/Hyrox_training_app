@@ -12,9 +12,9 @@
 
 | | |
 |---|---|
-| **Aktuelle Phase** | Phase 2 – Schritt 2.8 Dashboard |
-| **Letzter verifizierter Meilenstein** | Schritt 2.7 – Trainingsmodus, Speichern, Verlauf für den Generator (vom Nutzer getestet) |
-| **Nächster Schritt** | Nutzer testet Dashboard → Abschluss Phase 2 → Phase 3 (Wochenplanung, Kalender, Statistiken …) |
+| **Aktuelle Phase** | Phase 3 – Erweiterung (Start mit 3.1 Wochenplanung) |
+| **Letzter verifizierter Meilenstein** | Phase 2 abgeschlossen – funktionsfähige Basisversion inkl. Dashboard (vom Nutzer getestet) |
+| **Nächster Schritt** | 3.1 Wochenplanung |
 | **Blocker** | keine |
 | **Git** | Commits und Pushes nur auf ausdrückliche Anweisung des Nutzers. Stand auf GitHub: `587d7d7`. |
 
@@ -97,8 +97,8 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 |---|---|---|
 | Setup 1–4 | Werkzeuge, Git, Dokumentation, GitHub | ✅ erledigt |
 | Phase 1 | Planung: Architektur, DB-Schema, Ordnerstruktur, Generator-Algorithmus, Roadmap | ✅ abgenommen |
-| Phase 2 | Funktionsfähige Basisversion | 🔄 in Arbeit (2.1–2.7 erledigt) |
-| Phase 3 | Erweiterung | offen |
+| Phase 2 | Funktionsfähige Basisversion | ✅ abgeschlossen |
+| Phase 3 | Erweiterung | 🔄 in Arbeit |
 | Phase 4 | Fertigstellung | offen |
 
 ### Phase 2 – Funktionsfähige Basisversion
@@ -112,7 +112,7 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | **2.5 Onboarding & Profil** ✅ | Migration 0003, mehrstufiges Onboarding (Körperdaten, Hintergrund, Ziele, Bedingungen, Präferenzen, Bestleistungen), Profilseite zum Bearbeiten | Onboarding durchlaufen, Daten im Profil ändern, nach erneutem Login noch vorhanden |
 | **2.6 Trainingsgenerator** ✅ | `domain/generator` mit allen Pflichttests, Generator-Seite mit Eingaben, Vorschau, Erklärung, „Neu erzeugen", Übung austauschen | Verschiedene Schwerpunkte/Dauern erzeugen, Geräte abwählen, Erklärung prüfen |
 | **2.7 Trainingsmodus & Speichern** ✅ | Migration 0004 + `save_workout_session`, aktives Training (Sätze, Gewichte, Wdh., Distanz/Zeit), Pausen-/Intervalltimer, Rundenzähler, überspringen/austauschen, pausieren, lokaler Entwurf, Abschluss mit RPE/Notizen/Zusammenfassung, letzte Gewichte & Bestleistungen | Training im Studio-Szenario durchspielen, Seite zwischendurch neu laden, teilweise abschließen, doppelt speichern → nur ein Eintrag |
-| **2.8 Dashboard** 🔄 | Begrüßung, Buttons, Einheiten dieser Woche, Trainingsbelastung, letzte Workouts, Fortschritte; „Nächstes Training"/„Kommende Tage" mit Leerzustand bis Phase 3 | Dashboard nach einigen Trainings prüfen |
+| **2.8 Dashboard** ✅ | Begrüßung, Buttons, Einheiten dieser Woche, Trainingsbelastung, letzte Workouts, Fortschritte; „Nächstes Training"/„Kommende Tage" mit Leerzustand bis Phase 3 | Dashboard nach einigen Trainings prüfen |
 
 ### Phase 3 – Erweiterung
 
@@ -153,6 +153,7 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | 21.10.2026 | Schritt 2.5 – Migration 0003, Onboarding in 5 Schritten, Profilseite | `8886d97` … `058512a` |
 | 21.10.2026 | Schritt 2.6 – Trainingsgenerator (Grundlagen, Kern, Generator-Seite) | `4ca67df` … `a180b7b` |
 | 23.10.2026 | Schritt 2.7 – Migration 0004, Trainingsmodus, Speichern, Verwerfen, Verlauf für Generator, „Letztes Mal", Rekorde im Profil | `e4fae64` … `d77f6e1` |
+| 23.10.2026 | Schritt 2.8 – Dashboard · **Phase 2 abgeschlossen** | `cc1751f` |
 
 ---
 
@@ -180,7 +181,7 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 ## 9. Nächste Aufgaben
 
 1. Optional: In Supabase unter Authentication → URL Configuration die Site URL auf die Cloudflare-Adresse setzen.
-2. Schritt 2.8 Dashboard ✅ umgesetzt: Begrüßung mit Datum, Hinweis „Training läuft", nächstes Training (laut bevorzugten Wochentagen – Wochenplan folgt in Phase 3), „Workout generieren", „Training starten" (startet das zuletzt erzeugte Workout direkt), diese Woche (Einheiten / Ziel, Minuten, Wochenleiste mit trainierten und bevorzugten Tagen), Trainingsbelastung (Einordnung + Werte, ab 2 Wochen Verlauf), letzte 3 Trainings, letzte 3 Bestleistungen. Berechnungen in `src/features/dashboard/stats.ts` (getestet). Startlogik gemeinsam mit dem Generator (`useStartTraining`).
+2. Schritt 2.8 Dashboard ✅ umgesetzt: Begrüßung mit Datum, Hinweis „Training läuft", nächstes Training (laut bevorzugten Wochentagen – Wochenplan folgt in Phase 3), „Workout generieren", „Training starten" (startet das zuletzt erzeugte Workout direkt), diese Woche (Einheiten / Ziel, Minuten, Wochenleiste mit trainierten und bevorzugten Tagen), Trainingsbelastung (Einordnung + Werte, ab 2 Wochen Verlauf), letzte 3 Trainings, letzte 3 Bestleistungen. Berechnungen in `src/features/dashboard/stats.ts` (getestet). Startlogik gemeinsam mit dem Generator (`useStartTraining`). Commit `cc1751f`, vom Nutzer getestet.
 3. Erledigt – Schritt 2.7 Trainingsmodus & Speichern:
    - **2.7a** ✅ Migration 0004 (`workout_sessions`, `session_exercises`, `session_sets`, FK für `personal_records.session_id`) + `save_workout_session()` (idempotent, in zurückgerollter Transaktion getestet). Trainingsablauf als reine Funktionen (`src/domain/session/`): Start aus generiertem Workout, Reihenfolge inkl. Zirkel, Abhaken mit Übernahme der Vorgabe, Pausentimer per Zeitstempel, Sätze hinzufügen/entfernen, Überspringen, Tauschen (nur unbegonnene Übungen), Pausieren, Beenden, Auswertung. Rekorderkennung (`src/domain/records/detect.ts`), Speicher-Nutzlast. 30 neue Tests. Commit `e4fae64`.
    - **2.7b** ✅ umgesetzt: Trainingsmodus `/training/active` (Vollbild): Trainingszeit, Pause/Fortsetzen, Fortschritt, aktueller Satz mit Ziel, Progressionshinweis und Anleitung, große Zahlenfelder mit ± (Gewichtsstufe je Gerät), Zeitfeld m:ss, Arbeitstimer (Countdown bzw. Stoppuhr, Zeit wird eingetragen), optionale Satz-RPE, „Satz geschafft" übernimmt die Vorgabe, Satzpause mit ±15 s, Vibration am Ende, Bildschirm bleibt an (Wake Lock), Vorschau „Als Nächstes", Übersicht aller Sätze zum Springen, + Satz, Tauschen (nur unbegonnene Übungen), Überspringen. Abschluss: Zusammenfassung, Gesamt-RPE, Notizen, Speichern (idempotent, 2 automatische Wiederholungen), „Doch weiter trainieren", „Training verwerfen" (mit Rückfrage, zurück zur Training-Seite; das erzeugte Workout bleibt zum erneuten Start), Bestätigung mit neuen Bestleistungen. Start aus der Generator-Vorschau, Hinweis „Laufendes Training fortsetzen". Alles lokal gesichert bis zum erfolgreichen Speichern. Commits `506686e`, `f5d2922`, vom Nutzer getestet und gepusht.
