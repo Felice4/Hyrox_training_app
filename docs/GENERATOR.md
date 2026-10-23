@@ -242,9 +242,24 @@ Code: `src/domain/generator/` (`generateWorkout.ts`, `templates.ts`, `scoring.ts
 | **Stationswunsch** | Ausdrücklich gewünschte HYROX-Stationen werden verbindlich eingeplant, sofern eine passende Übung verfügbar ist (statt nur +5 Punkte). |
 | **Ermüdung** | Stark ermüdete Muskeln werden in belastenden Rollen ausgeschlossen, in lockeren Rollen (Einfahren, Grundlage, Mobility, Dehnen) nur abgewertet. |
 | **Erklärung** | Beginnt mit einem Satz zum Aufbau des Schwerpunkts, endet mit geschätzter Dauer und Intensität. |
-| **Noch nicht umgesetzt** | Tempo-Progression für Lauf/Rudern/SkiErg (folgt, sobald Trainingsdaten gespeichert werden, Schritt 2.7+); Wochenplan (Schritt 3.1). |
+| **Noch nicht umgesetzt** | Tempo-Progression für Lauf/Rudern/SkiErg. Wochenplan: siehe §5b. |
 
 **Prüfung der Dauer:** Ein Belastungstest mit 24 000 Workouts (6 Schwerpunkte × 5 Dauern × 100 Seeds × 8 Szenarien: Standard, Anfänger, Erfahren, Heim-Studio, ohne HYROX-Geräte, nach Beintag, müde, Knieproblem) ergab 0 Abweichungen über ±10 % (21.10.2026). Der reguläre Test prüft 6 × 4 × 12 Kombinationen.
+
+---
+
+## 5b. Umsetzung Wochenplan (Schritt 3.1)
+
+Code: `src/domain/generator/weekPlan.ts` (`generateWeekPlan`, `chooseDays`, `assignFocuses`), Tests in `weekPlan.test.ts`.
+
+| Thema | Umsetzung |
+|---|---|
+| **Verteilung** | 1: Mixed · 2: Ganzkörper, HYROX · 3: Kraft, HYROX, Mixed · 4: Kraft, Ausdauer, Ganzkörper, HYROX · 5: + Regeneration · 6: + Mixed · 7: + Regeneration. Ziele mit Gewichtung 0 werden ersetzt (HYROX → Kraft bzw. Ganzkörper, Ausdauer → Ganzkörper, Kraft ohne Kraft-/Muskelziel → Mixed). |
+| **Absolviertes** | Trainings der Woche zählen zum Wochenziel; ihre Schwerpunkte werden aus der Verteilung entfernt. Geplant wird nur ab heute. Tage mit Training, ausgefallenen oder vergangenen Einheiten werden nicht neu belegt. |
+| **Tage** | Zuerst bevorzugte Wochentage, dann jeweils der Tag mit dem größten Abstand zu allen belegten Tagen (bei Gleichstand der frühere). Reichen die Tage nicht, wird das in der Erklärung vermerkt. |
+| **Reihenfolge** | Alle Anordnungen werden bewertet: +3 für zwei beinlastige Einheiten (Kraft, HYROX, Mixed, Ganzkörper) an Folgetagen, +1 für denselben Schwerpunkt an Folgetagen – auch gegenüber bereits feststehenden Einheiten. Unter den besten Anordnungen wählt der Seed. |
+| **Intensität** | Regeneration locker; Ausdauer abwechselnd moderat/hart; sonst abwechselnd hart/moderat. |
+| **Workouts** | Je Tag `generateWorkout` mit Datum des Tages und eigenem Seed – deterministisch. |
 
 ---
 
