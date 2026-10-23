@@ -105,3 +105,14 @@ export function useDeletePlannedWorkout() {
     onSuccess: invalidate,
   })
 }
+
+/** Geplante Einheiten in einem Zeitraum (Monatsansicht). */
+export function usePlannedRange(from: string, to: string) {
+  const supabase = useSupabase()
+  const userId = useUserId()
+  return useQuery({
+    queryKey: [...plannedWorkoutsKey(userId), 'range', from, to],
+    queryFn: () => fetchPlannedWorkouts(supabase, from, to),
+    enabled: userId !== undefined,
+  })
+}

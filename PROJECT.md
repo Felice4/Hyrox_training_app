@@ -13,10 +13,10 @@
 | | |
 |---|---|
 | **Aktuelle Phase** | Phase 3 – Erweiterung (Start mit 3.1 Wochenplanung) |
-| **Letzter verifizierter Meilenstein** | Phase 2 abgeschlossen – funktionsfähige Basisversion inkl. Dashboard (vom Nutzer getestet) |
-| **Nächster Schritt** | Test von 3.1b durch den Nutzer, danach 3.2 Kalender (Monats-/Wochenansicht) |
+| **Letzter verifizierter Meilenstein** | 3.1 Wochenplanung (vom Nutzer getestet) |
+| **Nächster Schritt** | Test von 3.2 durch den Nutzer, danach 3.3 Fortschrittsanalysen |
 | **Blocker** | keine |
-| **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: `79d7192`. |
+| **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: `984cb20`. |
 
 ---
 
@@ -118,8 +118,8 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 
 | Schritt | Inhalt |
 |---|---|
-| **3.1 Wochenplanung** | Migration 0005, `generateWeekPlan` + Tests, Wochenplan erzeugen/bearbeiten (verschieben, ersetzen, spontane Einheit, ausgefallen), geplantes Training starten |
-| **3.2 Trainingskalender** | Monats-/Wochenansicht, Status-Kennzeichnung, Tagesdetails, zukünftige Einheiten verschieben |
+| **3.1 Wochenplanung** ✅ | Migration 0005, `generateWeekPlan` + Tests, Wochenplan erzeugen/bearbeiten (verschieben, ersetzen, spontane Einheit, ausgefallen), geplantes Training starten |
+| **3.2 Trainingskalender** 🔄 | Monats-/Wochenansicht, Status-Kennzeichnung, Tagesdetails, zukünftige Einheiten verschieben |
 | **3.3 Fortschrittsanalysen** | Häufigkeit, geplant vs. absolviert, Kraftentwicklung je Übung, Lauf/Ergometer/Pace, HYROX-Stationen, Bestleistungen, Körperwerte erfassen + Verlauf |
 | **3.4 Trainingshistorie** | Liste und Detailansicht absolvierter Trainings, Notizen nachträglich bearbeiten |
 | **3.5 Regenerationslogik** | Migration 0006, Tagesform-Check-in vor dem Training, Anbindung an Generator und Dashboard |
@@ -154,6 +154,7 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | 21.10.2026 | Schritt 2.6 – Trainingsgenerator (Grundlagen, Kern, Generator-Seite) | `4ca67df` … `a180b7b` |
 | 23.10.2026 | Schritt 2.7 – Migration 0004, Trainingsmodus, Speichern, Verwerfen, Verlauf für Generator, „Letztes Mal", Rekorde im Profil | `e4fae64` … `d77f6e1` |
 | 23.10.2026 | Schritt 2.8 – Dashboard · **Phase 2 abgeschlossen** | `cc1751f` |
+| 23.10.2026 | Schritt 3.1 – Migration 0005, Wochenplan-Generator, Wochenplan im Kalender (planen, verschieben, ersetzen, ausgefallen, spontan, starten), Dashboard „Nächstes Training" | `351ca18` … `984cb20` |
 
 ---
 
@@ -183,7 +184,9 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 1. Optional: In Supabase unter Authentication → URL Configuration die Site URL auf die Cloudflare-Adresse setzen.
 1. Schritt 3.1 Wochenplanung:
    - **3.1a** ✅ Migration 0005 (`week_plans`, `planned_workouts`, `workout_sessions.planned_workout_id`, RLS – erledigte Einheiten nicht löschbar) + `replace_week_plan()` (ersetzt nur offene Einheiten ab heute) + `save_workout_session()` markiert die geplante Einheit als erledigt. Eingespielt am 23.10.2026 und in zurückgerollter Transaktion getestet (Erstplan, Neuplanung mitten in der Woche lässt Ausgefallenes stehen, Datum vor heute abgelehnt, Training erledigt geplante Einheit, doppeltes Speichern ohne Dublette, erledigte Einheit nicht löschbar und bei Neuplanung erhalten). Wochenplan-Generator `generateWeekPlan` (`src/domain/generator/weekPlan.ts`, 11 Tests, Details `docs/GENERATOR.md` §5b). Commits `351ca18` + Datenbank-Commit.
-   - **3.1b** ✅ umgesetzt: Kalender-Tab mit Wochenansicht (Wochen blättern, KW, absolvierte Trainings, geplante/ausgefallene/verschobene/spontane Einheiten), „Woche planen" bzw. „Woche neu planen" (mit Rückfrage; nur offene Einheiten ab heute werden ersetzt) und „Warum dieser Plan?". Detailseite `/calendar/planned/:id`: Workout ansehen, Übungen tauschen, neu erzeugen, anpassen (Schwerpunkt, Dauer, Intensität …), verschieben (Tage derselben Woche ab heute, ursprüngliches Datum wird gemerkt), „Fällt aus" / „Wieder einplanen", entfernen, Training starten (eine Einheit eines anderen Tages wird dabei auf heute verschoben). Spontane Einheit über „+ Einheit" (`/calendar/new/:date`). Beim Speichern des Trainings wird die geplante Einheit erledigt. Dashboard: „Nächstes Training" aus dem Wochenplan, „Training starten" startet die heute geplante Einheit. Logik in `src/features/calendar/week.ts`, `planning.ts`, `format.ts` (getestet), API `src/api/weekPlans.ts`.
+   - **3.1b** ✅ umgesetzt: Kalender-Tab mit Wochenansicht (Wochen blättern, KW, absolvierte Trainings, geplante/ausgefallene/verschobene/spontane Einheiten), „Woche planen" bzw. „Woche neu planen" (mit Rückfrage; nur offene Einheiten ab heute werden ersetzt) und „Warum dieser Plan?". Detailseite `/calendar/planned/:id`: Workout ansehen, Übungen tauschen, neu erzeugen, anpassen (Schwerpunkt, Dauer, Intensität …), verschieben (Tage derselben Woche ab heute, ursprüngliches Datum wird gemerkt), „Fällt aus" / „Wieder einplanen", entfernen, Training starten (eine Einheit eines anderen Tages wird dabei auf heute verschoben). Spontane Einheit über „+ Einheit" (`/calendar/new/:date`). Beim Speichern des Trainings wird die geplante Einheit erledigt. Dashboard: „Nächstes Training" aus dem Wochenplan, „Training starten" startet die heute geplante Einheit. Logik in `src/features/calendar/week.ts`, `planning.ts`, `format.ts` (getestet), API `src/api/weekPlans.ts`. Commit `984cb20`, vom Nutzer getestet und gepusht.
+1. Schritt 3.2 Trainingskalender:
+   - **3.2** ✅ umgesetzt: Umschalter Woche/Monat (Ansicht, Woche, Monat und Tag stehen in der Adresse). Monatsansicht: Raster Mo–So inkl. Randtage, Punkte je Trainingstyp (gefüllt = absolviert, Ring = geplant, grau = ausgefallen), Spalte „Tage" mit Trainingstagen je Woche (öffnet die Woche), Kennzahlen des Monats (Trainingstage, Minuten, offen, ausgefallen, verpasst), Legende, Tagesdetails beim Antippen. Wochenansicht: Kopfzeile „X von Y Trainingstagen · Minuten · offen". In beiden Ansichten lassen sich absolvierte Trainings aufklappen (alle Übungen mit geschafften Sätzen); geplante Einheiten öffnen die Detailseite (verschieben/bearbeiten), „Zurück" führt an die Ausgangsstelle. Trainings werden je Zeitraum geladen (`fetchSessionsBetween`), also auch älter als 90 Tage. Logik in `month.ts` (getestet).
 2. Schritt 2.8 Dashboard ✅ umgesetzt: Begrüßung mit Datum, Hinweis „Training läuft", nächstes Training (laut bevorzugten Wochentagen – Wochenplan folgt in Phase 3), „Workout generieren", „Training starten" (startet das zuletzt erzeugte Workout direkt), diese Woche (Einheiten / Ziel, Minuten, Wochenleiste mit trainierten und bevorzugten Tagen), Trainingsbelastung (Einordnung + Werte, ab 2 Wochen Verlauf), letzte 3 Trainings, letzte 3 Bestleistungen. Berechnungen in `src/features/dashboard/stats.ts` (getestet). Startlogik gemeinsam mit dem Generator (`useStartTraining`). Commit `cc1751f`, vom Nutzer getestet.
 3. Erledigt – Schritt 2.7 Trainingsmodus & Speichern:
    - **2.7a** ✅ Migration 0004 (`workout_sessions`, `session_exercises`, `session_sets`, FK für `personal_records.session_id`) + `save_workout_session()` (idempotent, in zurückgerollter Transaktion getestet). Trainingsablauf als reine Funktionen (`src/domain/session/`): Start aus generiertem Workout, Reihenfolge inkl. Zirkel, Abhaken mit Übernahme der Vorgabe, Pausentimer per Zeitstempel, Sätze hinzufügen/entfernen, Überspringen, Tauschen (nur unbegonnene Übungen), Pausieren, Beenden, Auswertung. Rekorderkennung (`src/domain/records/detect.ts`), Speicher-Nutzlast. 30 neue Tests. Commit `e4fae64`.

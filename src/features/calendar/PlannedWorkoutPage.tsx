@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router'
+import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import type { PlannedWorkout, PlannedWorkoutChange } from '@/api/weekPlans'
 import { CalendarIcon, ChevronLeftIcon } from '@/components/icons'
 import { Badge } from '@/components/ui/Badge'
@@ -34,10 +34,21 @@ export function PlannedWorkoutPage() {
   const { id = '' } = useParams()
   const planning = usePlanningData()
   const planned = usePlannedWorkout(id)
+  const location = useLocation()
+  // Zurück an die Stelle im Kalender, von der aus geöffnet wurde (z. B. Monatsansicht)
+  const state: unknown = location.state
+  const from =
+    typeof state === 'object' &&
+    state !== null &&
+    'from' in state &&
+    typeof state.from === 'string' &&
+    state.from.startsWith('/calendar')
+      ? state.from
+      : undefined
 
   const backLink = (week?: string) => (
     <Link
-      to={week ? `/calendar?week=${week}` : '/calendar'}
+      to={from ?? (week ? `/calendar?week=${week}` : '/calendar')}
       className="-ml-2 mb-4 inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-sm text-fg-muted hover:text-fg"
     >
       <ChevronLeftIcon width={18} height={18} />

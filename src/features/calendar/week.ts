@@ -88,14 +88,14 @@ export interface CalendarDay {
   planned: PlannedWorkout[]
 }
 
-/** Die sieben Tage einer Woche mit absolvierten Trainings und geplanten Einheiten. */
-export function calendarWeek(
-  weekStart: string,
+/** Tage mit absolvierten Trainings und geplanten Einheiten. */
+export function calendarDays(
+  dates: readonly string[],
   today: string,
   sessions: readonly HistorySession[],
   planned: readonly PlannedWorkout[],
 ): CalendarDay[] {
-  return weekDates(weekStart).map((date) => ({
+  return dates.map((date) => ({
     date,
     weekday: weekdayOf(date),
     isToday: date === today,
@@ -105,6 +105,16 @@ export function calendarWeek(
     // Erledigte Einheiten zeigt das zugehörige Training – nicht doppelt anzeigen
     planned: planned.filter((p) => p.date === date && p.status !== 'completed'),
   }))
+}
+
+/** Die sieben Tage einer Woche. */
+export function calendarWeek(
+  weekStart: string,
+  today: string,
+  sessions: readonly HistorySession[],
+  planned: readonly PlannedWorkout[],
+): CalendarDay[] {
+  return calendarDays(weekDates(weekStart), today, sessions, planned)
 }
 
 /** Nächste offene Einheit ab heute. */

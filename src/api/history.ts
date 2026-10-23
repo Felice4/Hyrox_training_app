@@ -66,24 +66,31 @@ export function toHistorySessions(rows: readonly HistoryRow[]): HistorySession[]
 /** Wie weit der Verlauf zurückreicht (Generator nutzt 28 Tage, „Letztes Mal" gern länger). */
 export const HISTORY_DAYS = 90
 
+const HISTORY_SELECT = `started_at, focus, active_duration_sec, session_rpe,
+   session_exercises (
+     position,
+     exercise:exercises!session_exercises_exercise_id_fkey ( slug ),
+     session_sets ( set_number, set_type, completed, reps, weight_kg, distance_m, duration_sec, rpe, target_reps )
+   )`
+
 /** Lädt die Trainings der letzten 90 Tage, neueste zuerst. */
 export async function fetchTrainingHistory(
   supabase: AppSupabaseClient,
   now: Date = new Date(),
 ): Promise<HistorySession[]> {
   const since = new Date(now.getTime() - HISTORY_DAYS * 24 * 60 * 60 * 1000).toISOString()
-  const { data, error } = await supabase
-    .from('workout_sessions')
-    .select(
-      `started_at, focus, active_duration_sec, session_rpe,
-       session_exercises (
-         position,
-         exercise:exercises!session_exercises_exercise_id_fkey ( slug ),
-         session_sets ( set_number, set_type, completed, reps, weight_kg, distance_m, duration_sec, rpe, target_reps )
-       )`,
-    )
-    .gte('started_at', since)
-    .order('started_at', { ascending: false })
+  return fetchSessionsBetween(supabase, since)
+}
+
+/** Trainings mit Beginn ab `from` (und vor `until`, ISO-Zeitpunkte), neueste zuerst. */
+export async function fetchSessionsBetween(
+  supabase: AppSupabaseClient,
+  from: string,
+  until?: string,
+): Promise<HistorySession[]> {
+  let query = supabase.from('workout_sessions').select(HISTORY_SELECT).gte('started_at', from)
+  if (until) query = query.lt('started_at', until)
+  const { data, error } = await query.order('started_at', { ascending: false })
   if (error) throw error
   return toHistorySessions(data as unknown as HistoryRow[])
 }
