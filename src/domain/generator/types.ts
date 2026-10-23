@@ -79,6 +79,8 @@ export interface HistorySet {
 
 export interface HistoryExercise {
   exerciseSlug: string
+  /** Block im Training (Warm-up/Cool-down zählen nicht als Leistung) */
+  block?: BlockType | undefined
   sets: readonly HistorySet[]
 }
 
@@ -109,7 +111,8 @@ export interface WorkoutRequestInput {
 // Ergebnis
 // -----------------------------------------------------------------------------
 
-export type BlockType = 'warmup' | 'main' | 'accessory' | 'conditioning' | 'cooldown'
+export const BLOCK_TYPES = ['warmup', 'main', 'accessory', 'conditioning', 'cooldown'] as const
+export type BlockType = (typeof BLOCK_TYPES)[number]
 
 /**
  * Rolle einer Übung im Workout – bestimmt Dosierung und passende Austauschübungen.

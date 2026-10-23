@@ -2,24 +2,10 @@ import type { PlannedWorkout, ReplaceWeekPlanPayload } from '@/api/weekPlans'
 import type { HistorySession } from '@/domain/generator/types'
 import type { DoneTraining, GeneratedWeekPlan, KeptPlanned } from '@/domain/generator/weekPlan'
 import type { Weekday } from '@/domain/profile/vocabulary'
-import { toLocalIsoDate } from '@/lib/date'
+import { addDays, toLocalIsoDate, weekdayOf, weekStartOf } from '@/lib/date'
 
-/** Rechnet mit lokalen Daten „JJJJ-MM-TT" (Mittag als Uhrzeit – keine Sommerzeit-Sprünge). */
-export function addDays(date: string, days: number): string {
-  const d = new Date(`${date}T12:00:00Z`)
-  d.setUTCDate(d.getUTCDate() + days)
-  return d.toISOString().slice(0, 10)
-}
-
-export function weekdayOf(date: string): Weekday {
-  const day = new Date(`${date}T12:00:00Z`).getUTCDay()
-  return (((day + 6) % 7) + 1) as Weekday
-}
-
-/** Montag der Woche, in der `date` liegt. */
-export function weekStartOf(date: string): string {
-  return addDays(date, 1 - weekdayOf(date))
-}
+// Datumshilfen liegen in lib/date – hier weitergereicht, weil der Kalender sie überall nutzt
+export { addDays, weekdayOf, weekStartOf }
 
 export function weekDates(weekStart: string): string[] {
   return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))

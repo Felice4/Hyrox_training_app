@@ -12,7 +12,6 @@ import { OnboardingPage } from '@/features/onboarding/OnboardingPage'
 import { RequireOnboarding } from '@/features/onboarding/RequireOnboarding'
 import { MorePage } from '@/features/more/MorePage'
 import { ProfilePage } from '@/features/profile/ProfilePage'
-import { StatsPage } from '@/features/progress/StatsPage'
 import { TrainingPage } from '@/features/training/TrainingPage'
 import { AppShell } from './layout/AppShell'
 import { RouteErrorPage } from './RouteErrorPage'
@@ -43,7 +42,12 @@ export const router = createBrowserRouter([
               { path: 'calendar', element: <CalendarPage /> },
               { path: 'calendar/planned/:id', element: <PlannedWorkoutPage /> },
               { path: 'calendar/new/:date', element: <NewPlannedWorkoutPage /> },
-              { path: 'stats', element: <StatsPage /> },
+              // Diagramm-Bibliothek nur laden, wenn die Statistik geöffnet wird
+              {
+                path: 'stats',
+                lazy: () =>
+                  import('@/features/progress/StatsPage').then((m) => ({ Component: m.StatsPage })),
+              },
               { path: 'more', element: <MorePage /> },
               { path: 'exercises', element: <ExerciseListPage /> },
               { path: 'exercises/:slug', element: <ExerciseDetailPage /> },

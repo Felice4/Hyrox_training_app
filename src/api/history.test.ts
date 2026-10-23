@@ -9,6 +9,7 @@ const row: HistoryRow = {
   session_exercises: [
     {
       position: 1,
+      block: 'accessory',
       exercise: { slug: 'pull-up' },
       session_sets: [
         {
@@ -26,6 +27,7 @@ const row: HistoryRow = {
     },
     {
       position: 0,
+      block: 'main',
       exercise: { slug: 'back-squat' },
       session_sets: [
         {
@@ -52,7 +54,7 @@ const row: HistoryRow = {
         },
       ],
     },
-    { position: 2, exercise: null, session_sets: [] },
+    { position: 2, block: 'main', exercise: null, session_sets: [] },
   ],
 }
 
@@ -67,6 +69,7 @@ describe('toHistorySessions', () => {
       exercises: [
         {
           exerciseSlug: 'back-squat',
+          block: 'main',
           sets: [
             {
               setType: 'warmup',
@@ -92,6 +95,7 @@ describe('toHistorySessions', () => {
         },
         {
           exerciseSlug: 'pull-up',
+          block: 'accessory',
           sets: [
             {
               setType: 'working',

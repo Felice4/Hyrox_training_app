@@ -1,4 +1,11 @@
-import { FOCUSES, type Focus, type HistorySession, type SetType } from '@/domain/generator/types'
+import {
+  BLOCK_TYPES,
+  FOCUSES,
+  type BlockType,
+  type Focus,
+  type HistorySession,
+  type SetType,
+} from '@/domain/generator/types'
 import type { AppSupabaseClient } from '@/lib/supabase'
 
 const SET_TYPES: readonly SetType[] = ['warmup', 'working', 'interval', 'round']
@@ -11,6 +18,7 @@ export interface HistoryRow {
   session_rpe: number | null
   session_exercises: {
     position: number
+    block: string
     exercise: { slug: string } | null
     session_sets: {
       set_number: number
@@ -42,6 +50,9 @@ export function toHistorySessions(rows: readonly HistoryRow[]): HistorySession[]
           ? [
               {
                 exerciseSlug: exercise.exercise.slug,
+                block: (BLOCK_TYPES as readonly string[]).includes(exercise.block)
+                  ? (exercise.block as BlockType)
+                  : undefined,
                 sets: [...exercise.session_sets]
                   .sort((a, b) => a.set_number - b.set_number)
                   .map((set) => ({
@@ -68,7 +79,7 @@ export const HISTORY_DAYS = 90
 
 const HISTORY_SELECT = `started_at, focus, active_duration_sec, session_rpe,
    session_exercises (
-     position,
+     position, block,
      exercise:exercises!session_exercises_exercise_id_fkey ( slug ),
      session_sets ( set_number, set_type, completed, reps, weight_kg, distance_m, duration_sec, rpe, target_reps )
    )`

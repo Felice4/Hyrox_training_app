@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { FOCUSES, INTENSITIES, SLOT_ROLES } from './types'
+import { BLOCK_TYPES, FOCUSES, INTENSITIES, SLOT_ROLES } from './types'
 
 /**
  * Prüfschema für ein generiertes Workout. Jeder Generator – auch ein späteres KI-Modell –
@@ -27,7 +27,7 @@ export const workoutItemSchema = z.strictObject({
 })
 
 export const workoutBlockSchema = z.strictObject({
-  type: z.enum(['warmup', 'main', 'accessory', 'conditioning', 'cooldown']),
+  type: z.enum(BLOCK_TYPES),
   items: z.array(workoutItemSchema).min(1),
   rounds: z.int().min(2).optional(),
 })
