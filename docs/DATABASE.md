@@ -153,6 +153,8 @@ Check: mindestens ein Messwert gesetzt. Höchstens ein Eintrag pro Tag (unique `
 | source | text | `week_plan`, `manual` |
 | completed_session_id | uuid null | FK `workout_sessions`, `on delete set null` |
 
+Erledigte Einheiten können nicht gelöscht werden (RLS-Policy `status <> 'completed'`). `workout_sessions.planned_workout_id` (FK, `on delete set null`) verweist auf die geplante Einheit.
+
 **Schutz der Vergangenheit:** Eine Neuplanung löscht oder ändert nur Einträge mit `status = 'planned'` und `scheduled_date >= heute`. Das prüft zusätzlich die RPC-Funktion `replace_week_plan`.
 
 ### 3.8 `workout_sessions` (ID vom Client)
@@ -244,9 +246,9 @@ Die Datenbank prüft bei `exercises` nur die Grundstruktur (Slug-Format, Pflicht
 
 | Funktion | Zweck |
 |---|---|
-| `save_workout_session(p jsonb)` | Speichert Session, Übungen, Sätze und Rekorde atomar. Idempotent über Client-IDs: Upsert; Kind-Datensätze, die im Payload fehlen, werden entfernt. Rekorde nur, wenn besser (Zeiten niedriger, sonst höher); liefert die neuen Rekorde zurück. Ab Migration 0005 zusätzlich: zugehörigen `planned_workout` auf `completed` setzen. Am 21.10.2026 in zurückgerollter Transaktion getestet (Erstspeichern, Doppelspeichern ohne Dubletten, Entfernen, bessere/schlechtere Rekorde). |
+| `save_workout_session(p jsonb)` | Speichert Session, Übungen, Sätze und Rekorde atomar. Idempotent über Client-IDs: Upsert; Kind-Datensätze, die im Payload fehlen, werden entfernt. Rekorde nur, wenn besser (Zeiten niedriger, sonst höher); liefert die neuen Rekorde zurück. Ab Migration 0005 zusätzlich: `session.planned_workout_id` speichern und die geplante Einheit auf `completed` setzen (am 23.10.2026 getestet). Am 21.10.2026 in zurückgerollter Transaktion getestet (Erstspeichern, Doppelspeichern ohne Dubletten, Entfernen, bessere/schlechtere Rekorde). |
 | `sync_exercise_library(p_version int, p_exercises jsonb)` | siehe §4 |
-| `replace_week_plan(p_week_start date, p_workouts jsonb)` | Ersetzt nur zukünftige, noch geplante Einheiten einer Woche |
+| `replace_week_plan(p jsonb)` | `p = { week_start, today, generator_version, notes, workouts[] }`. Legt den Wochenplan an (Upsert je Woche), löscht nur Einheiten mit `status = 'planned'` und `scheduled_date >= today` und fügt die neuen ein. Neue Termine müssen in der Woche und ab heute liegen. Liefert `{ status, week_plan_id, removed, inserted }`. |
 | `save_profile(p jsonb)` | Speichert Profil, Ziele, Körperwert des Tages, Übungspräferenzen und manuelle Bestleistungen in einer Transaktion; für Onboarding und Profilseite. Setzt `onboarding_completed_at` beim ersten Mal. |
 
 Die fachliche Berechnung (z. B. welche Werte ein neuer Rekord sind) erfolgt in `src/domain/` und ist dort getestet. Die SQL-Funktionen speichern nur und sichern die Konsistenz.

@@ -14,9 +14,9 @@
 |---|---|
 | **Aktuelle Phase** | Phase 3 – Erweiterung (Start mit 3.1 Wochenplanung) |
 | **Letzter verifizierter Meilenstein** | Phase 2 abgeschlossen – funktionsfähige Basisversion inkl. Dashboard (vom Nutzer getestet) |
-| **Nächster Schritt** | 3.1 Wochenplanung |
+| **Nächster Schritt** | 3.1b Wochenplanung in der Oberfläche (Kalender-Tab) |
 | **Blocker** | keine |
-| **Git** | Commits und Pushes nur auf ausdrückliche Anweisung des Nutzers. Stand auf GitHub: `587d7d7`. |
+| **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: `79d7192`. |
 
 ---
 
@@ -181,6 +181,9 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 ## 9. Nächste Aufgaben
 
 1. Optional: In Supabase unter Authentication → URL Configuration die Site URL auf die Cloudflare-Adresse setzen.
+1. Schritt 3.1 Wochenplanung:
+   - **3.1a** ✅ Migration 0005 (`week_plans`, `planned_workouts`, `workout_sessions.planned_workout_id`, RLS – erledigte Einheiten nicht löschbar) + `replace_week_plan()` (ersetzt nur offene Einheiten ab heute) + `save_workout_session()` markiert die geplante Einheit als erledigt. Eingespielt am 23.10.2026 und in zurückgerollter Transaktion getestet (Erstplan, Neuplanung mitten in der Woche lässt Ausgefallenes stehen, Datum vor heute abgelehnt, Training erledigt geplante Einheit, doppeltes Speichern ohne Dublette, erledigte Einheit nicht löschbar und bei Neuplanung erhalten). Wochenplan-Generator `generateWeekPlan` (`src/domain/generator/weekPlan.ts`, 11 Tests, Details `docs/GENERATOR.md` §5b). Commits `351ca18` + Datenbank-Commit.
+   - **3.1b** offen: Kalender-Tab – Woche planen, Einheit verschieben/ersetzen/als ausgefallen markieren, spontane Einheit, geplantes Training starten, Dashboard „Nächstes Training" aus dem Wochenplan.
 2. Schritt 2.8 Dashboard ✅ umgesetzt: Begrüßung mit Datum, Hinweis „Training läuft", nächstes Training (laut bevorzugten Wochentagen – Wochenplan folgt in Phase 3), „Workout generieren", „Training starten" (startet das zuletzt erzeugte Workout direkt), diese Woche (Einheiten / Ziel, Minuten, Wochenleiste mit trainierten und bevorzugten Tagen), Trainingsbelastung (Einordnung + Werte, ab 2 Wochen Verlauf), letzte 3 Trainings, letzte 3 Bestleistungen. Berechnungen in `src/features/dashboard/stats.ts` (getestet). Startlogik gemeinsam mit dem Generator (`useStartTraining`). Commit `cc1751f`, vom Nutzer getestet.
 3. Erledigt – Schritt 2.7 Trainingsmodus & Speichern:
    - **2.7a** ✅ Migration 0004 (`workout_sessions`, `session_exercises`, `session_sets`, FK für `personal_records.session_id`) + `save_workout_session()` (idempotent, in zurückgerollter Transaktion getestet). Trainingsablauf als reine Funktionen (`src/domain/session/`): Start aus generiertem Workout, Reihenfolge inkl. Zirkel, Abhaken mit Übernahme der Vorgabe, Pausentimer per Zeitstempel, Sätze hinzufügen/entfernen, Überspringen, Tauschen (nur unbegonnene Übungen), Pausieren, Beenden, Auswertung. Rekorderkennung (`src/domain/records/detect.ts`), Speicher-Nutzlast. 30 neue Tests. Commit `e4fae64`.

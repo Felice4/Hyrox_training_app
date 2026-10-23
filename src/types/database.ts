@@ -203,6 +203,75 @@ export type Database = {
           },
         ]
       }
+      planned_workouts: {
+        Row: {
+          completed_session_id: string | null
+          created_at: string
+          explanation: string[]
+          focus: string
+          id: string
+          intensity: string
+          original_date: string | null
+          scheduled_date: string
+          source: string
+          status: string
+          target_duration_min: number
+          updated_at: string
+          user_id: string
+          week_plan_id: string | null
+          workout: Json | null
+        }
+        Insert: {
+          completed_session_id?: string | null
+          created_at?: string
+          explanation?: string[]
+          focus: string
+          id?: string
+          intensity: string
+          original_date?: string | null
+          scheduled_date: string
+          source?: string
+          status?: string
+          target_duration_min: number
+          updated_at?: string
+          user_id?: string
+          week_plan_id?: string | null
+          workout?: Json | null
+        }
+        Update: {
+          completed_session_id?: string | null
+          created_at?: string
+          explanation?: string[]
+          focus?: string
+          id?: string
+          intensity?: string
+          original_date?: string | null
+          scheduled_date?: string
+          source?: string
+          status?: string
+          target_duration_min?: number
+          updated_at?: string
+          user_id?: string
+          week_plan_id?: string | null
+          workout?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planned_workouts_completed_session_id_fkey"
+            columns: ["completed_session_id"]
+            isOneToOne: false
+            referencedRelation: "workout_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planned_workouts_week_plan_id_fkey"
+            columns: ["week_plan_id"]
+            isOneToOne: false
+            referencedRelation: "week_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           available_equipment: string[]
@@ -449,6 +518,36 @@ export type Database = {
         }
         Relationships: []
       }
+      week_plans: {
+        Row: {
+          created_at: string
+          generator_version: string | null
+          id: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+          week_start: string
+        }
+        Insert: {
+          created_at?: string
+          generator_version?: string | null
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+          week_start: string
+        }
+        Update: {
+          created_at?: string
+          generator_version?: string | null
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
       workout_sessions: {
         Row: {
           active_duration_sec: number
@@ -459,6 +558,7 @@ export type Database = {
           id: string
           intensity: string
           notes: string | null
+          planned_workout_id: string | null
           session_rpe: number | null
           started_at: string
           status: string
@@ -476,6 +576,7 @@ export type Database = {
           id: string
           intensity: string
           notes?: string | null
+          planned_workout_id?: string | null
           session_rpe?: number | null
           started_at: string
           status: string
@@ -493,6 +594,7 @@ export type Database = {
           id?: string
           intensity?: string
           notes?: string | null
+          planned_workout_id?: string | null
           session_rpe?: number | null
           started_at?: string
           status?: string
@@ -501,13 +603,22 @@ export type Database = {
           user_id?: string
           workout_snapshot?: Json
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "workout_sessions_planned_workout_id_fkey"
+            columns: ["planned_workout_id"]
+            isOneToOne: false
+            referencedRelation: "planned_workouts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      replace_week_plan: { Args: { p: Json }; Returns: Json }
       save_profile: { Args: { p: Json }; Returns: Json }
       save_workout_session: { Args: { p: Json }; Returns: Json }
       sync_exercise_library: {
