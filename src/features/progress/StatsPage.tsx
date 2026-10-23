@@ -3,12 +3,16 @@ import { useSearchParams } from 'react-router'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { cn } from '@/lib/cn'
 import { toLocalIsoDate } from '@/lib/date'
+import { BodyView } from './BodyView'
 import { ExerciseProgressView } from './ExerciseProgressView'
 import { Overview } from './Overview'
+import { RecordsView } from './RecordsView'
 
 const TABS = [
   { value: 'overview', label: 'Übersicht' },
   { value: 'exercises', label: 'Übungen' },
+  { value: 'records', label: 'Rekorde' },
+  { value: 'body', label: 'Körper' },
 ] as const
 
 type Tab = (typeof TABS)[number]['value']
@@ -46,6 +50,8 @@ export function StatsPage() {
       </div>
       {tab === 'overview' && <Overview today={today} />}
       {tab === 'exercises' && <ExerciseProgressView today={today} />}
+      {tab === 'records' && <RecordsView />}
+      {tab === 'body' && <BodyView today={today} />}
     </>
   )
 }

@@ -23,6 +23,7 @@ import { ChartCard } from './charts/ChartCard'
 import { ColumnChart } from './charts/ColumnChart'
 import { CHART } from './charts/theme'
 import { TrendChart } from './charts/TrendChart'
+import { GROUPS, groupOf } from './exerciseGroups'
 
 const dayMonth = new Intl.DateTimeFormat('de-DE', {
   day: 'numeric',
@@ -31,16 +32,6 @@ const dayMonth = new Intl.DateTimeFormat('de-DE', {
 })
 const shortDate = (date: string) => dayMonth.format(new Date(`${date}T12:00:00Z`))
 const decimal = (value: number) => String(Math.round(value * 10) / 10).replace('.', ',')
-
-type Group = 'Kraft' | 'Ausdauer & Ergometer' | 'HYROX-Stationen' | 'Weitere'
-const GROUPS: readonly Group[] = ['Kraft', 'HYROX-Stationen', 'Ausdauer & Ergometer', 'Weitere']
-
-function groupOf(exercise: CatalogExercise): Group {
-  if (exercise.hyroxStation) return 'HYROX-Stationen'
-  if (exercise.category === 'strength') return 'Kraft'
-  if (exercise.category === 'endurance') return 'Ausdauer & Ergometer'
-  return 'Weitere'
-}
 
 /** Ruder- und Ski-Ergometer: Pace je 500 m, sonst je km. */
 const paceBaseOf = (exercise: CatalogExercise) =>
