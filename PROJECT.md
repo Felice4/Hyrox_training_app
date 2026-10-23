@@ -14,7 +14,7 @@
 |---|---|
 | **Aktuelle Phase** | Phase 2 – Schritt 2.8 Dashboard |
 | **Letzter verifizierter Meilenstein** | Schritt 2.7 – Trainingsmodus, Speichern, Verlauf für den Generator (vom Nutzer getestet) |
-| **Nächster Schritt** | Schritt 2.8 Dashboard |
+| **Nächster Schritt** | Nutzer testet Dashboard → Abschluss Phase 2 → Phase 3 (Wochenplanung, Kalender, Statistiken …) |
 | **Blocker** | keine |
 | **Git** | Commits und Pushes nur auf ausdrückliche Anweisung des Nutzers. Stand auf GitHub: `587d7d7`. |
 
@@ -112,7 +112,7 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | **2.5 Onboarding & Profil** ✅ | Migration 0003, mehrstufiges Onboarding (Körperdaten, Hintergrund, Ziele, Bedingungen, Präferenzen, Bestleistungen), Profilseite zum Bearbeiten | Onboarding durchlaufen, Daten im Profil ändern, nach erneutem Login noch vorhanden |
 | **2.6 Trainingsgenerator** ✅ | `domain/generator` mit allen Pflichttests, Generator-Seite mit Eingaben, Vorschau, Erklärung, „Neu erzeugen", Übung austauschen | Verschiedene Schwerpunkte/Dauern erzeugen, Geräte abwählen, Erklärung prüfen |
 | **2.7 Trainingsmodus & Speichern** ✅ | Migration 0004 + `save_workout_session`, aktives Training (Sätze, Gewichte, Wdh., Distanz/Zeit), Pausen-/Intervalltimer, Rundenzähler, überspringen/austauschen, pausieren, lokaler Entwurf, Abschluss mit RPE/Notizen/Zusammenfassung, letzte Gewichte & Bestleistungen | Training im Studio-Szenario durchspielen, Seite zwischendurch neu laden, teilweise abschließen, doppelt speichern → nur ein Eintrag |
-| **2.8 Dashboard** | Begrüßung, Buttons, Einheiten dieser Woche, Trainingsbelastung, letzte Workouts, Fortschritte; „Nächstes Training"/„Kommende Tage" mit Leerzustand bis Phase 3 | Dashboard nach einigen Trainings prüfen |
+| **2.8 Dashboard** 🔄 | Begrüßung, Buttons, Einheiten dieser Woche, Trainingsbelastung, letzte Workouts, Fortschritte; „Nächstes Training"/„Kommende Tage" mit Leerzustand bis Phase 3 | Dashboard nach einigen Trainings prüfen |
 
 ### Phase 3 – Erweiterung
 
@@ -180,11 +180,12 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 ## 9. Nächste Aufgaben
 
 1. Optional: In Supabase unter Authentication → URL Configuration die Site URL auf die Cloudflare-Adresse setzen.
-2. Schritt 2.7 Trainingsmodus & Speichern in Teilschritten:
+2. Schritt 2.8 Dashboard ✅ umgesetzt: Begrüßung mit Datum, Hinweis „Training läuft", nächstes Training (laut bevorzugten Wochentagen – Wochenplan folgt in Phase 3), „Workout generieren", „Training starten" (startet das zuletzt erzeugte Workout direkt), diese Woche (Einheiten / Ziel, Minuten, Wochenleiste mit trainierten und bevorzugten Tagen), Trainingsbelastung (Einordnung + Werte, ab 2 Wochen Verlauf), letzte 3 Trainings, letzte 3 Bestleistungen. Berechnungen in `src/features/dashboard/stats.ts` (getestet). Startlogik gemeinsam mit dem Generator (`useStartTraining`).
+3. Erledigt – Schritt 2.7 Trainingsmodus & Speichern:
    - **2.7a** ✅ Migration 0004 (`workout_sessions`, `session_exercises`, `session_sets`, FK für `personal_records.session_id`) + `save_workout_session()` (idempotent, in zurückgerollter Transaktion getestet). Trainingsablauf als reine Funktionen (`src/domain/session/`): Start aus generiertem Workout, Reihenfolge inkl. Zirkel, Abhaken mit Übernahme der Vorgabe, Pausentimer per Zeitstempel, Sätze hinzufügen/entfernen, Überspringen, Tauschen (nur unbegonnene Übungen), Pausieren, Beenden, Auswertung. Rekorderkennung (`src/domain/records/detect.ts`), Speicher-Nutzlast. 30 neue Tests. Commit `e4fae64`.
    - **2.7b** ✅ umgesetzt: Trainingsmodus `/training/active` (Vollbild): Trainingszeit, Pause/Fortsetzen, Fortschritt, aktueller Satz mit Ziel, Progressionshinweis und Anleitung, große Zahlenfelder mit ± (Gewichtsstufe je Gerät), Zeitfeld m:ss, Arbeitstimer (Countdown bzw. Stoppuhr, Zeit wird eingetragen), optionale Satz-RPE, „Satz geschafft" übernimmt die Vorgabe, Satzpause mit ±15 s, Vibration am Ende, Bildschirm bleibt an (Wake Lock), Vorschau „Als Nächstes", Übersicht aller Sätze zum Springen, + Satz, Tauschen (nur unbegonnene Übungen), Überspringen. Abschluss: Zusammenfassung, Gesamt-RPE, Notizen, Speichern (idempotent, 2 automatische Wiederholungen), „Doch weiter trainieren", „Training verwerfen" (mit Rückfrage, zurück zur Training-Seite; das erzeugte Workout bleibt zum erneuten Start), Bestätigung mit neuen Bestleistungen. Start aus der Generator-Vorschau, Hinweis „Laufendes Training fortsetzen". Alles lokal gesichert bis zum erfolgreichen Speichern. Commits `506686e`, `f5d2922`, vom Nutzer getestet und gepusht.
    - **2.7c** ✅ umgesetzt: Verlauf der letzten 90 Tage (`src/api/history.ts`, `useTrainingHistory`) fließt in den Generator (Gewichtsvorschläge, Ermüdung, Abwechslung, Belastung, Stationsabdeckung) und in den Austausch im Training. „Letztes Mal (Datum): 3 × 5 Wdh. · 100 kg" im Trainingsmodus. Profilseite zeigt Bestleistungen aus Trainings als gesperrte Felder mit Datum. Fehler beim Laden des Verlaufs: Hinweis, Workouts werden ohne Verlauf erstellt. Commit `d77f6e1`, vom Nutzer getestet.
-3. Erledigt – Schritt 2.6 Trainingsgenerator:
+4. Erledigt – Schritt 2.6 Trainingsgenerator:
    - **2.6a** ✅ Grundlagen in `src/domain/`: Typen (`generator/types.ts`), alle Stellschrauben (`generator/config.ts`), Zufallsgenerator mit Seed (`random.ts`), Tagesform (`readiness/`), Trainingsbelastung sRPE akut/chronisch (`load/trainingLoad.ts`), Muskelermüdung (`load/muscleFatigue.ts`), Zeitschätzung (`duration/estimate.ts`). 49 Tests. Commit `4ca67df`.
    - **2.6b** ✅ Generator-Kern: Vorlagen je Schwerpunkt mit Rollen und Zirkeln, Bewertung/Auswahl per Seed, Dosierung inkl. Gewichtsvorschlag (doppelte Progression), Zeitanpassung mit Rücksetzen und Stellknöpfen, Erklärung, Übungsaustausch (`suggestAlternatives`, `swapExercise`), Zod-Schema für das Ergebnis, Schnittstelle `WorkoutGenerator`. Pflichttests 1–4 aus SPEC §15 + Determinismus u. a. (39 Tests). Belastungstest mit 24 000 Workouts: 0 Abweichungen über ±10 %. Details: `docs/GENERATOR.md` §5a. Commit `ef8c233`.
    - **2.6c** ✅ umgesetzt: Generator-Seite `/training`: Formular (Schwerpunkt, Dauer, Intensität, Tagesform; optional Muskelgruppen, HYROX-Stationen, heute fehlende Geräte), Vorschau nach Blöcken mit Zirkel-Runden, Sätzen, Gewicht, Pausen und Progressionshinweisen, „Warum dieses Training?", Recovery-Hinweis, „Neu erzeugen", „Anpassen", Austausch je Übung. Workout wird lokal gesichert. „Training starten" bis 2.7 deaktiviert. Verlauf ist bis 2.7 leer (keine gespeicherten Trainings). Commit `a180b7b`, vom Nutzer getestet.
@@ -269,6 +270,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 | 21.10.2026 | Abschluss und Speichern bereits in 2.7b (statt 2.7c) | Ein vollständiges Training ist damit direkt testbar |
 | 21.10.2026 | Trainingsmodus als eigene Vollbild-Route außerhalb des App-Rahmens; laufendes Training in localStorage bis zum erfolgreichen Speichern | Kein Datenverlust; Navigation lenkt im Studio nicht ab |
 | 21.10.2026 | Zahlenfelder zeigen die Vorgabe als Platzhalter; ± startet bei der Vorgabe; Gewichtsschritt je Gerät (Langhantel 2,5 / Kurzhantel 1 / Kettlebell 2 kg) | Schnelle Bedienung mit einer Hand |
+| 23.10.2026 | Dashboard: „Nächstes Training" aus den bevorzugten Wochentagen, bis der Wochenplan (Phase 3) echte geplante Einheiten liefert; deutlich gekennzeichnet | Ehrliche Anzeige statt leerem Platzhalter |
+| 23.10.2026 | „Training starten" auf dem Dashboard startet das zuletzt erzeugte Workout direkt; ohne Workout deaktiviert mit Hinweis | Ein Tipp vom Startbildschirm ins Training |
 | 23.10.2026 | Verlauf für Generator und Training: 90 Tage laden (Generator wertet selbst 28 Tage / 96 h aus) | „Letztes Mal" und Progression finden auch ältere Einheiten |
 | 23.10.2026 | Bestleistungen aus Trainings auf der Profilseite nur lesbar | Manuelle Eingaben dürfen echte Leistungen nie überschreiben – ein offenes Feld wäre irreführend |
 | 21.10.2026 | Profildetails ohne automatisches Neuladen (`staleTime: Infinity`), nach dem Speichern gezielt neu geladen; Formular wird dann mit den gespeicherten Werten neu aufgebaut | Ungespeicherte Eingaben werden nie durch einen Hintergrund-Abgleich überschrieben |

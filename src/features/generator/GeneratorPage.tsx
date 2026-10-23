@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { Link } from 'react-router'
 import { DumbbellIcon } from '@/components/icons'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -16,13 +16,9 @@ import {
 import { useAuth } from '@/features/auth/authContext'
 import { useExerciseCatalog } from '@/features/exercises/useExerciseCatalog'
 import { useTrainingHistory } from '@/features/training/useTrainingHistory'
-import { createSession } from '@/domain/session/session'
 import { storageKeys } from '@/features/training/storage'
-import {
-  readActiveSession,
-  useActiveSessionKey,
-  writeActiveSession,
-} from '@/features/training/useActiveSession'
+import { readActiveSession, useActiveSessionKey } from '@/features/training/useActiveSession'
+import { useStartTraining } from '@/features/training/useStartTraining'
 import { useProfileDetails } from '@/features/profile/useProfile'
 import { clearDraft, loadDraft, saveDraft } from '@/lib/localDraft'
 import { GeneratorForm } from './GeneratorForm'
@@ -93,7 +89,7 @@ function Generator({
   history: readonly HistorySession[]
 }) {
   const auth = useAuth()
-  const navigate = useNavigate()
+  const startTraining = useStartTraining(exercises)
   const storageKey = storageKeys.generatedWorkout(
     auth.status === 'signedIn' ? auth.session.user.id : 'unbekannt',
   )
@@ -132,25 +128,6 @@ function Generator({
     setStored({ request, workout })
     setEditing(false)
     window.scrollTo({ top: 0 })
-  }
-
-  function startTraining(workout: StoredWorkout['workout']) {
-    if (
-      readActiveSession(activeKey) &&
-      !window.confirm('Es läuft bereits ein Training. Dieses verwerfen und neu starten?')
-    ) {
-      return
-    }
-    const measurementOf = (slug: string) =>
-      exercises.find((e) => e.slug === slug)?.measurement ?? 'reps'
-    const session = createSession(
-      workout,
-      new Date().toISOString(),
-      () => crypto.randomUUID(),
-      measurementOf,
-    )
-    writeActiveSession(activeKey, session)
-    void navigate('/training/active')
   }
 
   const activeBanner = hasActive && (
