@@ -37,7 +37,7 @@ export function TextField({
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
           className={cn(
-            'min-h-12 w-full rounded-xl border bg-surface px-4 text-base text-fg transition-colors outline-none placeholder:text-fg-muted/60 focus:border-accent',
+            'min-h-12 w-full rounded-xl border bg-surface px-4 text-base text-fg transition-colors outline-none placeholder:text-fg-muted/80 focus:border-accent',
             error ? 'border-danger' : 'border-line',
             trailing ? (trailingSize === 'wide' ? 'pr-24' : 'pr-12') : undefined,
             className,

@@ -22,7 +22,7 @@ export function TextArea({ label, error, className, id, ...props }: TextAreaProp
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : undefined}
         className={cn(
-          'w-full resize-y rounded-xl border bg-surface px-4 py-3 text-base text-fg outline-none placeholder:text-fg-muted/60 focus:border-accent',
+          'w-full resize-y rounded-xl border bg-surface px-4 py-3 text-base text-fg outline-none placeholder:text-fg-muted/80 focus:border-accent',
           error ? 'border-danger' : 'border-line',
           className,
         )}

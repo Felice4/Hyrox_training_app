@@ -29,4 +29,29 @@
   body {
     @apply bg-canvas font-sans text-fg antialiased;
   }
+
+  /* Tastaturfokus überall gut sichtbar (nicht bei Maus/Touch) */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* Eingabefelder zeigen den Fokus über den Rahmen – kein zusätzlicher Ring */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: none;
+  }
+}
+
+/* Systemeinstellung „Bewegung reduzieren" respektieren */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

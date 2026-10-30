@@ -127,25 +127,28 @@ export function DashboardPage() {
           )}
         </Card>
 
-        <Section title="Diese Woche" loading={history.isPending} error={history.isError}>
-          <ThisWeek details={details.data} sessions={sessions} now={now} />
-        </Section>
+        {/* Ab Tablet-Breite zweispaltig */}
+        <div className="flex flex-col gap-4 md:grid md:grid-cols-2">
+          <Section title="Diese Woche" loading={history.isPending} error={history.isError}>
+            <ThisWeek details={details.data} sessions={sessions} now={now} />
+          </Section>
 
-        <Section title="Trainingsbelastung" loading={history.isPending} error={history.isError}>
-          <Load sessions={sessions} now={now} />
-        </Section>
+          <Section title="Trainingsbelastung" loading={history.isPending} error={history.isError}>
+            <Load sessions={sessions} now={now} />
+          </Section>
 
-        <Section title="Letzte Trainings" loading={history.isPending} error={history.isError}>
-          <RecentWorkouts sessions={sessions} />
-        </Section>
+          <Section title="Letzte Trainings" loading={history.isPending} error={history.isError}>
+            <RecentWorkouts sessions={sessions} />
+          </Section>
 
-        <Section
-          title="Neue Bestleistungen"
-          loading={details.isPending || catalog.isPending}
-          error={details.isError}
-        >
-          <RecentRecords details={details.data} catalog={catalog.data?.exercises ?? []} />
-        </Section>
+          <Section
+            title="Neue Bestleistungen"
+            loading={details.isPending || catalog.isPending}
+            error={details.isError}
+          >
+            <RecentRecords details={details.data} catalog={catalog.data?.exercises ?? []} />
+          </Section>
+        </div>
       </div>
     </>
   )

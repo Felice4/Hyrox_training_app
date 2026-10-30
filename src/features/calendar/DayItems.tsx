@@ -24,7 +24,7 @@ export function DayContent({ day, nameOf }: { day: CalendarDay; nameOf: NameOf }
       {day.planned.map((planned) => (
         <PlannedItem key={planned.id} planned={planned} isPast={day.isPast} />
       ))}
-      {empty && <p className="text-sm text-fg-muted/70">{day.isPast ? '–' : 'Ruhetag'}</p>}
+      {empty && <p className="text-sm text-fg-muted">{day.isPast ? '–' : 'Ruhetag'}</p>}
     </div>
   )
 }
@@ -119,7 +119,7 @@ export function PlannedItem({ planned, isPast }: { planned: PlannedWorkout; isPa
       state={{ from: location.pathname + location.search }}
       className={cn(
         'flex min-h-14 items-center gap-3 rounded-xl border border-line px-3 py-2.5 hover:bg-surface-raised',
-        (skipped || missed) && 'opacity-60',
+        (skipped || missed) && 'opacity-80',
       )}
     >
       <div className="min-w-0 flex-1">

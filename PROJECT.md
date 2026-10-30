@@ -14,9 +14,9 @@
 |---|---|
 | **Aktuelle Phase** | Phase 4 – Fertigstellung |
 | **Letzter verifizierter Meilenstein** | Phase 3 abgeschlossen – Wochenplanung, Kalender, Statistik, Historie, Tagesform, Übungsverwaltung (vom Nutzer getestet) |
-| **Nächster Schritt** | 4.1 Responsive-Feinschliff |
+| **Nächster Schritt** | Test von 4.1 durch den Nutzer, danach 4.2 PWA vollständig |
 | **Blocker** | keine |
-| **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: `b85f4b3`. |
+| **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: `27756cc`. |
 
 ---
 
@@ -129,7 +129,7 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 
 | Schritt | Inhalt |
 |---|---|
-| **4.1 Responsive-Feinschliff** | Laptop-Layout (Seitenleiste), Feinschliff aller Ansichten, Barrierefreiheit (Kontraste, Fokus) |
+| **4.1 Responsive-Feinschliff** 🔄 | Laptop-Layout (Seitenleiste), Feinschliff aller Ansichten, Barrierefreiheit (Kontraste, Fokus) |
 | **4.2 PWA vollständig** | Caching-Strategie, Update-Hinweis bei neuer Version, Offline-Hinweis |
 | **4.3 Datenexport** | CSV/JSON-Export aller Trainingsdaten |
 | **4.4 Tests & Sync-Prüfung** | Testabdeckung der Domäne prüfen, manuelle Checkliste: zweites Gerät, erneuter Login |
@@ -202,6 +202,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
    - **3.5** ✅ umgesetzt: Migration 0006 (`readiness_checkins` mit RLS, `workout_sessions.readiness_checkin_id`, `save_workout_session` speichert den Verweis). Eingespielt am 30.10.2026 und in zurückgerollter Transaktion getestet (Anlegen, Aktualisieren derselben ID ohne Dublette, Wert 6 abgelehnt, Training mit Check-in-Verweis, doppeltes Speichern). Check-in-Karte auf Dashboard und Training-Seite: Energie, Muskelkater, Schlaf, Erholung (je 1–5); ein Check-in pro Tag, „Ändern" aktualisiert ihn; Anzeige von Einordnung (Erschöpft / Eher müde / Normal / Gut erholt) und Wirkung, ohne medizinische Aussagen. Generator übernimmt den Check-in automatisch (umschaltbar auf Schnellauswahl). Geplante Einheit am heutigen Tag: „Neu erzeugen"/„Anpassen" nutzen den Check-in, bei niedriger Tagesform Hinweis „Einheit an Tagesform anpassen". Training speichert den Check-in-Verweis. Einordnung `readinessStatus` in `src/domain/readiness` (getestet). Commit `3fe8652`, vom Nutzer getestet und gepusht.
 1. Schritt 3.6 Erweiterte Übungsverwaltung:
    - **3.6** ✅ umgesetzt (ohne Migration – RLS erlaubt Insert/Update eigener Zeilen bereits): Eigene Übung anlegen (`/exercises/new`) mit Name, Kategorie, HYROX-Station, Erfassung, Trainingszielen, Bewegungsmuster, Schwierigkeit, Haupt-/Hilfsmuskeln, Geräten, belasteten Regionen, Belastungsbereichen (Sätze, Wdh./Strecke/Dauer/Kalorien, Pause) und optional Beschreibung/Ausführung. Bibliotheksübung „Als eigene Übung kopieren" (`?from=<slug>`), eigene Übung bearbeiten (`/exercises/:slug/edit`) und archivieren (wird nicht mehr eingeplant, Trainings bleiben erhalten; Wiederherstellen in der Übungsliste). Auf jeder Übung: „Im Trainingsgenerator" neutral / bevorzugt / unbeliebt / ausgeblendet. Liste kennzeichnet eigene und abweichende Präferenzen. Für eigene Übungen sind Beschreibung und Ausführung freiwillig (`customExerciseSchema`). Formularlogik `src/features/exercises/customForm.ts` (getestet), Datenbankweg in zurückgerollter Transaktion geprüft (30.10.2026). Commit `b85f4b3`, vom Nutzer getestet und gepusht.
+1. Phase 4 – Fertigstellung:
+   - **4.1** ✅ umgesetzt: Ab 768 px Breite Seitenleiste links (`SideNav`) statt Bottom-Navigation, Inhalt bis 768 px breit; Dashboard-Abschnitte zweispaltig, Statistik-Kennzahlen vierspaltig, Körperwerte-Formular dreispaltig. Barrierefreiheit: Kontraste gemessen (WCAG AA ≥ 4,5:1 für Text) – Platzhalter, „Ruhetag", Wochenzahl im Monatskalender und abgeschwächte (übersprungene/ausgefallene) Einträge angehoben; Tage außerhalb des Monats ohne Transparenz; einheitlich sichtbarer Tastaturfokus in Akzentfarbe (`:focus-visible`); Link „Zum Inhalt springen"; Systemeinstellung „Bewegung reduzieren" wird respektiert.
 2. Schritt 2.8 Dashboard ✅ umgesetzt: Begrüßung mit Datum, Hinweis „Training läuft", nächstes Training (laut bevorzugten Wochentagen – Wochenplan folgt in Phase 3), „Workout generieren", „Training starten" (startet das zuletzt erzeugte Workout direkt), diese Woche (Einheiten / Ziel, Minuten, Wochenleiste mit trainierten und bevorzugten Tagen), Trainingsbelastung (Einordnung + Werte, ab 2 Wochen Verlauf), letzte 3 Trainings, letzte 3 Bestleistungen. Berechnungen in `src/features/dashboard/stats.ts` (getestet). Startlogik gemeinsam mit dem Generator (`useStartTraining`). Commit `cc1751f`, vom Nutzer getestet.
 3. Erledigt – Schritt 2.7 Trainingsmodus & Speichern:
    - **2.7a** ✅ Migration 0004 (`workout_sessions`, `session_exercises`, `session_sets`, FK für `personal_records.session_id`) + `save_workout_session()` (idempotent, in zurückgerollter Transaktion getestet). Trainingsablauf als reine Funktionen (`src/domain/session/`): Start aus generiertem Workout, Reihenfolge inkl. Zirkel, Abhaken mit Übernahme der Vorgabe, Pausentimer per Zeitstempel, Sätze hinzufügen/entfernen, Überspringen, Tauschen (nur unbegonnene Übungen), Pausieren, Beenden, Auswertung. Rekorderkennung (`src/domain/records/detect.ts`), Speicher-Nutzlast. 30 neue Tests. Commit `e4fae64`.
@@ -304,6 +306,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 | 30.10.2026 | Check-in wirkt nur auf Einheiten von heute, geplante Einheiten werden nicht automatisch geändert – nur Hinweis mit Knopf | Nutzer behält die Kontrolle über den Plan |
 | 30.10.2026 | Eigene Übungen werden archiviert, nie gelöscht; Bibliotheksübungen nur über Präferenz oder Kopie änderbar | Historie bleibt vollständig; der Bibliotheksabgleich überschreibt keine Nutzeränderungen |
 | 30.10.2026 | Eigene Übungen ohne Pflicht zu Beschreibung/Ausführung (gelockertes Schema nur für `source = 'custom'`) | Schnelles Anlegen am Handy; Bibliothek bleibt streng geprüft |
+| 30.10.2026 | Laptop-Layout ab `md` (768 px) mit Seitenleiste; Vollbildseiten (Training, Onboarding, Login) bleiben schmal und mittig | Lesbare Zeilenlängen; Trainingsmodus bleibt auf Bedienung mit einer Hand ausgelegt |
+| 30.10.2026 | Kontrastregel: abgeschwächter Text nie unter `text-fg-muted/80`, keine Transparenz unter 80 % auf Textinhalten (ausgenommen deaktivierte Elemente) | Gemessen ≥ 4,5:1 auf allen Flächen |
 | 23.10.2026 | „Training starten" auf dem Dashboard startet das zuletzt erzeugte Workout direkt; ohne Workout deaktiviert mit Hinweis | Ein Tipp vom Startbildschirm ins Training |
 | 23.10.2026 | Verlauf für Generator und Training: 90 Tage laden (Generator wertet selbst 28 Tage / 96 h aus) | „Letztes Mal" und Progression finden auch ältere Einheiten |
 | 23.10.2026 | Bestleistungen aus Trainings auf der Profilseite nur lesbar | Manuelle Eingaben dürfen echte Leistungen nie überschreiben – ein offenes Feld wäre irreführend |

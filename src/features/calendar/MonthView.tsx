@@ -143,7 +143,7 @@ export function MonthView({
                   aria-label={`${trainingDays} Trainingstage – Woche öffnen`}
                   className={cn(
                     'grid place-items-center rounded-lg font-display text-lg font-bold hover:bg-surface-raised',
-                    trainingDays > 0 ? 'text-accent' : 'text-fg-muted/50',
+                    trainingDays > 0 ? 'text-accent' : 'text-fg-muted/80',
                   )}
                 >
                   {trainingDays}
@@ -220,18 +220,24 @@ function DayCell({
         'flex min-h-14 flex-col items-center gap-1 rounded-lg border pt-1.5 pb-1 transition',
         selected ? 'border-accent bg-surface-raised' : 'border-transparent hover:bg-surface-raised',
         day.sessions.length > 0 && !selected && 'bg-accent/10',
-        !inMonth && 'opacity-40',
       )}
     >
       <span
         className={cn(
           'grid size-6 place-items-center rounded-full text-sm',
-          day.isToday ? 'bg-fg font-bold text-canvas' : day.isPast ? 'text-fg-muted' : 'text-fg',
+          day.isToday
+            ? 'bg-fg font-bold text-canvas'
+            : day.isPast || !inMonth
+              ? 'text-fg-muted'
+              : 'text-fg',
         )}
       >
         {Number(day.date.slice(8))}
       </span>
-      <span className="flex flex-wrap justify-center gap-0.5" aria-hidden="true">
+      <span
+        className={cn('flex flex-wrap justify-center gap-0.5', !inMonth && 'opacity-60')}
+        aria-hidden="true"
+      >
         {marks.slice(0, 3).map((mark) => (
           <span
             key={mark.key}

@@ -258,7 +258,7 @@ function NotesCard({ session }: { session: SessionDetail }) {
 function ExerciseRow({ exercise }: { exercise: SessionExerciseDetail }) {
   const location = useLocation()
   return (
-    <div className={cn(exercise.status === 'skipped' && 'opacity-60')}>
+    <div className={cn(exercise.status === 'skipped' && 'opacity-80')}>
       <div className="flex items-baseline justify-between gap-2">
         {exercise.slug ? (
           <Link

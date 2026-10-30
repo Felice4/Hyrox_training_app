@@ -28,7 +28,7 @@ export function WorkoutOverview({ session, current, apply, onClose }: WorkoutOve
                 {exercise.inCircuit && ' · Zirkel'}
               </h2>
             )}
-            <Card className={cn('flex flex-col gap-3 p-4', exercise.skipped && 'opacity-60')}>
+            <Card className={cn('flex flex-col gap-3 p-4', exercise.skipped && 'opacity-80')}>
               <div className="flex items-center justify-between gap-2">
                 <p className="font-semibold">
                   {exercise.exerciseName}

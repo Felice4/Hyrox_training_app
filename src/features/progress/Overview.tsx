@@ -139,7 +139,7 @@ function OverviewContent({
 
   return (
     <>
-      <dl className="grid grid-cols-2 gap-3">
+      <dl className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {tiles.map((tile) => (
           <Card key={tile.label} className="p-4">
             <dt className="text-xs text-fg-muted">{tile.label}</dt>

@@ -102,7 +102,7 @@ function MeasurementFormCard({ today }: { today: string }) {
           max={today}
           onChange={(e) => setDate(e.target.value)}
         />
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
           {BODY_METRICS.map((metric) => (
             <TextField
               key={metric.key}
