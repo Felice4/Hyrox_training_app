@@ -12,11 +12,11 @@
 
 | | |
 |---|---|
-| **Aktuelle Phase** | Phase 3 – Erweiterung (Start mit 3.1 Wochenplanung) |
-| **Letzter verifizierter Meilenstein** | 3.5 Regenerationslogik (vom Nutzer getestet) |
-| **Nächster Schritt** | Test von 3.6 durch den Nutzer → Phase 3 abgeschlossen, danach Phase 4 (4.1 Responsive-Feinschliff) |
+| **Aktuelle Phase** | Phase 4 – Fertigstellung |
+| **Letzter verifizierter Meilenstein** | Phase 3 abgeschlossen – Wochenplanung, Kalender, Statistik, Historie, Tagesform, Übungsverwaltung (vom Nutzer getestet) |
+| **Nächster Schritt** | 4.1 Responsive-Feinschliff |
 | **Blocker** | keine |
-| **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: `3fe8652`. |
+| **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: `b85f4b3`. |
 
 ---
 
@@ -98,8 +98,8 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | Setup 1–4 | Werkzeuge, Git, Dokumentation, GitHub | ✅ erledigt |
 | Phase 1 | Planung: Architektur, DB-Schema, Ordnerstruktur, Generator-Algorithmus, Roadmap | ✅ abgenommen |
 | Phase 2 | Funktionsfähige Basisversion | ✅ abgeschlossen |
-| Phase 3 | Erweiterung | 🔄 in Arbeit |
-| Phase 4 | Fertigstellung | offen |
+| Phase 3 | Erweiterung | ✅ abgeschlossen |
+| Phase 4 | Fertigstellung | 🔄 in Arbeit |
 
 ### Phase 2 – Funktionsfähige Basisversion
 
@@ -123,7 +123,7 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | **3.3 Fortschrittsanalysen** ✅ | Häufigkeit, geplant vs. absolviert, Kraftentwicklung je Übung, Lauf/Ergometer/Pace, HYROX-Stationen, Bestleistungen, Körperwerte erfassen + Verlauf |
 | **3.4 Trainingshistorie** ✅ | Liste und Detailansicht absolvierter Trainings, Notizen nachträglich bearbeiten |
 | **3.5 Regenerationslogik** ✅ | Migration 0006, Tagesform-Check-in vor dem Training, Anbindung an Generator und Dashboard |
-| **3.6 Erweiterte Übungsverwaltung** 🔄 | Eigene Übungen anlegen/bearbeiten/archivieren, Bibliotheksübung als eigene kopieren, Präferenzen und Ausblenden |
+| **3.6 Erweiterte Übungsverwaltung** ✅ | Eigene Übungen anlegen/bearbeiten/archivieren, Bibliotheksübung als eigene kopieren, Präferenzen und Ausblenden |
 
 ### Phase 4 – Fertigstellung
 
@@ -155,6 +155,11 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | 23.10.2026 | Schritt 2.7 – Migration 0004, Trainingsmodus, Speichern, Verwerfen, Verlauf für Generator, „Letztes Mal", Rekorde im Profil | `e4fae64` … `d77f6e1` |
 | 23.10.2026 | Schritt 2.8 – Dashboard · **Phase 2 abgeschlossen** | `cc1751f` |
 | 23.10.2026 | Schritt 3.1 – Migration 0005, Wochenplan-Generator, Wochenplan im Kalender (planen, verschieben, ersetzen, ausgefallen, spontan, starten), Dashboard „Nächstes Training" | `351ca18` … `984cb20` |
+| 23.10.2026 | Schritt 3.2 – Kalender mit Monatsansicht, Tagesdetails, Trainingstagen je Woche/Monat | `4882a25` |
+| 23.10.2026 | Schritt 3.3 – Statistik: Übersicht, Übungsfortschritt, Rekorde, Körperwerte (Recharts) | `e36eb05` … `abb898b` |
+| 23.10.2026 | Schritt 3.4 – Trainingshistorie mit Detailansicht und Notizen | `b57619b` |
+| 30.10.2026 | Schritt 3.5 – Migration 0006, Tagesform-Check-in mit Anbindung an Generator, Wochenplan und Dashboard | `3fe8652` |
+| 30.10.2026 | Schritt 3.6 – Eigene Übungen, Kopieren, Archivieren, Präferenzen · **Phase 3 abgeschlossen** | `b85f4b3` |
 
 ---
 
@@ -196,7 +201,7 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 1. Schritt 3.5 Regenerationslogik:
    - **3.5** ✅ umgesetzt: Migration 0006 (`readiness_checkins` mit RLS, `workout_sessions.readiness_checkin_id`, `save_workout_session` speichert den Verweis). Eingespielt am 30.10.2026 und in zurückgerollter Transaktion getestet (Anlegen, Aktualisieren derselben ID ohne Dublette, Wert 6 abgelehnt, Training mit Check-in-Verweis, doppeltes Speichern). Check-in-Karte auf Dashboard und Training-Seite: Energie, Muskelkater, Schlaf, Erholung (je 1–5); ein Check-in pro Tag, „Ändern" aktualisiert ihn; Anzeige von Einordnung (Erschöpft / Eher müde / Normal / Gut erholt) und Wirkung, ohne medizinische Aussagen. Generator übernimmt den Check-in automatisch (umschaltbar auf Schnellauswahl). Geplante Einheit am heutigen Tag: „Neu erzeugen"/„Anpassen" nutzen den Check-in, bei niedriger Tagesform Hinweis „Einheit an Tagesform anpassen". Training speichert den Check-in-Verweis. Einordnung `readinessStatus` in `src/domain/readiness` (getestet). Commit `3fe8652`, vom Nutzer getestet und gepusht.
 1. Schritt 3.6 Erweiterte Übungsverwaltung:
-   - **3.6** ✅ umgesetzt (ohne Migration – RLS erlaubt Insert/Update eigener Zeilen bereits): Eigene Übung anlegen (`/exercises/new`) mit Name, Kategorie, HYROX-Station, Erfassung, Trainingszielen, Bewegungsmuster, Schwierigkeit, Haupt-/Hilfsmuskeln, Geräten, belasteten Regionen, Belastungsbereichen (Sätze, Wdh./Strecke/Dauer/Kalorien, Pause) und optional Beschreibung/Ausführung. Bibliotheksübung „Als eigene Übung kopieren" (`?from=<slug>`), eigene Übung bearbeiten (`/exercises/:slug/edit`) und archivieren (wird nicht mehr eingeplant, Trainings bleiben erhalten; Wiederherstellen in der Übungsliste). Auf jeder Übung: „Im Trainingsgenerator" neutral / bevorzugt / unbeliebt / ausgeblendet. Liste kennzeichnet eigene und abweichende Präferenzen. Für eigene Übungen sind Beschreibung und Ausführung freiwillig (`customExerciseSchema`). Formularlogik `src/features/exercises/customForm.ts` (getestet), Datenbankweg in zurückgerollter Transaktion geprüft (30.10.2026).
+   - **3.6** ✅ umgesetzt (ohne Migration – RLS erlaubt Insert/Update eigener Zeilen bereits): Eigene Übung anlegen (`/exercises/new`) mit Name, Kategorie, HYROX-Station, Erfassung, Trainingszielen, Bewegungsmuster, Schwierigkeit, Haupt-/Hilfsmuskeln, Geräten, belasteten Regionen, Belastungsbereichen (Sätze, Wdh./Strecke/Dauer/Kalorien, Pause) und optional Beschreibung/Ausführung. Bibliotheksübung „Als eigene Übung kopieren" (`?from=<slug>`), eigene Übung bearbeiten (`/exercises/:slug/edit`) und archivieren (wird nicht mehr eingeplant, Trainings bleiben erhalten; Wiederherstellen in der Übungsliste). Auf jeder Übung: „Im Trainingsgenerator" neutral / bevorzugt / unbeliebt / ausgeblendet. Liste kennzeichnet eigene und abweichende Präferenzen. Für eigene Übungen sind Beschreibung und Ausführung freiwillig (`customExerciseSchema`). Formularlogik `src/features/exercises/customForm.ts` (getestet), Datenbankweg in zurückgerollter Transaktion geprüft (30.10.2026). Commit `b85f4b3`, vom Nutzer getestet und gepusht.
 2. Schritt 2.8 Dashboard ✅ umgesetzt: Begrüßung mit Datum, Hinweis „Training läuft", nächstes Training (laut bevorzugten Wochentagen – Wochenplan folgt in Phase 3), „Workout generieren", „Training starten" (startet das zuletzt erzeugte Workout direkt), diese Woche (Einheiten / Ziel, Minuten, Wochenleiste mit trainierten und bevorzugten Tagen), Trainingsbelastung (Einordnung + Werte, ab 2 Wochen Verlauf), letzte 3 Trainings, letzte 3 Bestleistungen. Berechnungen in `src/features/dashboard/stats.ts` (getestet). Startlogik gemeinsam mit dem Generator (`useStartTraining`). Commit `cc1751f`, vom Nutzer getestet.
 3. Erledigt – Schritt 2.7 Trainingsmodus & Speichern:
    - **2.7a** ✅ Migration 0004 (`workout_sessions`, `session_exercises`, `session_sets`, FK für `personal_records.session_id`) + `save_workout_session()` (idempotent, in zurückgerollter Transaktion getestet). Trainingsablauf als reine Funktionen (`src/domain/session/`): Start aus generiertem Workout, Reihenfolge inkl. Zirkel, Abhaken mit Übernahme der Vorgabe, Pausentimer per Zeitstempel, Sätze hinzufügen/entfernen, Überspringen, Tauschen (nur unbegonnene Übungen), Pausieren, Beenden, Auswertung. Rekorderkennung (`src/domain/records/detect.ts`), Speicher-Nutzlast. 30 neue Tests. Commit `e4fae64`.
