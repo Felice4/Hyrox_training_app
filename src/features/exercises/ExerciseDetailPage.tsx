@@ -17,6 +17,7 @@ import {
   STRESS_REGION_LABELS,
   TRAINING_TYPE_LABELS,
 } from '@/data/exercises/vocabulary'
+import { ExerciseActions } from './ExerciseActions'
 import { describeLoad } from './format'
 import { useExerciseCatalog } from './useExerciseCatalog'
 
@@ -109,22 +110,26 @@ export function ExerciseDetailPage() {
         <h1 className="font-display text-4xl leading-tight font-bold tracking-wide uppercase">
           {exercise.name}
         </h1>
-        <p className="mt-2 text-fg-muted">{exercise.description}</p>
+        {exercise.description && <p className="mt-2 text-fg-muted">{exercise.description}</p>}
       </header>
 
       <div className="flex flex-col gap-4">
-        <Section title="Ausführung">
-          <ol className="flex flex-col gap-2">
-            {exercise.instructions.map((step, index) => (
-              <li key={step} className="flex gap-3">
-                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-surface-raised text-xs font-semibold text-accent">
-                  {index + 1}
-                </span>
-                <span>{step}</span>
-              </li>
-            ))}
-          </ol>
-        </Section>
+        <ExerciseActions exercise={exercise} />
+
+        {exercise.instructions.length > 0 && (
+          <Section title="Ausführung">
+            <ol className="flex flex-col gap-2">
+              {exercise.instructions.map((step, index) => (
+                <li key={step} className="flex gap-3">
+                  <span className="grid size-6 shrink-0 place-items-center rounded-full bg-surface-raised text-xs font-semibold text-accent">
+                    {index + 1}
+                  </span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ol>
+          </Section>
+        )}
 
         <Section title="Empfohlene Belastung">
           <dl className="grid grid-cols-2 gap-x-4 gap-y-3">

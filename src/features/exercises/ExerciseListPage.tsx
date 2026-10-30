@@ -17,7 +17,9 @@ import {
   HYROX_STATION_LABELS,
   MUSCLE_GROUPS,
   MUSCLE_GROUP_LABELS,
+  PREFERENCE_LABELS,
 } from '@/data/exercises/vocabulary'
+import { ArchivedExercises } from './ArchivedExercises'
 import {
   EMPTY_FILTER,
   filterExercises,
@@ -62,6 +64,12 @@ export function ExerciseListPage() {
       />
 
       <div className="flex flex-col gap-3">
+        <Link
+          to="/exercises/new"
+          className="inline-flex min-h-12 items-center justify-center rounded-xl bg-accent px-5 font-semibold text-on-accent"
+        >
+          + Eigene Übung anlegen
+        </Link>
         <TextField
           label="Übung suchen"
           type="search"
@@ -160,6 +168,8 @@ export function ExerciseListPage() {
           </>
         )}
       </section>
+
+      <ArchivedExercises />
     </>
   )
 }
@@ -184,6 +194,8 @@ function ExerciseListItem({
           {CATEGORY_LABELS[exercise.category]} · {muscles}
         </p>
       </div>
+      {exercise.source === 'custom' && <Badge tone="accent">Eigene</Badge>}
+      {exercise.preference !== 'neutral' && <Badge>{PREFERENCE_LABELS[exercise.preference]}</Badge>}
       {exercise.hyroxStation && (
         <Badge tone="hyrox">{HYROX_STATION_LABELS[exercise.hyroxStation]}</Badge>
       )}

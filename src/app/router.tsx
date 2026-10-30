@@ -6,6 +6,7 @@ import { NewPlannedWorkoutPage } from '@/features/calendar/NewPlannedWorkoutPage
 import { PlannedWorkoutPage } from '@/features/calendar/PlannedWorkoutPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { ExerciseDetailPage } from '@/features/exercises/ExerciseDetailPage'
+import { ExerciseFormPage } from '@/features/exercises/ExerciseFormPage'
 import { ExerciseListPage } from '@/features/exercises/ExerciseListPage'
 import { GeneratorPage } from '@/features/generator/GeneratorPage'
 import { HistoryListPage } from '@/features/history/HistoryListPage'
@@ -52,7 +53,9 @@ export const router = createBrowserRouter([
               },
               { path: 'more', element: <MorePage /> },
               { path: 'exercises', element: <ExerciseListPage /> },
+              { path: 'exercises/new', element: <ExerciseFormPage /> },
               { path: 'exercises/:slug', element: <ExerciseDetailPage /> },
+              { path: 'exercises/:slug/edit', element: <ExerciseFormPage /> },
               { path: 'profile', element: <ProfilePage /> },
               { path: 'history', element: <HistoryListPage /> },
               { path: 'history/:id', element: <SessionDetailPage /> },
