@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
+import { toReadinessInput } from '@/api/readiness'
 import type { PlannedWorkout, PlannedWorkoutChange } from '@/api/weekPlans'
 import { CalendarIcon, ChevronLeftIcon } from '@/components/icons'
 import { Badge } from '@/components/ui/Badge'
@@ -19,6 +20,9 @@ import { FOCUS_LABELS, INTENSITY_LABELS } from '@/features/generator/labels'
 import { WorkoutPreview } from '@/features/generator/WorkoutPreview'
 import { readActiveSession, useActiveSessionKey } from '@/features/training/useActiveSession'
 import { useStartTraining } from '@/features/training/useStartTraining'
+import { READINESS } from '@/domain/generator/config'
+import { readinessStatus } from '@/domain/readiness/readiness'
+import { useTodayCheckin } from '@/features/readiness/useCheckin'
 import { toLocalIsoDate } from '@/lib/date'
 import { formatLongDay, formatShortDay } from './format'
 import { generateForDay, requestFor, type PlanningData } from './planning'
@@ -108,6 +112,14 @@ export function PlannedWorkoutPage() {
 function PlannedDetail({ planned, data }: { planned: PlannedWorkout; data: PlanningData }) {
   const navigate = useNavigate()
   const [today] = useState(() => toLocalIsoDate())
+  const checkin = useTodayCheckin(today)
+  // Check-in von heute gilt nur für die Einheit am heutigen Tag
+  const readiness =
+    checkin.data && planned.date === today ? toReadinessInput(checkin.data) : undefined
+  const lowReadiness =
+    checkin.data && planned.date === today && checkin.data.score < READINESS.reduceBelow
+      ? readinessStatus(checkin.data.score)
+      : undefined
   const update = useUpdatePlannedWorkout()
   const remove = useDeletePlannedWorkout()
   const startTraining = useStartTraining(data.exercises)
@@ -223,6 +235,24 @@ function PlannedDetail({ planned, data }: { planned: PlannedWorkout; data: Plann
         </Card>
       )}
 
+      {editable && !skipped && workout && !editing && lowReadiness && (
+        <div
+          role="status"
+          className="flex flex-col gap-3 rounded-xl border border-hyrox/40 bg-hyrox/10 px-4 py-3 text-sm"
+        >
+          <p>
+            Deine Tagesform heute: <strong>{lowReadiness.label}</strong>. {lowReadiness.advice}
+          </p>
+          <Button
+            variant="secondary"
+            className="self-start"
+            onClick={() => regenerate(requestFor(planned, readiness))}
+          >
+            Einheit an Tagesform anpassen
+          </Button>
+        </div>
+      )}
+
       {editable && !skipped && (editing || !workout) && (
         <>
           {!workout && (
@@ -231,9 +261,10 @@ function PlannedDetail({ planned, data }: { planned: PlannedWorkout; data: Plann
             </p>
           )}
           <GeneratorForm
-            initial={requestFor(planned)}
+            initial={requestFor(planned, readiness)}
             profileEquipment={profile.availableEquipment}
             onSubmit={regenerate}
+            checkin={readiness}
           />
           {workout && (
             <Button variant="ghost" onClick={() => setEditing(false)}>
@@ -257,10 +288,10 @@ function PlannedDetail({ planned, data }: { planned: PlannedWorkout; data: Plann
           }
           data={data}
           onStart={() => start(workout)}
-          onRegenerate={() => regenerate(requestFor(planned))}
+          onRegenerate={() => regenerate(requestFor(planned, readiness))}
           onEdit={() => setEditing(true)}
           onRecovery={() =>
-            regenerate({ ...requestFor(planned), focus: 'recovery', intensity: 'easy' })
+            regenerate({ ...requestFor(planned, readiness), focus: 'recovery', intensity: 'easy' })
           }
           onChange={(next) => {
             setLocalWorkout(next)

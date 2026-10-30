@@ -11,7 +11,8 @@ import {
   MUSCLE_GROUP_LABELS,
   type Equipment,
 } from '@/data/exercises/vocabulary'
-import { FOCUSES, INTENSITIES, type WorkoutRequest } from '@/domain/generator'
+import { FOCUSES, INTENSITIES, type ReadinessInput, type WorkoutRequest } from '@/domain/generator'
+import { readinessScore, readinessStatus } from '@/domain/readiness/readiness'
 import { FOCUS_LABELS, INTENSITY_LABELS, READINESS_LABELS } from './labels'
 
 type QuickReadiness = keyof typeof READINESS_LABELS
@@ -30,9 +31,16 @@ interface GeneratorFormProps {
   /** Geräte laut Profil – nur diese können „heute nicht verfügbar" sein */
   profileEquipment: readonly Equipment[]
   onSubmit: (request: WorkoutRequest) => void
+  /** Check-in von heute – ersetzt die Schnellauswahl, solange er gewählt ist */
+  checkin?: ReadinessInput | undefined
 }
 
-export function GeneratorForm({ initial, profileEquipment, onSubmit }: GeneratorFormProps) {
+export function GeneratorForm({
+  initial,
+  profileEquipment,
+  onSubmit,
+  checkin,
+}: GeneratorFormProps) {
   const [request, setRequest] = useState<WorkoutRequest>(initial)
   const [showMore, setShowMore] = useState(
     (initial.targetMuscles?.length ?? 0) > 0 ||
@@ -70,12 +78,43 @@ export function GeneratorForm({ initial, profileEquipment, onSubmit }: Generator
             onChange={(intensity) => update({ intensity })}
           />
         )}
-        <SingleChoiceChips
-          label="Wie fühlst du dich heute?"
-          options={READINESS_OPTIONS}
-          value={readiness}
-          onChange={(level) => update({ readiness: { kind: 'quick', level } })}
-        />
+        {request.readiness?.kind === 'checkin' ? (
+          <div className="flex flex-col gap-1.5">
+            <p className="text-sm font-medium text-fg-muted">Tagesform</p>
+            <p>
+              Aus deinem Check-in:{' '}
+              <span className="font-semibold">
+                {readinessStatus(readinessScore(request.readiness)).label} (
+                {String(readinessScore(request.readiness)).replace('.', ',')} / 5)
+              </span>
+            </p>
+            <button
+              type="button"
+              className="min-h-11 self-start text-sm text-fg-muted underline"
+              onClick={() => update({ readiness: { kind: 'quick', level: 'normal' } })}
+            >
+              Stattdessen Schnellauswahl
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-1">
+            <SingleChoiceChips
+              label="Wie fühlst du dich heute?"
+              options={READINESS_OPTIONS}
+              value={readiness}
+              onChange={(level) => update({ readiness: { kind: 'quick', level } })}
+            />
+            {checkin && (
+              <button
+                type="button"
+                className="min-h-11 self-start text-sm text-accent"
+                onClick={() => update({ readiness: checkin })}
+              >
+                Check-in von heute verwenden
+              </button>
+            )}
+          </div>
+        )}
       </Card>
 
       <Card className="flex flex-col gap-6">

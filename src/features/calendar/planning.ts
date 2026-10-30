@@ -5,6 +5,7 @@ import {
   ruleBasedGenerator,
   type GeneratedWorkout,
   type HistorySession,
+  type ReadinessInput,
   type WorkoutRequest,
 } from '@/domain/generator'
 import { generateWeekPlan, type GeneratedWeekPlan } from '@/domain/generator/weekPlan'
@@ -65,12 +66,15 @@ export function generateForDay(
   })
 }
 
-/** Anfrage, mit der eine geplante Einheit neu erzeugt wird (Schwerpunkt und Dauer bleiben). */
-export function requestFor(planned: PlannedWorkout): WorkoutRequest {
+/**
+ * Anfrage, mit der eine geplante Einheit neu erzeugt wird (Schwerpunkt und Dauer bleiben).
+ * `readiness`: Check-in von heute – nur für Einheiten am heutigen Tag sinnvoll.
+ */
+export function requestFor(planned: PlannedWorkout, readiness?: ReadinessInput): WorkoutRequest {
   return {
     durationMin: planned.durationMin,
     focus: planned.focus,
     intensity: planned.intensity,
-    readiness: { kind: 'quick', level: 'normal' },
+    readiness: readiness ?? { kind: 'quick', level: 'normal' },
   }
 }

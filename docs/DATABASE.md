@@ -129,6 +129,8 @@ Check: mindestens ein Messwert gesetzt. Höchstens ein Eintrag pro Tag (unique `
 | recovery | smallint | 1–5 |
 | score | numeric(3,2) | Mittelwert, berechnet in `domain/readiness` |
 
+`id` kommt vom Client (ein Check-in pro Tag wird per Upsert aktualisiert). `workout_sessions.readiness_checkin_id` (FK, `on delete set null`) verweist auf den Check-in des Trainingstags (Migration 0006).
+
 ### 3.6 `week_plans`
 
 | Spalte | Typ | Hinweis |

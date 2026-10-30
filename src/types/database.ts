@@ -341,6 +341,45 @@ export type Database = {
         }
         Relationships: []
       }
+      readiness_checkins: {
+        Row: {
+          checked_at: string
+          created_at: string
+          energy: number
+          id: string
+          recovery: number
+          score: number
+          sleep_quality: number
+          soreness: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          checked_at: string
+          created_at?: string
+          energy: number
+          id: string
+          recovery: number
+          score: number
+          sleep_quality: number
+          soreness: number
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          checked_at?: string
+          created_at?: string
+          energy?: number
+          id?: string
+          recovery?: number
+          score?: number
+          sleep_quality?: number
+          soreness?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       session_exercises: {
         Row: {
           block: string
@@ -559,6 +598,7 @@ export type Database = {
           intensity: string
           notes: string | null
           planned_workout_id: string | null
+          readiness_checkin_id: string | null
           session_rpe: number | null
           started_at: string
           status: string
@@ -577,6 +617,7 @@ export type Database = {
           intensity: string
           notes?: string | null
           planned_workout_id?: string | null
+          readiness_checkin_id?: string | null
           session_rpe?: number | null
           started_at: string
           status: string
@@ -595,6 +636,7 @@ export type Database = {
           intensity?: string
           notes?: string | null
           planned_workout_id?: string | null
+          readiness_checkin_id?: string | null
           session_rpe?: number | null
           started_at?: string
           status?: string
@@ -609,6 +651,13 @@ export type Database = {
             columns: ["planned_workout_id"]
             isOneToOne: false
             referencedRelation: "planned_workouts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workout_sessions_readiness_checkin_id_fkey"
+            columns: ["readiness_checkin_id"]
+            isOneToOne: false
+            referencedRelation: "readiness_checkins"
             referencedColumns: ["id"]
           },
         ]

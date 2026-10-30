@@ -13,10 +13,10 @@
 | | |
 |---|---|
 | **Aktuelle Phase** | Phase 3 – Erweiterung (Start mit 3.1 Wochenplanung) |
-| **Letzter verifizierter Meilenstein** | 3.3 Fortschrittsanalysen (vom Nutzer getestet) |
-| **Nächster Schritt** | Test von 3.4 durch den Nutzer, danach 3.5 Regenerationslogik |
+| **Letzter verifizierter Meilenstein** | 3.4 Trainingshistorie (vom Nutzer getestet) |
+| **Nächster Schritt** | Test von 3.5 durch den Nutzer, danach 3.6 Erweiterte Übungsverwaltung |
 | **Blocker** | keine |
-| **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: `abb898b`. |
+| **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: `b57619b`. |
 
 ---
 
@@ -121,8 +121,8 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | **3.1 Wochenplanung** ✅ | Migration 0005, `generateWeekPlan` + Tests, Wochenplan erzeugen/bearbeiten (verschieben, ersetzen, spontane Einheit, ausgefallen), geplantes Training starten |
 | **3.2 Trainingskalender** ✅ | Monats-/Wochenansicht, Status-Kennzeichnung, Tagesdetails, zukünftige Einheiten verschieben |
 | **3.3 Fortschrittsanalysen** ✅ | Häufigkeit, geplant vs. absolviert, Kraftentwicklung je Übung, Lauf/Ergometer/Pace, HYROX-Stationen, Bestleistungen, Körperwerte erfassen + Verlauf |
-| **3.4 Trainingshistorie** 🔄 | Liste und Detailansicht absolvierter Trainings, Notizen nachträglich bearbeiten |
-| **3.5 Regenerationslogik** | Migration 0006, Tagesform-Check-in vor dem Training, Anbindung an Generator und Dashboard |
+| **3.4 Trainingshistorie** ✅ | Liste und Detailansicht absolvierter Trainings, Notizen nachträglich bearbeiten |
+| **3.5 Regenerationslogik** 🔄 | Migration 0006, Tagesform-Check-in vor dem Training, Anbindung an Generator und Dashboard |
 | **3.6 Erweiterte Übungsverwaltung** | Eigene Übungen anlegen/bearbeiten/archivieren, Bibliotheksübung als eigene kopieren, Präferenzen und Ausblenden |
 
 ### Phase 4 – Fertigstellung
@@ -192,7 +192,9 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
    - **3.3b** ✅ Übungen: Auswahl aller trainierten Übungen nach Kraft / HYROX-Stationen / Ausdauer & Ergometer. Verglichen wird nur Vergleichbares: Kraft über das geschätzte Maximalgewicht (Epley, bis 12 Wdh.) plus Volumen und bestes Gewicht je Wiederholungszahl; Lauf/Ergometer über die Pace je Strecke (Rudern/SkiErg je 500 m); Sled/Carry über Gewicht je Strecke. Warm-up/Cool-down zählen nicht (Verlauf enthält jetzt den Block). Logik `src/domain/progress/exercise.ts` (getestet). Commit `61e3786`.
    - **3.3c** ✅ Rekorde: alle Bestleistungen nach Bereich, HYROX-Wettkampfzeit, „manuell"-Kennzeichnung. Körper: Werte erfassen (Gewicht, Körperfett, Taille, Brust, Oberarm, Oberschenkel, Notiz; ein Eintrag pro Tag, leere Felder bleiben unverändert), Verlauf nur für erfasste Werte, Einträge löschen. Commit `abb898b`, vom Nutzer getestet und gepusht.
 1. Schritt 3.4 Trainingshistorie:
-   - **3.4** ✅ umgesetzt: Liste `/history` (über „Mehr" → Trainingshistorie und „Alle Trainings" auf dem Dashboard), nach Monaten gruppiert, je 20 Trainings mit „Ältere Trainings laden". Detailseite `/history/:id`: Datum und Uhrzeit, aktive Zeit, RPE, Belastung, Notiz (nachträglich bearbeiten), Bestleistungen aus diesem Training, alle Übungen nach Block mit Sätzen (Ist-Werte, Vorgabe bei Abweichung, Satz-RPE, übersprungen, „statt …" bei getauschten Übungen). Erreichbar auch aus dem Kalender („Alle Details und Notiz") und den letzten Trainings auf dem Dashboard; „Zurück" führt an die Ausgangsstelle. API `src/api/sessionHistory.ts` (Umwandlung getestet).
+   - **3.4** ✅ umgesetzt: Liste `/history` (über „Mehr" → Trainingshistorie und „Alle Trainings" auf dem Dashboard), nach Monaten gruppiert, je 20 Trainings mit „Ältere Trainings laden". Detailseite `/history/:id`: Datum und Uhrzeit, aktive Zeit, RPE, Belastung, Notiz (nachträglich bearbeiten), Bestleistungen aus diesem Training, alle Übungen nach Block mit Sätzen (Ist-Werte, Vorgabe bei Abweichung, Satz-RPE, übersprungen, „statt …" bei getauschten Übungen). Erreichbar auch aus dem Kalender („Alle Details und Notiz") und den letzten Trainings auf dem Dashboard; „Zurück" führt an die Ausgangsstelle. API `src/api/sessionHistory.ts` (Umwandlung getestet). Commit `b57619b`, vom Nutzer getestet und gepusht.
+1. Schritt 3.5 Regenerationslogik:
+   - **3.5** ✅ umgesetzt: Migration 0006 (`readiness_checkins` mit RLS, `workout_sessions.readiness_checkin_id`, `save_workout_session` speichert den Verweis). Eingespielt am 30.10.2026 und in zurückgerollter Transaktion getestet (Anlegen, Aktualisieren derselben ID ohne Dublette, Wert 6 abgelehnt, Training mit Check-in-Verweis, doppeltes Speichern). Check-in-Karte auf Dashboard und Training-Seite: Energie, Muskelkater, Schlaf, Erholung (je 1–5); ein Check-in pro Tag, „Ändern" aktualisiert ihn; Anzeige von Einordnung (Erschöpft / Eher müde / Normal / Gut erholt) und Wirkung, ohne medizinische Aussagen. Generator übernimmt den Check-in automatisch (umschaltbar auf Schnellauswahl). Geplante Einheit am heutigen Tag: „Neu erzeugen"/„Anpassen" nutzen den Check-in, bei niedriger Tagesform Hinweis „Einheit an Tagesform anpassen". Training speichert den Check-in-Verweis. Einordnung `readinessStatus` in `src/domain/readiness` (getestet).
 2. Schritt 2.8 Dashboard ✅ umgesetzt: Begrüßung mit Datum, Hinweis „Training läuft", nächstes Training (laut bevorzugten Wochentagen – Wochenplan folgt in Phase 3), „Workout generieren", „Training starten" (startet das zuletzt erzeugte Workout direkt), diese Woche (Einheiten / Ziel, Minuten, Wochenleiste mit trainierten und bevorzugten Tagen), Trainingsbelastung (Einordnung + Werte, ab 2 Wochen Verlauf), letzte 3 Trainings, letzte 3 Bestleistungen. Berechnungen in `src/features/dashboard/stats.ts` (getestet). Startlogik gemeinsam mit dem Generator (`useStartTraining`). Commit `cc1751f`, vom Nutzer getestet.
 3. Erledigt – Schritt 2.7 Trainingsmodus & Speichern:
    - **2.7a** ✅ Migration 0004 (`workout_sessions`, `session_exercises`, `session_sets`, FK für `personal_records.session_id`) + `save_workout_session()` (idempotent, in zurückgerollter Transaktion getestet). Trainingsablauf als reine Funktionen (`src/domain/session/`): Start aus generiertem Workout, Reihenfolge inkl. Zirkel, Abhaken mit Übernahme der Vorgabe, Pausentimer per Zeitstempel, Sätze hinzufügen/entfernen, Überspringen, Tauschen (nur unbegonnene Übungen), Pausieren, Beenden, Auswertung. Rekorderkennung (`src/domain/records/detect.ts`), Speicher-Nutzlast. 30 neue Tests. Commit `e4fae64`.
@@ -291,6 +293,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 | 23.10.2026 | Recharts 3.10 für Diagramme (vom Nutzer freigegeben); Statistik-Seite per `lazy` im Router eigenes Paket (≈ 116 KB gzip) | Vorgabe der Spezifikation; Die übrigen Seiten laden die Diagramm-Bibliothek nicht mit |
 | 23.10.2026 | Diagramme: eine Reihe in Akzentfarbe, Vergleichswert („geplant") in Grau; keine zweite y-Achse; jede Grafik mit Tabellenansicht | Lesbar auf dem dunklen Hintergrund, auch bei Farbsehschwäche (geprüft) |
 | 23.10.2026 | Kraftfortschritt über geschätztes 1RM (Epley, ≤ 12 Wdh.), Ausdauer nur bei gleicher Strecke | SPEC §9: Vergleichbares vergleichen |
+| 30.10.2026 | Höchstens ein Check-in pro Tag (Client-ID, erneutes Speichern aktualisiert); Score in der App berechnet | Keine widersprüchlichen Tageswerte; Logik testbar in `domain/readiness` |
+| 30.10.2026 | Check-in wirkt nur auf Einheiten von heute, geplante Einheiten werden nicht automatisch geändert – nur Hinweis mit Knopf | Nutzer behält die Kontrolle über den Plan |
 | 23.10.2026 | „Training starten" auf dem Dashboard startet das zuletzt erzeugte Workout direkt; ohne Workout deaktiviert mit Hinweis | Ein Tipp vom Startbildschirm ins Training |
 | 23.10.2026 | Verlauf für Generator und Training: 90 Tage laden (Generator wertet selbst 28 Tage / 96 h aus) | „Letztes Mal" und Progression finden auch ältere Einheiten |
 | 23.10.2026 | Bestleistungen aus Trainings auf der Profilseite nur lesbar | Manuelle Eingaben dürfen echte Leistungen nie überschreiben – ein offenes Feld wäre irreführend |

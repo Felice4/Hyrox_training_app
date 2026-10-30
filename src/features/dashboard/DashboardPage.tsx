@@ -16,6 +16,7 @@ import { useAuth } from '@/features/auth/authContext'
 import { formatShortDay } from '@/features/calendar/format'
 import { useUpcomingPlanned } from '@/features/calendar/usePlannedWorkouts'
 import { nextPlanned } from '@/features/calendar/week'
+import { CheckinCard } from '@/features/readiness/CheckinCard'
 import { useExerciseCatalog } from '@/features/exercises/useExerciseCatalog'
 import { restoreStoredWorkout } from '@/features/generator/inputs'
 import { FOCUS_LABELS, INTENSITY_LABELS } from '@/features/generator/labels'
@@ -82,6 +83,8 @@ export function DashboardPage() {
             <ChevronRightIcon className="text-accent" />
           </Link>
         )}
+
+        <CheckinCard today={today} />
 
         <Card className="flex flex-col gap-3">
           {next ? (

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { readinessEffect, readinessScore, shiftIntensity } from './readiness'
+import { readinessEffect, readinessScore, readinessStatus, shiftIntensity } from './readiness'
 
 const checkin = (value: number) =>
   ({
@@ -55,5 +55,15 @@ describe('shiftIntensity', () => {
     expect(shiftIntensity('hard', -1)).toBe('moderate')
     expect(shiftIntensity('easy', -1)).toBe('easy')
     expect(shiftIntensity('moderate', 5)).toBe('hard')
+  })
+})
+
+describe('readinessStatus', () => {
+  it('ordnet den Score wie der Generator ein', () => {
+    expect(readinessStatus(1.75).level).toBe('recovery')
+    expect(readinessStatus(2).level).toBe('reduced')
+    expect(readinessStatus(2.99).level).toBe('reduced')
+    expect(readinessStatus(3).level).toBe('normal')
+    expect(readinessStatus(4).level).toBe('good')
   })
 })

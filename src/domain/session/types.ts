@@ -66,6 +66,8 @@ export interface ActiveSession {
   workout: GeneratedWorkout
   /** Geplante Einheit aus dem Wochenplan, aus der das Training gestartet wurde */
   plannedWorkoutId?: string | undefined
+  /** Tagesform-Check-in des Trainingstags */
+  readinessCheckinId?: string | undefined
   exercises: ActiveExercise[]
   /** Index im Ablauf (siehe `buildSteps`) */
   cursor: number

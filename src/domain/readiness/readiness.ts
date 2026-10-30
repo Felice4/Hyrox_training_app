@@ -55,3 +55,36 @@ export function shiftIntensity(intensity: Intensity, shift: number): Intensity {
   const index = Math.min(ORDER.length - 1, Math.max(0, ORDER.indexOf(intensity) + shift))
   return ORDER[index] as Intensity
 }
+
+/** Einordnung der Tagesform für die Anzeige (keine medizinische Aussage). */
+export interface ReadinessStatus {
+  level: 'recovery' | 'reduced' | 'normal' | 'good'
+  label: string
+  /** Was der Generator daraus macht */
+  advice: string
+}
+
+export function readinessStatus(score: number): ReadinessStatus {
+  if (score < READINESS.recoveryBelow) {
+    return {
+      level: 'recovery',
+      label: 'Erschöpft',
+      advice: 'Eine regenerative Einheit wäre heute sinnvoll. Normales Training nur locker.',
+    }
+  }
+  if (score < READINESS.reduceBelow) {
+    return {
+      level: 'reduced',
+      label: 'Eher müde',
+      advice: 'Workouts werden eine Stufe leichter und mit etwa 20 % weniger Umfang erstellt.',
+    }
+  }
+  if (score < 4) {
+    return { level: 'normal', label: 'Normal', advice: 'Training wie geplant.' }
+  }
+  return {
+    level: 'good',
+    label: 'Gut erholt',
+    advice: 'Training wie geplant – mehr Intensität nur, wenn du sie selbst wählst.',
+  }
+}

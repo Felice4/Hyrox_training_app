@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { Spinner } from '@/components/ui/Spinner'
 import type { CatalogExercise } from '@/api/exercises'
 import type { ProfileDetails } from '@/api/profile'
+import { toReadinessInput } from '@/api/readiness'
 import {
   ruleBasedGenerator,
   swapExercise,
@@ -20,6 +21,9 @@ import { storageKeys } from '@/features/training/storage'
 import { readActiveSession, useActiveSessionKey } from '@/features/training/useActiveSession'
 import { useStartTraining } from '@/features/training/useStartTraining'
 import { useProfileDetails } from '@/features/profile/useProfile'
+import { CheckinCard } from '@/features/readiness/CheckinCard'
+import { useTodayCheckin } from '@/features/readiness/useCheckin'
+import { toLocalIsoDate } from '@/lib/date'
 import { clearDraft, loadDraft, saveDraft } from '@/lib/localDraft'
 import { GeneratorForm } from './GeneratorForm'
 import {
@@ -97,6 +101,9 @@ function Generator({
   const [hasActive] = useState(() => readActiveSession(activeKey) !== null)
   const profile = toGeneratorProfile(details)
   const goals = toGoalWeights(details)
+  const [today] = useState(() => toLocalIsoDate())
+  const checkin = useTodayCheckin(today)
+  const checkinInput = checkin.data ? toReadinessInput(checkin.data) : undefined
 
   const [stored, setStored] = useState<StoredWorkout | null>(() =>
     loadDraft(storageKey, null, restoreStoredWorkout),
@@ -114,6 +121,11 @@ function Generator({
     intensity: 'moderate',
     readiness: { kind: 'quick', level: 'normal' },
   }
+  const baseRequest = stored?.request ?? defaultRequest
+  // Ein Check-in von heute hat Vorrang vor der zuletzt gewählten Schnellauswahl
+  const initialRequest: WorkoutRequest = checkinInput
+    ? { ...baseRequest, readiness: checkinInput }
+    : baseRequest
 
   function generate(request: WorkoutRequest) {
     const workout = ruleBasedGenerator.generateWorkout({
@@ -144,10 +156,16 @@ function Generator({
     return (
       <>
         {activeBanner}
+        <div className="mb-4">
+          <CheckinCard today={today} />
+        </div>
         <GeneratorForm
-          initial={stored?.request ?? defaultRequest}
+          // Neu aufbauen, sobald ein Check-in gespeichert oder geändert wurde
+          key={checkin.data ? `${checkin.data.id}-${checkin.data.score}` : 'ohne-checkin'}
+          initial={initialRequest}
           profileEquipment={profile.availableEquipment}
           onSubmit={generate}
+          checkin={checkinInput}
         />
       </>
     )
