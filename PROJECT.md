@@ -12,11 +12,11 @@
 
 | | |
 |---|---|
-| **Aktuelle Phase** | Phase 4 – Fertigstellung |
-| **Letzter verifizierter Meilenstein** | 4.3 Datenexport (vom Nutzer freigegeben) |
-| **Nächster Schritt** | Nutzer geht `docs/CHECKLIST.md` durch, danach 4.5 Dokumentation |
+| **Aktuelle Phase** | Version 1 fertig (Phase 4 abgeschlossen) |
+| **Letzter verifizierter Meilenstein** | 4.4 Tests & Sync-Prüfung (vom Nutzer freigegeben) |
+| **Nächster Schritt** | Optionale Erweiterungen nach Wahl des Nutzers (siehe §9) |
 | **Blocker** | keine |
-| **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: `80ef783`. |
+| **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: `14d625b`. |
 
 ---
 
@@ -99,7 +99,7 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | Phase 1 | Planung: Architektur, DB-Schema, Ordnerstruktur, Generator-Algorithmus, Roadmap | ✅ abgenommen |
 | Phase 2 | Funktionsfähige Basisversion | ✅ abgeschlossen |
 | Phase 3 | Erweiterung | ✅ abgeschlossen |
-| Phase 4 | Fertigstellung | 🔄 in Arbeit |
+| Phase 4 | Fertigstellung | ✅ abgeschlossen |
 
 ### Phase 2 – Funktionsfähige Basisversion
 
@@ -132,8 +132,8 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | **4.1 Responsive-Feinschliff** ✅ | Laptop-Layout (Seitenleiste), Feinschliff aller Ansichten, Barrierefreiheit (Kontraste, Fokus) |
 | **4.2 PWA vollständig** ✅ | Caching-Strategie, Update-Hinweis bei neuer Version, Offline-Hinweis |
 | **4.3 Datenexport** ✅ | CSV/JSON-Export aller Trainingsdaten |
-| **4.4 Tests & Sync-Prüfung** 🔄 | Testabdeckung der Domäne prüfen, manuelle Checkliste: zweites Gerät, erneuter Login |
-| **4.5 Dokumentation** | `docs/INSTALL.md`: Einrichtung, Deployment, Bibliothek erweitern, Backup |
+| **4.4 Tests & Sync-Prüfung** ✅ | Testabdeckung der Domäne prüfen, manuelle Checkliste: zweites Gerät, erneuter Login |
+| **4.5 Dokumentation** ✅ | `docs/INSTALL.md`: Einrichtung, Deployment, Bibliothek erweitern, Backup |
 
 ---
 
@@ -160,6 +160,11 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | 23.10.2026 | Schritt 3.4 – Trainingshistorie mit Detailansicht und Notizen | `b57619b` |
 | 30.10.2026 | Schritt 3.5 – Migration 0006, Tagesform-Check-in mit Anbindung an Generator, Wochenplan und Dashboard | `3fe8652` |
 | 30.10.2026 | Schritt 3.6 – Eigene Übungen, Kopieren, Archivieren, Präferenzen · **Phase 3 abgeschlossen** | `b85f4b3` |
+| 03.11.2026 | Schritt 4.1 – Laptop-Layout, Kontraste, Tastaturfokus | `68218de` |
+| 03.11.2026 | Schritt 4.2 – Update- und Offline-Hinweis, Caching, Code-Splitting | `4e7874f` |
+| 03.11.2026 | Schritt 4.3 – Datenexport JSON/CSV | `80ef783` |
+| 03.11.2026 | Schritt 4.4 – Testlücken geschlossen, Sicherheitsprüfung, Prüfliste | `14d625b` |
+| 03.11.2026 | Schritt 4.5 – Betriebsanleitung `docs/INSTALL.md` · **Phase 4 abgeschlossen – Version 1 fertig** | (dieser Commit) |
 
 ---
 
@@ -205,7 +210,15 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
    - **4.1** ✅ umgesetzt: Ab 768 px Breite Seitenleiste links (`SideNav`) statt Bottom-Navigation, Inhalt bis 768 px breit; Dashboard-Abschnitte zweispaltig, Statistik-Kennzahlen vierspaltig, Körperwerte-Formular dreispaltig. Barrierefreiheit: Kontraste gemessen (WCAG AA ≥ 4,5:1 für Text) – Platzhalter, „Ruhetag", Wochenzahl im Monatskalender und abgeschwächte (übersprungene/ausgefallene) Einträge angehoben; Tage außerhalb des Monats ohne Transparenz; einheitlich sichtbarer Tastaturfokus in Akzentfarbe (`:focus-visible`); Link „Zum Inhalt springen"; Systemeinstellung „Bewegung reduzieren" wird respektiert. Commit `68218de`, vom Nutzer getestet und gepusht.
    - **4.2** ✅ umgesetzt: Update erst nach Bestätigung (`registerType: 'prompt'`): Hinweis „Neue Version verfügbar" mit „Aktualisieren"/„Später", stündliche Suche nach Updates; Hinweis, sobald die App offline startbar ist. Offline-Banner auf allen Seiten inkl. Trainingsmodus (`src/app/AppStatus.tsx`, `useOnlineStatus`). Caching: App-Hülle wird vorab gespeichert (52 Dateien, ≈ 1,6 MB), alte Caches werden aufgeräumt, SPA-Fallback auf `index.html`; Supabase-Daten werden bewusst nicht zwischengespeichert; nicht-lateinische Schriftschnitte nicht vorab. Code-Splitting: Kalender-Detailseiten, Historie, Übungsformular, Profil, Onboarding, Trainingsmodus und Statistik als eigene Pakete – Haupt-Bundle 992 → 530 KB (275 → 151 KB gzip). Commit `4e7874f`, gepusht.
    - **4.3** ✅ umgesetzt: Seite `/export` (Mehr → Datenexport). „Daten zusammenstellen" lädt alle eigenen Daten seitenweise (`src/api/export.ts`, max. 1000 Zeilen je Abfrage). JSON = komplette Sicherung (Profil, Ziele, Trainings mit Übungen und Sätzen, Bestleistungen, Körperwerte, Check-ins, Wochenpläne, geplante Einheiten, eigene Übungen, Präferenzen zu Bibliotheksübungen; `format`/`version`/`exportedAt`). CSV für Excel: Trainings, Sätze, Körperwerte, Bestleistungen – Semikolon, Dezimalkomma, UTF-8 mit BOM, deutsche Spaltennamen (`src/domain/export/csv.ts`, `src/features/export/tables.ts`, getestet). Am Handy über das Teilen-Menü, am Laptop als Download (`src/lib/download.ts`). Commit `80ef783`, gepusht.
-   - **4.4** ✅ umgesetzt: Testabdeckung geprüft – Kernlogik vollständig, Generator-Interna und Rekorderkennung über Generator-/Speicher-Tests abgedeckt. Neue Tests für Wochenplan-Anbindung (`planning.ts`), Umwandlung geplanter Einheiten (`toPlannedWorkout`), Check-in → Generator, Schrittweiten im Training und `localDraft` (325 Tests in 51 Dateien). Sicherheitsprüfung der Datenbank am 03.11.2026: 11 Tabellen mit RLS und je 3–4 Policies, `anon` ohne Tabellen- und Funktionsrechte (nur Trigger-Hilfe `set_updated_at`), keine `security definer`-Funktionen. Manuelle Prüfliste `docs/CHECKLIST.md` (Sync zwischen Geräten, Login, PWA/Offline, Training im Studio, Sicherheit).
+   - **4.4** ✅ umgesetzt: Testabdeckung geprüft – Kernlogik vollständig, Generator-Interna und Rekorderkennung über Generator-/Speicher-Tests abgedeckt. Neue Tests für Wochenplan-Anbindung (`planning.ts`), Umwandlung geplanter Einheiten (`toPlannedWorkout`), Check-in → Generator, Schrittweiten im Training und `localDraft` (325 Tests in 51 Dateien). Sicherheitsprüfung der Datenbank am 03.11.2026: 11 Tabellen mit RLS und je 3–4 Policies, `anon` ohne Tabellen- und Funktionsrechte (nur Trigger-Hilfe `set_updated_at`), keine `security definer`-Funktionen. Manuelle Prüfliste `docs/CHECKLIST.md` (Sync zwischen Geräten, Login, PWA/Offline, Training im Studio, Sicherheit). Commit `14d625b`, gepusht.
+   - **4.5** ✅ umgesetzt: `docs/INSTALL.md` – Überblick, Voraussetzungen, Einrichtung auf neuem Rechner, Supabase-Neueinrichtung (Registrierung aus, Konto anlegen, Site URL, Migrationen, Typen), Deployment über Cloudflare Pages, Prüfen und Veröffentlichen, Übungsbibliothek erweitern, Datenbank ändern, Daten sichern, Fehlerbehebung, Sicherheitsregeln. README verlinkt Anleitung und Prüfliste. **Version 1 fertig.**
+1. Mögliche Erweiterungen (optional, Reihenfolge nach Nutzen):
+   1. Tempo-Vorgaben für Laufen/Rudern/SkiErg aus dem Verlauf (Pace-Progression im Generator)
+   2. HYROX-Simulation mit Zwischenzeiten je Station, Vergleich mit früheren Simulationen und der Wettkampf-Bestzeit
+   3. Import der JSON-Sicherung (Wiederherstellung)
+   4. Kalorien im Trainingsverlauf speichern und auswerten (z. B. Assault Bike)
+   5. Studio-Test der Gerätefunktionen (Wake Lock, Vibration, Timer im Hintergrund) – `docs/CHECKLIST.md` §4
+   6. Supabase: Site URL auf die Cloudflare-Adresse setzen (2 Minuten, im Dashboard)
 2. Schritt 2.8 Dashboard ✅ umgesetzt: Begrüßung mit Datum, Hinweis „Training läuft", nächstes Training (laut bevorzugten Wochentagen – Wochenplan folgt in Phase 3), „Workout generieren", „Training starten" (startet das zuletzt erzeugte Workout direkt), diese Woche (Einheiten / Ziel, Minuten, Wochenleiste mit trainierten und bevorzugten Tagen), Trainingsbelastung (Einordnung + Werte, ab 2 Wochen Verlauf), letzte 3 Trainings, letzte 3 Bestleistungen. Berechnungen in `src/features/dashboard/stats.ts` (getestet). Startlogik gemeinsam mit dem Generator (`useStartTraining`). Commit `cc1751f`, vom Nutzer getestet.
 3. Erledigt – Schritt 2.7 Trainingsmodus & Speichern:
    - **2.7a** ✅ Migration 0004 (`workout_sessions`, `session_exercises`, `session_sets`, FK für `personal_records.session_id`) + `save_workout_session()` (idempotent, in zurückgerollter Transaktion getestet). Trainingsablauf als reine Funktionen (`src/domain/session/`): Start aus generiertem Workout, Reihenfolge inkl. Zirkel, Abhaken mit Übernahme der Vorgabe, Pausentimer per Zeitstempel, Sätze hinzufügen/entfernen, Überspringen, Tauschen (nur unbegonnene Übungen), Pausieren, Beenden, Auswertung. Rekorderkennung (`src/domain/records/detect.ts`), Speicher-Nutzlast. 30 neue Tests. Commit `e4fae64`.

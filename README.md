@@ -5,6 +5,8 @@ Private Progressive Web App für HYROX-, Kraft-, Muskelaufbau- und Ausdauertrain
 - Anforderungen: [`docs/SPEC.md`](docs/SPEC.md)
 - Stand und Roadmap: [`PROJECT.md`](PROJECT.md)
 - Architektur: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- **Einrichtung, Deployment, Bibliothek erweitern, Backup: [`docs/INSTALL.md`](docs/INSTALL.md)**
+- Manuelle Prüfliste: [`docs/CHECKLIST.md`](docs/CHECKLIST.md)
 
 ## Lokal starten (PowerShell)
 
