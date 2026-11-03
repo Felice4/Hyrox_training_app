@@ -1,23 +1,25 @@
+import type { ComponentType } from 'react'
 import { createBrowserRouter } from 'react-router'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { RequireAuth } from '@/features/auth/RequireAuth'
 import { CalendarPage } from '@/features/calendar/CalendarPage'
-import { NewPlannedWorkoutPage } from '@/features/calendar/NewPlannedWorkoutPage'
-import { PlannedWorkoutPage } from '@/features/calendar/PlannedWorkoutPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { ExerciseDetailPage } from '@/features/exercises/ExerciseDetailPage'
-import { ExerciseFormPage } from '@/features/exercises/ExerciseFormPage'
 import { ExerciseListPage } from '@/features/exercises/ExerciseListPage'
 import { GeneratorPage } from '@/features/generator/GeneratorPage'
-import { HistoryListPage } from '@/features/history/HistoryListPage'
-import { SessionDetailPage } from '@/features/history/SessionDetailPage'
-import { OnboardingPage } from '@/features/onboarding/OnboardingPage'
 import { RequireOnboarding } from '@/features/onboarding/RequireOnboarding'
 import { MorePage } from '@/features/more/MorePage'
-import { ProfilePage } from '@/features/profile/ProfilePage'
-import { TrainingPage } from '@/features/training/TrainingPage'
+
 import { AppShell } from './layout/AppShell'
 import { RouteErrorPage } from './RouteErrorPage'
+
+/**
+ * Lädt eine Seite erst beim ersten Aufruf (eigenes JavaScript-Paket, kleinerer Start).
+ * Der Service Worker speichert alle Pakete vorab – offline funktioniert es trotzdem.
+ */
+function page<M extends Record<string, unknown>>(load: () => Promise<M>, name: keyof M & string) {
+  return () => load().then((m) => ({ Component: m[name] as ComponentType }))
+}
 
 /**
  * Routen der App (siehe docs/ARCHITECTURE.md §5).
@@ -30,12 +32,18 @@ export const router = createBrowserRouter([
     element: <RequireAuth />,
     errorElement: <RouteErrorPage />,
     children: [
-      { path: '/onboarding', element: <OnboardingPage /> },
+      {
+        path: '/onboarding',
+        lazy: page(() => import('@/features/onboarding/OnboardingPage'), 'OnboardingPage'),
+      },
       {
         element: <RequireOnboarding />,
         children: [
           // Trainingsmodus im Vollbild ohne Bottom-Navigation
-          { path: '/training/active', element: <TrainingPage /> },
+          {
+            path: '/training/active',
+            lazy: page(() => import('@/features/training/TrainingPage'), 'TrainingPage'),
+          },
           {
             path: '/',
             element: <AppShell />,
@@ -43,22 +51,57 @@ export const router = createBrowserRouter([
               { index: true, element: <DashboardPage /> },
               { path: 'training', element: <GeneratorPage /> },
               { path: 'calendar', element: <CalendarPage /> },
-              { path: 'calendar/planned/:id', element: <PlannedWorkoutPage /> },
-              { path: 'calendar/new/:date', element: <NewPlannedWorkoutPage /> },
+              {
+                path: 'calendar/planned/:id',
+                lazy: page(
+                  () => import('@/features/calendar/PlannedWorkoutPage'),
+                  'PlannedWorkoutPage',
+                ),
+              },
+              {
+                path: 'calendar/new/:date',
+                lazy: page(
+                  () => import('@/features/calendar/NewPlannedWorkoutPage'),
+                  'NewPlannedWorkoutPage',
+                ),
+              },
               // Diagramm-Bibliothek nur laden, wenn die Statistik geöffnet wird
               {
                 path: 'stats',
-                lazy: () =>
-                  import('@/features/progress/StatsPage').then((m) => ({ Component: m.StatsPage })),
+                lazy: page(() => import('@/features/progress/StatsPage'), 'StatsPage'),
               },
               { path: 'more', element: <MorePage /> },
               { path: 'exercises', element: <ExerciseListPage /> },
-              { path: 'exercises/new', element: <ExerciseFormPage /> },
+              {
+                path: 'exercises/new',
+                lazy: page(
+                  () => import('@/features/exercises/ExerciseFormPage'),
+                  'ExerciseFormPage',
+                ),
+              },
               { path: 'exercises/:slug', element: <ExerciseDetailPage /> },
-              { path: 'exercises/:slug/edit', element: <ExerciseFormPage /> },
-              { path: 'profile', element: <ProfilePage /> },
-              { path: 'history', element: <HistoryListPage /> },
-              { path: 'history/:id', element: <SessionDetailPage /> },
+              {
+                path: 'exercises/:slug/edit',
+                lazy: page(
+                  () => import('@/features/exercises/ExerciseFormPage'),
+                  'ExerciseFormPage',
+                ),
+              },
+              {
+                path: 'profile',
+                lazy: page(() => import('@/features/profile/ProfilePage'), 'ProfilePage'),
+              },
+              {
+                path: 'history',
+                lazy: page(() => import('@/features/history/HistoryListPage'), 'HistoryListPage'),
+              },
+              {
+                path: 'history/:id',
+                lazy: page(
+                  () => import('@/features/history/SessionDetailPage'),
+                  'SessionDetailPage',
+                ),
+              },
             ],
           },
         ],

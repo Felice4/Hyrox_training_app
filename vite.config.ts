@@ -12,8 +12,8 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      // Neue Version wird automatisch geladen. Ein Update-Hinweis folgt in Schritt 4.2.
-      registerType: 'autoUpdate',
+      // Neue Version erst nach Bestätigung laden (Hinweis in src/app/AppStatus.tsx)
+      registerType: 'prompt',
       includeAssets: ['favicon.svg', 'apple-touch-icon-180x180.png'],
       manifest: {
         name: 'HYROX Performance Coach',
@@ -39,7 +39,15 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // App-Hülle vorab speichern: Die App startet auch ohne Verbindung.
+        // Daten aus Supabase werden bewusst nicht zwischengespeichert (immer aktuell, keine
+        // Offline-Synchronisierung); ein laufendes Training sichert die App selbst lokal.
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        // Schriftschnitte für Kyrillisch, Griechisch und Vietnamesisch lädt der Browser bei
+        // Bedarf nach – sie müssen nicht vorab gespeichert werden
+        globIgnores: ['**/*-cyrillic*.woff2', '**/*-greek*.woff2', '**/*-vietnamese*.woff2'],
+        cleanupOutdatedCaches: true,
+        navigateFallback: '/index.html',
       },
     }),
   ],
