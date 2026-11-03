@@ -1,19 +1,23 @@
 import { Link } from 'react-router'
 import type { ComponentType, SVGProps } from 'react'
-import { BookIcon, CalendarIcon, ChevronRightIcon, UserIcon } from '@/components/icons'
+import {
+  BookIcon,
+  CalendarIcon,
+  ChevronRightIcon,
+  DownloadIcon,
+  UserIcon,
+} from '@/components/icons'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { useAuth } from '@/features/auth/authContext'
 import { useSignOut } from '@/features/auth/useSignOut'
 
-/** Bereiche, die über „Mehr" erreichbar sein werden, mit dem Schritt, in dem sie entstehen. */
-const UPCOMING_SECTIONS = [{ label: 'Datenexport', step: 'Schritt 4.3' }] as const
-
 const SECTIONS: { to: string; label: string; icon: ComponentType<SVGProps<SVGSVGElement>> }[] = [
   { to: '/profile', label: 'Profil & Ziele', icon: UserIcon },
   { to: '/history', label: 'Trainingshistorie', icon: CalendarIcon },
   { to: '/exercises', label: 'Übungsbibliothek', icon: BookIcon },
+  { to: '/export', label: 'Datenexport', icon: DownloadIcon },
 ]
 
 export function MorePage() {
@@ -36,19 +40,6 @@ export function MorePage() {
                 <span className="flex-1 font-medium">{label}</span>
                 <ChevronRightIcon width={20} height={20} className="text-fg-muted" />
               </Link>
-            </li>
-          ))}
-        </ul>
-      </Card>
-
-      <Card className="mt-4 p-0">
-        <ul className="divide-y divide-line">
-          {UPCOMING_SECTIONS.map(({ label, step }) => (
-            <li key={label} className="flex min-h-14 items-center justify-between px-5">
-              <span className="text-fg-muted">{label}</span>
-              <span className="rounded-full bg-surface-raised px-2.5 py-1 text-xs text-fg-muted">
-                {step}
-              </span>
             </li>
           ))}
         </ul>

@@ -21,7 +21,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     to: '/more',
     label: 'Mehr',
     icon: MoreIcon,
-    alsoActiveFor: ['/exercises', '/profile', '/history'],
+    alsoActiveFor: ['/exercises', '/profile', '/history', '/export'],
   },
 ]
 

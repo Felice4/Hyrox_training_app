@@ -92,6 +92,10 @@ export const router = createBrowserRouter([
                 lazy: page(() => import('@/features/profile/ProfilePage'), 'ProfilePage'),
               },
               {
+                path: 'export',
+                lazy: page(() => import('@/features/export/ExportPage'), 'ExportPage'),
+              },
+              {
                 path: 'history',
                 lazy: page(() => import('@/features/history/HistoryListPage'), 'HistoryListPage'),
               },

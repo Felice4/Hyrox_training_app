@@ -13,10 +13,10 @@
 | | |
 |---|---|
 | **Aktuelle Phase** | Phase 4 – Fertigstellung |
-| **Letzter verifizierter Meilenstein** | 4.1 Responsive-Feinschliff (vom Nutzer getestet) |
-| **Nächster Schritt** | Test von 4.2 durch den Nutzer, danach 4.3 Datenexport |
+| **Letzter verifizierter Meilenstein** | 4.2 PWA vollständig (vom Nutzer freigegeben) |
+| **Nächster Schritt** | Test von 4.3 durch den Nutzer, danach 4.4 Tests & Sync-Prüfung |
 | **Blocker** | keine |
-| **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: `68218de`. |
+| **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: `4e7874f`. |
 
 ---
 
@@ -130,8 +130,8 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | Schritt | Inhalt |
 |---|---|
 | **4.1 Responsive-Feinschliff** ✅ | Laptop-Layout (Seitenleiste), Feinschliff aller Ansichten, Barrierefreiheit (Kontraste, Fokus) |
-| **4.2 PWA vollständig** 🔄 | Caching-Strategie, Update-Hinweis bei neuer Version, Offline-Hinweis |
-| **4.3 Datenexport** | CSV/JSON-Export aller Trainingsdaten |
+| **4.2 PWA vollständig** ✅ | Caching-Strategie, Update-Hinweis bei neuer Version, Offline-Hinweis |
+| **4.3 Datenexport** 🔄 | CSV/JSON-Export aller Trainingsdaten |
 | **4.4 Tests & Sync-Prüfung** | Testabdeckung der Domäne prüfen, manuelle Checkliste: zweites Gerät, erneuter Login |
 | **4.5 Dokumentation** | `docs/INSTALL.md`: Einrichtung, Deployment, Bibliothek erweitern, Backup |
 
@@ -203,7 +203,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
    - **3.6** ✅ umgesetzt (ohne Migration – RLS erlaubt Insert/Update eigener Zeilen bereits): Eigene Übung anlegen (`/exercises/new`) mit Name, Kategorie, HYROX-Station, Erfassung, Trainingszielen, Bewegungsmuster, Schwierigkeit, Haupt-/Hilfsmuskeln, Geräten, belasteten Regionen, Belastungsbereichen (Sätze, Wdh./Strecke/Dauer/Kalorien, Pause) und optional Beschreibung/Ausführung. Bibliotheksübung „Als eigene Übung kopieren" (`?from=<slug>`), eigene Übung bearbeiten (`/exercises/:slug/edit`) und archivieren (wird nicht mehr eingeplant, Trainings bleiben erhalten; Wiederherstellen in der Übungsliste). Auf jeder Übung: „Im Trainingsgenerator" neutral / bevorzugt / unbeliebt / ausgeblendet. Liste kennzeichnet eigene und abweichende Präferenzen. Für eigene Übungen sind Beschreibung und Ausführung freiwillig (`customExerciseSchema`). Formularlogik `src/features/exercises/customForm.ts` (getestet), Datenbankweg in zurückgerollter Transaktion geprüft (30.10.2026). Commit `b85f4b3`, vom Nutzer getestet und gepusht.
 1. Phase 4 – Fertigstellung:
    - **4.1** ✅ umgesetzt: Ab 768 px Breite Seitenleiste links (`SideNav`) statt Bottom-Navigation, Inhalt bis 768 px breit; Dashboard-Abschnitte zweispaltig, Statistik-Kennzahlen vierspaltig, Körperwerte-Formular dreispaltig. Barrierefreiheit: Kontraste gemessen (WCAG AA ≥ 4,5:1 für Text) – Platzhalter, „Ruhetag", Wochenzahl im Monatskalender und abgeschwächte (übersprungene/ausgefallene) Einträge angehoben; Tage außerhalb des Monats ohne Transparenz; einheitlich sichtbarer Tastaturfokus in Akzentfarbe (`:focus-visible`); Link „Zum Inhalt springen"; Systemeinstellung „Bewegung reduzieren" wird respektiert. Commit `68218de`, vom Nutzer getestet und gepusht.
-   - **4.2** ✅ umgesetzt: Update erst nach Bestätigung (`registerType: 'prompt'`): Hinweis „Neue Version verfügbar" mit „Aktualisieren"/„Später", stündliche Suche nach Updates; Hinweis, sobald die App offline startbar ist. Offline-Banner auf allen Seiten inkl. Trainingsmodus (`src/app/AppStatus.tsx`, `useOnlineStatus`). Caching: App-Hülle wird vorab gespeichert (52 Dateien, ≈ 1,6 MB), alte Caches werden aufgeräumt, SPA-Fallback auf `index.html`; Supabase-Daten werden bewusst nicht zwischengespeichert; nicht-lateinische Schriftschnitte nicht vorab. Code-Splitting: Kalender-Detailseiten, Historie, Übungsformular, Profil, Onboarding, Trainingsmodus und Statistik als eigene Pakete – Haupt-Bundle 992 → 530 KB (275 → 151 KB gzip).
+   - **4.2** ✅ umgesetzt: Update erst nach Bestätigung (`registerType: 'prompt'`): Hinweis „Neue Version verfügbar" mit „Aktualisieren"/„Später", stündliche Suche nach Updates; Hinweis, sobald die App offline startbar ist. Offline-Banner auf allen Seiten inkl. Trainingsmodus (`src/app/AppStatus.tsx`, `useOnlineStatus`). Caching: App-Hülle wird vorab gespeichert (52 Dateien, ≈ 1,6 MB), alte Caches werden aufgeräumt, SPA-Fallback auf `index.html`; Supabase-Daten werden bewusst nicht zwischengespeichert; nicht-lateinische Schriftschnitte nicht vorab. Code-Splitting: Kalender-Detailseiten, Historie, Übungsformular, Profil, Onboarding, Trainingsmodus und Statistik als eigene Pakete – Haupt-Bundle 992 → 530 KB (275 → 151 KB gzip). Commit `4e7874f`, gepusht.
+   - **4.3** ✅ umgesetzt: Seite `/export` (Mehr → Datenexport). „Daten zusammenstellen" lädt alle eigenen Daten seitenweise (`src/api/export.ts`, max. 1000 Zeilen je Abfrage). JSON = komplette Sicherung (Profil, Ziele, Trainings mit Übungen und Sätzen, Bestleistungen, Körperwerte, Check-ins, Wochenpläne, geplante Einheiten, eigene Übungen, Präferenzen zu Bibliotheksübungen; `format`/`version`/`exportedAt`). CSV für Excel: Trainings, Sätze, Körperwerte, Bestleistungen – Semikolon, Dezimalkomma, UTF-8 mit BOM, deutsche Spaltennamen (`src/domain/export/csv.ts`, `src/features/export/tables.ts`, getestet). Am Handy über das Teilen-Menü, am Laptop als Download (`src/lib/download.ts`).
 2. Schritt 2.8 Dashboard ✅ umgesetzt: Begrüßung mit Datum, Hinweis „Training läuft", nächstes Training (laut bevorzugten Wochentagen – Wochenplan folgt in Phase 3), „Workout generieren", „Training starten" (startet das zuletzt erzeugte Workout direkt), diese Woche (Einheiten / Ziel, Minuten, Wochenleiste mit trainierten und bevorzugten Tagen), Trainingsbelastung (Einordnung + Werte, ab 2 Wochen Verlauf), letzte 3 Trainings, letzte 3 Bestleistungen. Berechnungen in `src/features/dashboard/stats.ts` (getestet). Startlogik gemeinsam mit dem Generator (`useStartTraining`). Commit `cc1751f`, vom Nutzer getestet.
 3. Erledigt – Schritt 2.7 Trainingsmodus & Speichern:
    - **2.7a** ✅ Migration 0004 (`workout_sessions`, `session_exercises`, `session_sets`, FK für `personal_records.session_id`) + `save_workout_session()` (idempotent, in zurückgerollter Transaktion getestet). Trainingsablauf als reine Funktionen (`src/domain/session/`): Start aus generiertem Workout, Reihenfolge inkl. Zirkel, Abhaken mit Übernahme der Vorgabe, Pausentimer per Zeitstempel, Sätze hinzufügen/entfernen, Überspringen, Tauschen (nur unbegonnene Übungen), Pausieren, Beenden, Auswertung. Rekorderkennung (`src/domain/records/detect.ts`), Speicher-Nutzlast. 30 neue Tests. Commit `e4fae64`.
@@ -307,6 +308,7 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 | 30.10.2026 | Eigene Übungen werden archiviert, nie gelöscht; Bibliotheksübungen nur über Präferenz oder Kopie änderbar | Historie bleibt vollständig; der Bibliotheksabgleich überschreibt keine Nutzeränderungen |
 | 30.10.2026 | Eigene Übungen ohne Pflicht zu Beschreibung/Ausführung (gelockertes Schema nur für `source = 'custom'`) | Schnelles Anlegen am Handy; Bibliothek bleibt streng geprüft |
 | 30.10.2026 | Laptop-Layout ab `md` (768 px) mit Seitenleiste; Vollbildseiten (Training, Onboarding, Login) bleiben schmal und mittig | Lesbare Zeilenlängen; Trainingsmodus bleibt auf Bedienung mit einer Hand ausgelegt |
+| 03.11.2026 | CSV im Excel-Format für Deutschland (Semikolon, Dezimalkomma, BOM); JSON enthält Bibliotheksübungen nur als Präferenzen (Inhalt steht im Code) | Direkt in Excel/Numbers lesbar; Export bleibt kompakt |
 | 03.11.2026 | App-Updates nur nach Bestätigung; Supabase-Antworten werden nicht im Service Worker zwischengespeichert | Kein Neuladen mitten im Training; Daten zwischen Geräten immer aktuell (keine Offline-Synchronisierung gefordert) |
 | 30.10.2026 | Kontrastregel: abgeschwächter Text nie unter `text-fg-muted/80`, keine Transparenz unter 80 % auf Textinhalten (ausgenommen deaktivierte Elemente) | Gemessen ≥ 4,5:1 auf allen Flächen |
 | 23.10.2026 | „Training starten" auf dem Dashboard startet das zuletzt erzeugte Workout direkt; ohne Workout deaktiviert mit Hinweis | Ein Tipp vom Startbildschirm ins Training |
