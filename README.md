@@ -7,6 +7,7 @@ Private Progressive Web App für HYROX-, Kraft-, Muskelaufbau- und Ausdauertrain
 - Architektur: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 - **Einrichtung, Deployment, Bibliothek erweitern, Backup: [`docs/INSTALL.md`](docs/INSTALL.md)**
 - Manuelle Prüfliste: [`docs/CHECKLIST.md`](docs/CHECKLIST.md)
+- Skill-Ziele (Konzept Phase 5): [`docs/SKILLS.md`](docs/SKILLS.md)
 
 ## Lokal starten (PowerShell)
 
