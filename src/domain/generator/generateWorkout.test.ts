@@ -109,6 +109,17 @@ describe('generateWorkout – weitere Eigenschaften', () => {
     }
   })
 
+  it('plant Skill-Progressionen (Kategorie „skill") nie im normalen Training ein', () => {
+    for (const focus of FOCUSES) {
+      for (const seed of SEEDS) {
+        const skillItems = allItems(
+          generateWorkout(makeInput({ focus, durationMin: 90 }, { seed })),
+        ).filter((i) => bySlug.get(i.exerciseSlug)?.category === 'skill')
+        expect(skillItems).toEqual([])
+      }
+    }
+  })
+
   it('baut jedes Workout aus Warm-up, Hauptteil und Cool-down', () => {
     for (const focus of FOCUSES) {
       const types = generateWorkout(makeInput({ focus })).blocks.map((b) => b.type)

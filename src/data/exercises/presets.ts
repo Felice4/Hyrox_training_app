@@ -42,6 +42,12 @@ export const LOAD = {
   coreHold: { sets: [2, 4], durationSec: [20, 60], restSec: [30, 60] },
   /** Kurze, intensive Arbeitsintervalle. */
   conditioningTime: { sets: [3, 6], durationSec: [20, 45], restSec: [20, 60] },
+  /** Skill-Block: kurze Wiederholungsserien weit vor dem Muskelversagen. */
+  skillReps: { sets: [3, 5], reps: [2, 6], restSec: [90, 150] },
+  /** Skill-Block: Halteposition (Lever, L-Sit, Flag …). */
+  skillHold: { sets: [3, 6], durationSec: [5, 20], restSec: [60, 120] },
+  /** Skill-Block: Dehnung für Spagat, Brücke, Pike (je Seite, falls einseitig). */
+  skillStretch: { sets: [2, 3], durationSec: [30, 90], restSec: [15, 30] },
   /** Tragen mit Gewicht über kurze Strecken. */
   carry: { sets: [3, 4], distanceM: [20, 40], restSec: [60, 90] },
 } satisfies Record<string, LoadParams>

@@ -12,11 +12,11 @@
 
 | | |
 |---|---|
-| **Aktuelle Phase** | Phase 5 – Skill-Ziele und Meilensteine (Planung) |
+| **Aktuelle Phase** | Phase 5 – Skill-Ziele und Meilensteine |
 | **Letzter verifizierter Meilenstein** | 4.4 Tests & Sync-Prüfung (vom Nutzer freigegeben) |
-| **Nächster Schritt** | Freigabe des Konzepts `docs/SKILLS.md`, danach 5.1 Skill-Bibliothek |
+| **Nächster Schritt** | 5.2 Ziele-Bereich (Migration 0007, Seite `/goals`, Dashboard-Karte) |
 | **Blocker** | keine |
-| **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: `14d625b` (lokal weiter: Doku-Commits). |
+| **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: 5.1 Skill-Bibliothek. |
 
 ---
 
@@ -100,7 +100,7 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | Phase 2 | Funktionsfähige Basisversion | ✅ abgeschlossen |
 | Phase 3 | Erweiterung | ✅ abgeschlossen |
 | Phase 4 | Fertigstellung | ✅ abgeschlossen |
-| Phase 5 | Skill-Ziele und Meilensteine | 🔄 Planung |
+| Phase 5 | Skill-Ziele und Meilensteine | 🔄 in Arbeit |
 
 ### Phase 2 – Funktionsfähige Basisversion
 
@@ -142,7 +142,7 @@ Gezielt auf Muscle-Up, Handstand, Spagat & Co. hinarbeiten – das HYROX-, Kraft
 
 | Schritt | Inhalt |
 |---|---|
-| **5.1 Skill-Bibliothek** | Skills mit Stufen und Kriterien in `src/data/skills/`, Meilensteine, neue Übungen für die Stufen (`LIBRARY_VERSION` 3), Zod-Schema und Tests |
+| **5.1 Skill-Bibliothek** ✅ | Skills mit Stufen und Kriterien in `src/data/skills/`, Meilensteine, neue Übungen für die Stufen (`LIBRARY_VERSION` 3), Zod-Schema und Tests |
 | **5.2 Ziele-Bereich** | Migration 0007 (gewählte Ziele, Stufenverlauf), Seite `/goals`: Ziele auswählen (max. 3 aktiv), Einstufung, Stufenleiter, Meilenstein-Fortschritt; Dashboard-Karte |
 | **5.3 Generator & Wochenplan** | Skill-Block nach Warm-up bzw. im Cool-down mit Zeitbudget, Ermüdung und Tagesform; Wochenplan verteilt aktive Ziele; Tests, dass der Hauptteil erhalten bleibt |
 | **5.4 Fortschritt & Abzeichen** | Automatische Stufenprüfung nach dem Speichern („Stufe geschafft!"), manuelle Bestätigung (z. B. Back Flip), Abzeichen in der Statistik |
@@ -224,7 +224,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
    - **4.3** ✅ umgesetzt: Seite `/export` (Mehr → Datenexport). „Daten zusammenstellen" lädt alle eigenen Daten seitenweise (`src/api/export.ts`, max. 1000 Zeilen je Abfrage). JSON = komplette Sicherung (Profil, Ziele, Trainings mit Übungen und Sätzen, Bestleistungen, Körperwerte, Check-ins, Wochenpläne, geplante Einheiten, eigene Übungen, Präferenzen zu Bibliotheksübungen; `format`/`version`/`exportedAt`). CSV für Excel: Trainings, Sätze, Körperwerte, Bestleistungen – Semikolon, Dezimalkomma, UTF-8 mit BOM, deutsche Spaltennamen (`src/domain/export/csv.ts`, `src/features/export/tables.ts`, getestet). Am Handy über das Teilen-Menü, am Laptop als Download (`src/lib/download.ts`). Commit `80ef783`, gepusht.
    - **4.4** ✅ umgesetzt: Testabdeckung geprüft – Kernlogik vollständig, Generator-Interna und Rekorderkennung über Generator-/Speicher-Tests abgedeckt. Neue Tests für Wochenplan-Anbindung (`planning.ts`), Umwandlung geplanter Einheiten (`toPlannedWorkout`), Check-in → Generator, Schrittweiten im Training und `localDraft` (325 Tests in 51 Dateien). Sicherheitsprüfung der Datenbank am 03.11.2026: 11 Tabellen mit RLS und je 3–4 Policies, `anon` ohne Tabellen- und Funktionsrechte (nur Trigger-Hilfe `set_updated_at`), keine `security definer`-Funktionen. Manuelle Prüfliste `docs/CHECKLIST.md` (Sync zwischen Geräten, Login, PWA/Offline, Training im Studio, Sicherheit). Commit `14d625b`, gepusht.
    - **4.5** ✅ umgesetzt: `docs/INSTALL.md` – Überblick, Voraussetzungen, Einrichtung auf neuem Rechner, Supabase-Neueinrichtung (Registrierung aus, Konto anlegen, Site URL, Migrationen, Typen), Deployment über Cloudflare Pages, Prüfen und Veröffentlichen, Übungsbibliothek erweitern, Datenbank ändern, Daten sichern, Fehlerbehebung, Sicherheitsregeln. README verlinkt Anleitung und Prüfliste. **Version 1 fertig.**
-1. Phase 5 Skill-Ziele: Konzept in `docs/SKILLS.md` liegt zur Freigabe vor (04.11.2026).
+1. Phase 5 – Skill-Ziele und Meilensteine (Konzept `docs/SKILLS.md`, vom Nutzer am 05.11.2026 freigegeben):
+   - **5.1** ✅ umgesetzt: 18 Skills mit 3–7 Stufen in `src/data/skills/skills.ts` (Bereich, Art für die Platzierung, belastete Muskeln, Voraussetzungen, Fernziel, Sicherheitshinweis; je Stufe Kriterien – Wiederholungen, Haltezeit, Strecke oder „von Hand bestätigen" – und 1–4 Übungen). 22 Meilensteine in `milestones.ts` (Klimmzüge, Kraft relativ zum Körpergewicht, 5 km/1 km, Rudern, SkiErg, Wall Balls, HYROX-Zeit). Zod-Schema `schema.ts`, Zugriff über `getSkill`/`getStage`/`getMilestone`. 54 neue Übungen in der neuen Kategorie **„Skills"** (`src/data/exercises/skills.ts`, z. B. Muscle-Up-Negative, Tuck Front Lever, Wandhandstand, Krähe, L-Sit, Dragon Flag, Pistol, Frosch-Dehnung, Hocksprung) → Bibliothek **265** Übungen, `LIBRARY_VERSION` 3. Der Generator wählt nach Kategorie aus und plant „Skills" daher nie im normalen Training ein (Test über alle Schwerpunkte und 12 Seeds). Tests prüfen u. a.: Übungen existieren, Kriterium passt zur Messart, Kriterien-Übung wird in der Stufe trainiert, Stufen werden schwerer, Voraussetzungen gültig, Meilenstein-Reihen aufsteigend (345 Tests).
 1. Mögliche Erweiterungen (optional, Reihenfolge nach Nutzen):
    1. Tempo-Vorgaben für Laufen/Rudern/SkiErg aus dem Verlauf (Pace-Progression im Generator)
    2. HYROX-Simulation mit Zwischenzeiten je Station, Vergleich mit früheren Simulationen und der Wettkampf-Bestzeit
@@ -337,6 +338,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 | 30.10.2026 | Laptop-Layout ab `md` (768 px) mit Seitenleiste; Vollbildseiten (Training, Onboarding, Login) bleiben schmal und mittig | Lesbare Zeilenlängen; Trainingsmodus bleibt auf Bedienung mit einer Hand ausgelegt |
 | 04.11.2026 | Skill-Ziele: Wochenverteilung bleibt, Skill-Block ≤ 15 % der Dauer (max. 15 min), höchstens 3 aktive Ziele, Kraft/Balance nach dem Warm-up, Beweglichkeit im Cool-down | Wunsch des Nutzers: Ziele verfolgen, ohne HYROX-, Kraft- und Ausdauertraining zu vernachlässigen |
 | 04.11.2026 | Skills und Stufen im Code (wie die Übungsbibliothek), in der Datenbank nur Auswahl und Fortschritt | Inhalte versionierbar und testbar; keine Datenpflege in der App nötig |
+| 05.11.2026 | Skill-Progressionen als eigene Übungskategorie „skill"; Grundübungen (Klimmzug, Hollow Hold, Couch Stretch …) bleiben in ihrer Kategorie | Generator wählt nach Kategorie – Skill-Übungen kommen nur über den Skill-Block ins Training, das Haupttraining bleibt unverändert; keine Migration nötig (Kategorie ist Text) |
+| 05.11.2026 | Nicht messbare Stufen (Spagat-Höhe, Box-Höhe, Back Flip) mit Kriterium „manual" – Bestätigung von Hand | Ehrlich statt geraten; Back Flip nie automatisch „geschafft" |
 | 03.11.2026 | CSV im Excel-Format für Deutschland (Semikolon, Dezimalkomma, BOM); JSON enthält Bibliotheksübungen nur als Präferenzen (Inhalt steht im Code) | Direkt in Excel/Numbers lesbar; Export bleibt kompakt |
 | 03.11.2026 | App-Updates nur nach Bestätigung; Supabase-Antworten werden nicht im Service Worker zwischengespeichert | Kein Neuladen mitten im Training; Daten zwischen Geräten immer aktuell (keine Offline-Synchronisierung gefordert) |
 | 30.10.2026 | Kontrastregel: abgeschwächter Text nie unter `text-fg-muted/80`, keine Transparenz unter 80 % auf Textinhalten (ausgenommen deaktivierte Elemente) | Gemessen ≥ 4,5:1 auf allen Flächen |

@@ -14,6 +14,7 @@ export const CATEGORIES = [
   'warmup',
   'cooldown',
   'recovery',
+  'skill',
 ] as const
 export type Category = (typeof CATEGORIES)[number]
 export const CATEGORY_LABELS: Record<Category, string> = {
@@ -24,6 +25,7 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   warmup: 'Warm-up',
   cooldown: 'Cool-down',
   recovery: 'Regeneration',
+  skill: 'Skills',
 }
 
 export const TRAINING_TYPES = [

@@ -13,7 +13,8 @@ Stand: Version 1 (Phase 4, 03.11.2026)
 | App (React, TypeScript, Vite) | GitHub-Repository, Ordner `src/` | Oberfläche und Trainingslogik |
 | Cloudflare Pages | Cloudflare-Konto | Baut die App bei jedem Push auf `main` und stellt sie unter HTTPS bereit |
 | Supabase | Supabase-Konto | Datenbank (PostgreSQL) und Anmeldung |
-| Übungsbibliothek | `src/data/exercises/` | 211 Übungen im Code, werden automatisch in die Datenbank übertragen |
+| Übungsbibliothek | `src/data/exercises/` | 265 Übungen im Code, werden automatisch in die Datenbank übertragen |
+| Skill-Ziele und Meilensteine | `src/data/skills/` | Stufen und Kriterien im Code (Konzept: `docs/SKILLS.md`) |
 
 Weitere Dokumente: Anforderungen `docs/SPEC.md`, Architektur `docs/ARCHITECTURE.md`, Datenbank `docs/DATABASE.md`, Generator `docs/GENERATOR.md`, manuelle Prüfliste `docs/CHECKLIST.md`, Stand und Entscheidungen `PROJECT.md`.
 
@@ -139,7 +140,7 @@ Commit-Nachrichten folgen den Conventional Commits (`feat:`, `fix:`, `docs:`, `t
 
 ## 7. Übungsbibliothek erweitern
 
-Die Bibliothek steht im Code (`src/data/exercises/`, eine Datei je Bereich: `hyrox.ts`, `strength-lower.ts`, `strength-push.ts`, `strength-pull.ts`, `core.ts`, `power.ts`, `endurance.ts`, `warmup.ts`, `mobility.ts`, `cooldown.ts`).
+Die Bibliothek steht im Code (`src/data/exercises/`, eine Datei je Bereich: `hyrox.ts`, `strength-lower.ts`, `strength-push.ts`, `strength-pull.ts`, `core.ts`, `power.ts`, `endurance.ts`, `warmup.ts`, `mobility.ts`, `cooldown.ts`, `skills.ts`). Übungen der Kategorie `skill` plant der Generator nur für Skill-Ziele ein, nie im normalen Training.
 
 **Übung hinzufügen:**
 

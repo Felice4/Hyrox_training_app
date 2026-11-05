@@ -1,6 +1,6 @@
 # Skill-Ziele und Meilensteine – Konzept (Phase 5)
 
-Stand: Entwurf vom 04.11.2026, Umsetzung in den Schritten 5.1–5.4 (siehe `PROJECT.md`).
+Stand: vom Nutzer freigegeben am 05.11.2026. Umsetzung in den Schritten 5.1–5.4 (siehe `PROJECT.md`); 5.1 (Inhalte im Code) erledigt: `src/data/skills/` und Übungskategorie „Skills" in `src/data/exercises/skills.ts`.
 
 Ziel: gezielt auf Fähigkeiten wie Muscle-Up, Handstand oder Spagat hinarbeiten, **ohne** dass HYROX-, Kraft- und Ausdauertraining zu kurz kommen.
 

@@ -18,13 +18,14 @@ import { HYROX_EXERCISES } from './hyrox'
 import { MOBILITY_EXERCISES } from './mobility'
 import { POWER_EXERCISES } from './power'
 import { exerciseDefinitionSchema, type ExerciseDefinition, type ExerciseInput } from './schema'
+import { SKILL_EXERCISES } from './skills'
 import { STRENGTH_LOWER_EXERCISES } from './strength-lower'
 import { STRENGTH_PULL_EXERCISES } from './strength-pull'
 import { STRENGTH_PUSH_EXERCISES } from './strength-push'
 import { WARMUP_EXERCISES } from './warmup'
 
 /** Bei JEDER Änderung an der Bibliothek um 1 erhöhen (löst den Abgleich mit der Datenbank aus). */
-export const LIBRARY_VERSION = 2
+export const LIBRARY_VERSION = 3
 
 /** Alle Übungen in Rohform, wie sie in den Dateien stehen. */
 export const RAW_EXERCISES: readonly ExerciseInput[] = [
@@ -38,6 +39,7 @@ export const RAW_EXERCISES: readonly ExerciseInput[] = [
   ...WARMUP_EXERCISES,
   ...MOBILITY_EXERCISES,
   ...COOLDOWN_EXERCISES,
+  ...SKILL_EXERCISES,
 ]
 
 /** Geprüfte Übungen mit ergänzten Standardwerten. */
