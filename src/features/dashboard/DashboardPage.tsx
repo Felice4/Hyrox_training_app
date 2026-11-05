@@ -16,6 +16,7 @@ import { useAuth } from '@/features/auth/authContext'
 import { formatShortDay } from '@/features/calendar/format'
 import { useUpcomingPlanned } from '@/features/calendar/usePlannedWorkouts'
 import { nextPlanned } from '@/features/calendar/week'
+import { GoalsCard } from '@/features/goals/GoalsCard'
 import { CheckinCard } from '@/features/readiness/CheckinCard'
 import { useExerciseCatalog } from '@/features/exercises/useExerciseCatalog'
 import { restoreStoredWorkout } from '@/features/generator/inputs'
@@ -132,6 +133,8 @@ export function DashboardPage() {
           <Section title="Diese Woche" loading={history.isPending} error={history.isError}>
             <ThisWeek details={details.data} sessions={sessions} now={now} />
           </Section>
+
+          <GoalsCard />
 
           <Section title="Trainingsbelastung" loading={history.isPending} error={history.isError}>
             <Load sessions={sessions} now={now} />

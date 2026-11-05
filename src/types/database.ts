@@ -289,6 +289,7 @@ export type Database = {
           onboarding_completed_at: string | null
           preferred_weekdays: number[]
           sex: string | null
+          skill_block: string
           strength_experience: string | null
           training_days_per_week: number | null
           training_level: string | null
@@ -311,6 +312,7 @@ export type Database = {
           onboarding_completed_at?: string | null
           preferred_weekdays?: number[]
           sex?: string | null
+          skill_block?: string
           strength_experience?: string | null
           training_days_per_week?: number | null
           training_level?: string | null
@@ -333,6 +335,7 @@ export type Database = {
           onboarding_completed_at?: string | null
           preferred_weekdays?: number[]
           sex?: string | null
+          skill_block?: string
           strength_experience?: string | null
           training_days_per_week?: number | null
           training_level?: string | null
@@ -527,6 +530,84 @@ export type Database = {
           },
         ]
       }
+      skill_goals: {
+        Row: {
+          achieved_at: string | null
+          activated_at: string | null
+          completed_stages: number
+          created_at: string
+          skill_slug: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achieved_at?: string | null
+          activated_at?: string | null
+          completed_stages?: number
+          created_at?: string
+          skill_slug: string
+          status: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          achieved_at?: string | null
+          activated_at?: string | null
+          completed_stages?: number
+          created_at?: string
+          skill_slug?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      skill_stage_log: {
+        Row: {
+          achieved_at: string
+          created_at: string
+          session_id: string | null
+          skill_slug: string
+          source: string
+          stage: number
+          user_id: string
+        }
+        Insert: {
+          achieved_at?: string
+          created_at?: string
+          session_id?: string | null
+          skill_slug: string
+          source: string
+          stage: number
+          user_id?: string
+        }
+        Update: {
+          achieved_at?: string
+          created_at?: string
+          session_id?: string | null
+          skill_slug?: string
+          source?: string
+          stage?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_stage_log_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "workout_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "skill_stage_log_user_id_skill_slug_fkey"
+            columns: ["user_id", "skill_slug"]
+            isOneToOne: false
+            referencedRelation: "skill_goals"
+            referencedColumns: ["user_id", "skill_slug"]
+          },
+        ]
+      }
       training_goals: {
         Row: {
           created_at: string
@@ -670,6 +751,16 @@ export type Database = {
       replace_week_plan: { Args: { p: Json }; Returns: Json }
       save_profile: { Args: { p: Json }; Returns: Json }
       save_workout_session: { Args: { p: Json }; Returns: Json }
+      set_skill_progress: {
+        Args: {
+          p_completed_stages: number
+          p_session_id?: string
+          p_skill_slug: string
+          p_source: string
+          p_status: string
+        }
+        Returns: undefined
+      }
       sync_exercise_library: {
         Args: { p_exercises: Json; p_version: number }
         Returns: Json

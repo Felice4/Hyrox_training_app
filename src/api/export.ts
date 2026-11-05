@@ -28,6 +28,9 @@ export interface ExportData {
   customExercises: Tables<'exercises'>[]
   /** Persönliche Einstellungen zu Bibliotheksübungen */
   exercisePreferences: { slug: string; preference: string }[]
+  /** Skill-Ziele mit Status und Stufenverlauf (Inhalte der Skills stehen im Code) */
+  skillGoals: Tables<'skill_goals'>[]
+  skillStageLog: Tables<'skill_stage_log'>[]
 }
 
 /** Supabase liefert höchstens 1000 Zeilen je Abfrage – darum seitenweise laden. */
@@ -60,6 +63,8 @@ export async function fetchExportData(supabase: AppSupabaseClient): Promise<Expo
     weekPlans,
     plannedWorkouts,
     exercises,
+    skillGoals,
+    skillStageLog,
   ] = await Promise.all([
     // Trainings mit Übungen und Sätzen – kleinere Seiten, weil jede Zeile verschachtelt ist
     fetchAll(
@@ -109,6 +114,12 @@ export async function fetchExportData(supabase: AppSupabaseClient): Promise<Expo
         .order('slug')
         .range(from, to),
     ),
+    fetchAll((from, to) =>
+      supabase.from('skill_goals').select('*').order('skill_slug').range(from, to),
+    ),
+    fetchAll((from, to) =>
+      supabase.from('skill_stage_log').select('*').order('achieved_at').range(from, to),
+    ),
   ])
 
   return {
@@ -127,5 +138,7 @@ export async function fetchExportData(supabase: AppSupabaseClient): Promise<Expo
     exercisePreferences: exercises
       .filter((e) => e.source === 'library' && e.preference !== 'neutral')
       .map((e) => ({ slug: e.slug, preference: e.preference })),
+    skillGoals,
+    skillStageLog,
   }
 }

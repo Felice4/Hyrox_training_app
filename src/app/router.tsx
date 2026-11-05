@@ -71,6 +71,14 @@ export const router = createBrowserRouter([
                 lazy: page(() => import('@/features/progress/StatsPage'), 'StatsPage'),
               },
               { path: 'more', element: <MorePage /> },
+              {
+                path: 'goals',
+                lazy: page(() => import('@/features/goals/GoalsPage'), 'GoalsPage'),
+              },
+              {
+                path: 'goals/:slug',
+                lazy: page(() => import('@/features/goals/SkillDetailPage'), 'SkillDetailPage'),
+              },
               { path: 'exercises', element: <ExerciseListPage /> },
               {
                 path: 'exercises/new',

@@ -13,6 +13,7 @@ const details: ProfileDetails = {
     birth_date: '1996-05-10',
     height_cm: 182.5,
     sex: null,
+    skill_block: 'normal',
     training_level: 'intermediate',
     hyrox_experience: 'competed',
     strength_experience: '1_3y',

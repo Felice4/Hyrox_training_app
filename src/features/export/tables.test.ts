@@ -63,6 +63,8 @@ const data = {
   plannedWorkouts: [],
   customExercises: [],
   exercisePreferences: [],
+  skillGoals: [],
+  skillStageLog: [],
 } as ExportData
 
 describe('csvFiles', () => {

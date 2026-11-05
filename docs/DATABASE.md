@@ -35,7 +35,9 @@ auth.users (Supabase)
    ├── workout_sessions       1:n  Absolvierte (auch teilweise) Trainings
    │     └── session_exercises 1:n
    │            └── session_sets 1:n
-   └── personal_records       1:n  Bestleistungen (aus Trainings oder manuell erfasst)
+   ├── personal_records       1:n  Bestleistungen (aus Trainings oder manuell erfasst)
+   └── skill_goals            1:n  Gewählte Skill-Ziele (Inhalte im Code)
+         └── skill_stage_log  1:n  Geschaffte Stufen mit Datum
 ```
 
 ---
@@ -65,6 +67,7 @@ Spalten `id`, `user_id`, `created_at`, `updated_at` sind überall vorhanden, wen
 | limitation_notes | text null | Freitext, nur zur Info |
 | hyrox_best_time_sec | integer null | bisherige HYROX-Bestzeit (1800–14400 s), ergänzt in Migration 0003 |
 | onboarding_completed_at | timestamptz null | `null` → Onboarding anzeigen |
+| skill_block | text | Größe des Skill-Blocks im Training: `off`, `small`, `normal` (Standard), ergänzt in Migration 0007 |
 
 Körpergewicht steht **nicht** hier, sondern in `body_measurements` (Verlauf). Das aktuelle Gewicht ist der jüngste Eintrag.
 
@@ -222,6 +225,28 @@ Check-Constraints für plausible Wertebereiche (z. B. `weight_kg between 0 and 5
 
 Unique (`user_id`, `exercise_id`, `record_type`, `context_key`): pro Bedingung gibt es nur den aktuellen Bestwert. Erkennung aus Trainings (`src/domain/records/detect.ts`): Gewicht × Wdh. → geschätztes 1RM (Epley, bis 12 Wdh.) und Maximalgewicht für 1/3/5/8/10/12 Wdh.; Wiederholungen → max. Wiederholungen; Gewicht × Strecke → Maximalgewicht je Strecke; Strecke + Zeit → Bestzeit je Strecke. Warm-up, Cool-down und Aufwärmsätze zählen nicht. Löschen ist nur für `source = 'manual'` erlaubt (RLS). Manuelle Eingaben überschreiben nie einen Rekord aus einem Training. `session_id` erhält den Fremdschlüssel mit Migration 0004. Die Historie der Leistungsentwicklung entsteht aus `session_sets`, nicht aus dieser Tabelle. **Vergleichbarkeit:** Rekorde gelten nur unter gleichen Bedingungen (gleiche Distanz, gleiche Wiederholungszahl).
 
+### 3.12 `skill_goals` (PK = `user_id`, `skill_slug`)
+
+| Spalte | Typ | Hinweis |
+|---|---|---|
+| skill_slug | text | Slug aus `src/data/skills/skills.ts` |
+| status | text | `active` (höchstens 3, per Trigger geprüft), `later`, `achieved` |
+| completed_stages | smallint | Anzahl geschaffter Stufen (0–20); trainiert wird Stufe `completed_stages + 1` |
+| activated_at | timestamptz null | erstes Aktivieren |
+| achieved_at | timestamptz null | Pflicht bei `achieved` |
+
+Skills, Stufen und Kriterien stehen im Code (docs/SKILLS.md); die Tabelle hält nur die Auswahl. Meilensteine haben keine Tabelle – sie werden aus `personal_records`, Verlauf, Körpergewicht und `profiles.hyrox_best_time_sec` berechnet (`src/domain/skills/milestones.ts`).
+
+### 3.13 `skill_stage_log` (PK = `user_id`, `skill_slug`, `stage`)
+
+| Spalte | Typ | Hinweis |
+|---|---|---|
+| skill_slug | text | FK auf `skill_goals` (`on delete cascade`) |
+| stage | smallint | 1-basiert |
+| achieved_at | timestamptz | Datum für Verlauf und Abzeichen |
+| source | text | `assessment` (Einstufung), `manual` (von Hand bestätigt), `session` (im Training erkannt, ab 5.4) |
+| session_id | uuid null | FK `workout_sessions`, `on delete set null` |
+
 ---
 
 ## 4. Synchronisierung der Übungsbibliothek
@@ -251,6 +276,7 @@ Die Datenbank prüft bei `exercises` nur die Grundstruktur (Slug-Format, Pflicht
 | `save_workout_session(p jsonb)` | Speichert Session, Übungen, Sätze und Rekorde atomar. Idempotent über Client-IDs: Upsert; Kind-Datensätze, die im Payload fehlen, werden entfernt. Rekorde nur, wenn besser (Zeiten niedriger, sonst höher); liefert die neuen Rekorde zurück. Ab Migration 0005 zusätzlich: `session.planned_workout_id` speichern und die geplante Einheit auf `completed` setzen (am 23.10.2026 getestet). Am 21.10.2026 in zurückgerollter Transaktion getestet (Erstspeichern, Doppelspeichern ohne Dubletten, Entfernen, bessere/schlechtere Rekorde). |
 | `sync_exercise_library(p_version int, p_exercises jsonb)` | siehe §4 |
 | `replace_week_plan(p jsonb)` | `p = { week_start, today, generator_version, notes, workouts[] }`. Legt den Wochenplan an (Upsert je Woche), löscht nur Einheiten mit `status = 'planned'` und `scheduled_date >= today` und fügt die neuen ein. Neue Termine müssen in der Woche und ab heute liegen. Liefert `{ status, week_plan_id, removed, inserted }`. |
+| `set_skill_progress(p_skill_slug, p_status, p_completed_stages, p_source, p_session_id?)` | Setzt Status und geschaffte Stufen eines Skill-Ziels (legt es bei Bedarf an), trägt fehlende Stufen in `skill_stage_log` ein (vorhandene behalten ihr Datum) und entfernt Einträge über der neuen Stufe. Am 05.11.2026 in zurückgerollter Transaktion getestet: Doppelaufruf ohne Dubletten, Stufe hoch/runter, Grenze von 3 aktiven Zielen, `later`/`achieved`, Löschen kaskadiert. |
 | `save_profile(p jsonb)` | Speichert Profil, Ziele, Körperwert des Tages, Übungspräferenzen und manuelle Bestleistungen in einer Transaktion; für Onboarding und Profilseite. Setzt `onboarding_completed_at` beim ersten Mal. |
 
 Die fachliche Berechnung (z. B. welche Werte ein neuer Rekord sind) erfolgt in `src/domain/` und ist dort getestet. Die SQL-Funktionen speichern nur und sichern die Konsistenz.
@@ -281,5 +307,6 @@ Dateinamen folgen der Supabase-CLI: `supabase/migrations/<Zeitstempel>_<name>.sq
 | 0004 | `workout_sessions`, `session_exercises`, `session_sets`, `save_workout_session()` | 2.7 |
 | 0005 | `week_plans`, `planned_workouts`, `replace_week_plan()` | 3.1 |
 | 0006 | `readiness_checkins` | 3.5 |
+| 0007 | `skill_goals`, `skill_stage_log`, `profiles.skill_block`, `set_skill_progress()` | 5.2 |
 
 Die Übungsbibliothek (2.4) kommt vor dem Onboarding (2.5), weil das Onboarding bevorzugte/unbeliebte Übungen und manuelle Bestleistungen auf Übungen bezieht.

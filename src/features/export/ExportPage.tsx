@@ -69,7 +69,8 @@ function Downloads({ data }: { data: ExportData }) {
             Alle Daten in einer Datei – {data.sessions.length} Trainings, {data.records.length}{' '}
             Bestleistungen, {data.bodyMeasurements.length} Körpermessungen,{' '}
             {data.readinessCheckins.length} Check-ins, {data.plannedWorkouts.length} geplante
-            Einheiten, {data.customExercises.length} eigene Übungen.
+            Einheiten, {data.customExercises.length} eigene Übungen, {data.skillGoals.length}{' '}
+            Skill-Ziele.
           </p>
         </div>
         <Button
