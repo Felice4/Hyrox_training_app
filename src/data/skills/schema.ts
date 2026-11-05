@@ -99,7 +99,7 @@ export type SkillDefinition = z.output<typeof skillSchema>
 // Meilensteine aus dem normalen Training
 // -----------------------------------------------------------------------------
 
-export const MILESTONE_AREAS = ['pull', 'strength', 'run', 'erg', 'hyrox'] as const
+export const MILESTONE_AREAS = ['pull', 'strength', 'run', 'erg', 'hyrox', 'other'] as const
 export type MilestoneArea = (typeof MILESTONE_AREAS)[number]
 export const MILESTONE_AREA_LABELS: Record<MilestoneArea, string> = {
   pull: 'Zug',
@@ -107,12 +107,14 @@ export const MILESTONE_AREA_LABELS: Record<MilestoneArea, string> = {
   run: 'Laufen',
   erg: 'Ergometer',
   hyrox: 'HYROX',
+  other: 'Weitere',
 }
 
 /**
  * Wie ein Meilenstein gemessen wird:
  * - max_reps: Wiederholungen am Stück in einem Satz
  * - relative_strength: geschätztes Maximalgewicht (1RM) ≥ Faktor × Körpergewicht
+ * - max_weight: geschätztes Maximalgewicht (1RM) ≥ kg
  * - best_time: Zeit für genau diese Strecke ≤ maxSec
  * - hyrox_time: HYROX-Wettkampfzeit aus dem Profil ≤ maxSec
  */
@@ -126,6 +128,11 @@ export const milestoneMetricSchema = z.discriminatedUnion('kind', [
     kind: z.literal('relative_strength'),
     exercise: slugSchema,
     factor: z.number().positive(),
+  }),
+  z.strictObject({
+    kind: z.literal('max_weight'),
+    exercise: slugSchema,
+    kg: z.number().positive(),
   }),
   z.strictObject({
     kind: z.literal('best_time'),

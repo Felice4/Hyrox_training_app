@@ -65,6 +65,7 @@ const data = {
   exercisePreferences: [],
   skillGoals: [],
   skillStageLog: [],
+  userMilestones: [],
 } as ExportData
 
 describe('csvFiles', () => {

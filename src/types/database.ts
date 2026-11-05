@@ -638,6 +638,51 @@ export type Database = {
         }
         Relationships: []
       }
+      user_milestones: {
+        Row: {
+          area: string | null
+          builtin_slug: string | null
+          counted_from: string | null
+          created_at: string
+          hidden: boolean
+          id: string
+          manual_at: string | null
+          manual_value: number | null
+          metric: Json | null
+          name: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          area?: string | null
+          builtin_slug?: string | null
+          counted_from?: string | null
+          created_at?: string
+          hidden?: boolean
+          id?: string
+          manual_at?: string | null
+          manual_value?: number | null
+          metric?: Json | null
+          name?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          area?: string | null
+          builtin_slug?: string | null
+          counted_from?: string | null
+          created_at?: string
+          hidden?: boolean
+          id?: string
+          manual_at?: string | null
+          manual_value?: number | null
+          metric?: Json | null
+          name?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       week_plans: {
         Row: {
           created_at: string

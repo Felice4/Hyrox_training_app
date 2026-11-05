@@ -215,7 +215,9 @@ Jede Stufe hat ein **Kriterium** (gilt als geschafft, sobald es in einem Trainin
 | Ergometer | 1000 m Rudern unter 3:45 · 3:30 · 2000 m Rudern unter 7:30 · 1000 m SkiErg unter 4:00 |
 | HYROX | 100 Wall Balls · HYROX unter 1:30 · 1:20 · 1:10 h (Wettkampfzeit aus dem Profil) |
 
-Meilensteine brauchen keine Aktivierung – die App zeigt, wie nah du dran bist (z. B. „Kreuzheben: 150 von 168 kg").
+Meilensteine brauchen keine Aktivierung – die App zeigt, wie nah du dran bist (z. B. „Kreuzheben: 150 von 168 kg"). Gezählt wird der beste einzelne Satz bzw. die beste Zeit (Runden im Zirkel zählen mit, Warm-up und Cool-down nicht).
+
+**Anpassen (Schritt 5.2b):** Eigene Meilensteine anlegen (Wiederholungen am Stück, Gewicht in kg, Gewicht × Körpergewicht, Zeit über eine Strecke – jeweils mit einer Übung), bei Standard-Meilensteinen Name und Ziel ändern, ausblenden, „ab heute neu zählen" (ältere Werte zählen nicht, Bestleistungen bleiben) und den Stand von Hand eintragen (es zählt der bessere Wert).
 
 ---
 

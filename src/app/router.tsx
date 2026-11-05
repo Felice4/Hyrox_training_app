@@ -76,6 +76,21 @@ export const router = createBrowserRouter([
                 lazy: page(() => import('@/features/goals/GoalsPage'), 'GoalsPage'),
               },
               {
+                path: 'goals/milestones/new',
+                lazy: page(() => import('@/features/goals/MilestoneFormPage'), 'MilestoneFormPage'),
+              },
+              {
+                path: 'goals/milestones/:key',
+                lazy: page(
+                  () => import('@/features/goals/MilestoneDetailPage'),
+                  'MilestoneDetailPage',
+                ),
+              },
+              {
+                path: 'goals/milestones/:key/edit',
+                lazy: page(() => import('@/features/goals/MilestoneFormPage'), 'MilestoneFormPage'),
+              },
+              {
                 path: 'goals/:slug',
                 lazy: page(() => import('@/features/goals/SkillDetailPage'), 'SkillDetailPage'),
               },

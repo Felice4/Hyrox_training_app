@@ -1,4 +1,4 @@
-import { getSkill, type SkillDefinition } from '@/data/skills'
+import { getSkill, type MilestoneMetric, type SkillDefinition } from '@/data/skills'
 import type { SkillGoalStatus } from '@/domain/skills/goals'
 import type { MilestoneProgress, MilestoneUnit } from '@/domain/skills/milestones'
 import { formatDurationClock } from '@/lib/time'
@@ -41,4 +41,21 @@ export function requirementText(skill: SkillDefinition): string {
   if (!skill.requires) return ''
   const required = getSkill(skill.requires.skill)
   return `Voraussetzung: ${required?.name ?? skill.requires.skill}, Stufe ${skill.requires.stage}`
+}
+
+/** Wie ein Meilenstein gemessen wird, z. B. „Bester Satz am Stück · Wall Balls". */
+export function describeMetric(metric: MilestoneMetric, nameOf: (slug: string) => string): string {
+  const names = (slugs: readonly string[]) => slugs.map(nameOf).join(', ')
+  switch (metric.kind) {
+    case 'max_reps':
+      return `Bester Satz am Stück · ${names(metric.exercises)}`
+    case 'max_weight':
+      return `Maximalgewicht (1 Wdh. oder geschätzt) · ${nameOf(metric.exercise)}`
+    case 'relative_strength':
+      return `Maximalgewicht (1 Wdh. oder geschätzt) im Verhältnis zum Körpergewicht · ${nameOf(metric.exercise)}`
+    case 'best_time':
+      return `Bestzeit über genau ${metric.distanceM} m · ${names(metric.exercises)}`
+    case 'hyrox_time':
+      return 'HYROX-Wettkampfzeit aus deinem Profil'
+  }
 }

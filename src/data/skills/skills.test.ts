@@ -28,6 +28,7 @@ const CRITERION_MEASUREMENTS: Record<Exclude<Criterion['kind'], 'manual'>, Measu
 const METRIC_MEASUREMENTS: Record<Exclude<MilestoneMetric['kind'], 'hyrox_time'>, Measurement[]> = {
   max_reps: ['reps', 'weight_reps'],
   relative_strength: ['weight_reps'],
+  max_weight: ['weight_reps'],
   best_time: ['distance_time'],
 }
 
@@ -226,7 +227,10 @@ describe('Meilensteine', () => {
     const problems = MILESTONE_LIBRARY.flatMap((m) => {
       const metric = m.metric
       if (metric.kind === 'hyrox_time') return []
-      const slugs = metric.kind === 'relative_strength' ? [metric.exercise] : metric.exercises
+      const slugs =
+        metric.kind === 'relative_strength' || metric.kind === 'max_weight'
+          ? [metric.exercise]
+          : metric.exercises
       return slugs
         .filter((slug) => {
           const measurement = getLibraryExercise(slug)?.measurement
@@ -244,6 +248,8 @@ describe('Meilensteine', () => {
           return metric.reps
         case 'relative_strength':
           return metric.factor
+        case 'max_weight':
+          return metric.kg
         case 'best_time':
           return -metric.maxSec
         case 'hyrox_time':

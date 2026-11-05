@@ -36,8 +36,9 @@ auth.users (Supabase)
    │     └── session_exercises 1:n
    │            └── session_sets 1:n
    ├── personal_records       1:n  Bestleistungen (aus Trainings oder manuell erfasst)
-   └── skill_goals            1:n  Gewählte Skill-Ziele (Inhalte im Code)
-         └── skill_stage_log  1:n  Geschaffte Stufen mit Datum
+   ├── skill_goals            1:n  Gewählte Skill-Ziele (Inhalte im Code)
+   │     └── skill_stage_log  1:n  Geschaffte Stufen mit Datum
+   └── user_milestones        1:n  Eigene Meilensteine und Änderungen an Standard-Meilensteinen
 ```
 
 ---
@@ -247,6 +248,20 @@ Skills, Stufen und Kriterien stehen im Code (docs/SKILLS.md); die Tabelle hält 
 | source | text | `assessment` (Einstufung), `manual` (von Hand bestätigt), `session` (im Training erkannt, ab 5.4) |
 | session_id | uuid null | FK `workout_sessions`, `on delete set null` |
 
+### 3.14 `user_milestones`
+
+| Spalte | Typ | Hinweis |
+|---|---|---|
+| builtin_slug | text null | gesetzt = Änderung eines Standard-Meilensteins (unique je Nutzer); `null` = eigener Meilenstein |
+| name | text null | 3–60 Zeichen; bei Standard `null` = Standardname |
+| area | text null | `pull`, `strength`, `run`, `erg`, `hyrox`, `other`; Pflicht bei eigenen |
+| metric | jsonb null | Messung wie in `src/data/skills/schema.ts` (in der App per Zod geprüft); bei Standard `null` = Standardziel |
+| hidden | boolean | ausgeblendet |
+| counted_from | timestamptz null | „Ab heute neu zählen": ältere Trainings, Bestleistungen und Hand-Einträge zählen nicht |
+| manual_value, manual_at | numeric, timestamptz | Stand von Hand (Wdh., kg oder Sekunden); nur gemeinsam gesetzt |
+
+Ein Zurücksetzen löscht keine Bestleistung – es wirkt nur auf den Meilenstein. Nach dem Zurücksetzen wertet die App Trainings aus dem geladenen Verlauf (90 Tage) und Bestleistungen mit späterem Datum aus. Am 05.11.2026 in zurückgerollter Transaktion getestet (Upsert über `builtin_slug` ohne Dubletten, unvollständige eigene Meilensteine, Hand-Eintrag ohne Datum und unbekannter Bereich werden abgelehnt).
+
 ---
 
 ## 4. Synchronisierung der Übungsbibliothek
@@ -308,5 +323,6 @@ Dateinamen folgen der Supabase-CLI: `supabase/migrations/<Zeitstempel>_<name>.sq
 | 0005 | `week_plans`, `planned_workouts`, `replace_week_plan()` | 3.1 |
 | 0006 | `readiness_checkins` | 3.5 |
 | 0007 | `skill_goals`, `skill_stage_log`, `profiles.skill_block`, `set_skill_progress()` | 5.2 |
+| 0008 | `user_milestones` | 5.2b |
 
 Die Übungsbibliothek (2.4) kommt vor dem Onboarding (2.5), weil das Onboarding bevorzugte/unbeliebte Übungen und manuelle Bestleistungen auf Übungen bezieht.
