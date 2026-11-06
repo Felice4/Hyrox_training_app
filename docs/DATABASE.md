@@ -274,7 +274,7 @@ Ein Zurücksetzen löscht keine Bestleistung – es wirkt nur auf den Meilenstei
 | total_sec | integer > 0 | Summe der Zwischenzeiten |
 | splits | integer[] | Zeit je Abschnitt (Lauf, Station, …), 1–16 Werte, alle > 0; Roxzone im Lauf |
 
-RLS: eigene Zeilen; Anlegen/Ändern nur, wenn das Training dem Nutzer gehört (Fremdschlüssel prüfen kein RLS). Gespeichert nach `save_workout_session` per Upsert über `session_id` (idempotent). Konzept: `docs/SIMULATION.md`.
+RLS: eigene Zeilen; Anlegen/Ändern nur, wenn das Training dem Nutzer gehört (Fremdschlüssel prüfen kein RLS). Gespeichert nach `save_workout_session` per Upsert über `session_id` (idempotent). Konzept: `docs/SIMULATION.md`. Am 06.11.2026 in zurückgerollter Transaktion getestet (eigene Simulation erlaubt; fremdes/unbekanntes Training, Zwischenzeit 0 und unbekanntes Format abgelehnt; `anon` ohne Zugriff) und eingespielt.
 
 ---
 
