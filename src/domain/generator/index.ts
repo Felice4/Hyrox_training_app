@@ -24,3 +24,11 @@ export { swapExercise } from './alternatives'
 export type { AlternativeInput, ExerciseSuggestion, SwapContext } from './alternatives'
 export { generatedWorkoutSchema } from './schema'
 export * from './types'
+export {
+  addSkill,
+  removeSkill,
+  skillBudgetSec,
+  skillPlacement,
+  skillsInWorkout,
+  type SkillDosingContext,
+} from './skillBlock'

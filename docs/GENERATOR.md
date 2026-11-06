@@ -37,6 +37,7 @@ interface WorkoutGenerator {
 | `request.targetMuscles` | optional: Muskelgruppen |
 | `request.hyroxStations` | optional: bestimmte Stationen |
 | `request.unavailableEquipment` | optional: heute nicht verfügbare Geräte |
+| `skills` | optional: aktive Skill-Ziele mit Stufe und Umfang des Skill-Blocks (`off`/`small`/`normal`), siehe §5c |
 | `profile` | Niveau, Equipment, Einschränkungen |
 | `goals` | Gewichtung der vier Ziele |
 | `exercises` | Alle aktiven Übungen inkl. eigener, mit Präferenz |
@@ -48,7 +49,7 @@ interface WorkoutGenerator {
 
 ```ts
 {
-  generatorVersion: "rules-1.0.0",
+  generatorVersion: "rules-1.1.0",
   seed: 12345,
   focus: "strength",
   intensity: "moderate",          // nach Tagesform-Anpassung
@@ -200,6 +201,10 @@ Reihenfolge der Kandidaten:
 1. `alternative_slugs` der Übung (manuell gepflegt), sofern verfügbar
 2. gleiches `movement_pattern` **und** überlappende `primary_muscles`
 3. gleicher `training_type` und gleiche `hyrox_station` bzw. Kategorie
+4. gleiche Kategorie-Familie (Warm-up; Cool-down/Mobility/Regeneration) bzw. gleiche Kategorie mit gemeinsamen Hauptmuskeln
+5. gemeinsame Hauptmuskeln (Grund: „Ähnliche Muskeln (…)")
+
+Skill-Übungen erscheinen nur als Ersatz für Skill-Übungen. Die Oberfläche zeigt zuerst die 5 besten Vorschläge; „Alle ähnlichen Übungen durchsuchen" listet alle Kandidaten (Stufen 1–5, `limit: Infinity`) mit Suche nach Namen – in der Vorschau, im Kalender und im laufenden Training (`SwapPicker`, Schritt 5.3).
 
 Danach werden dieselben Filter wie im Pool (Equipment, Einschränkungen, ausgeblendet) angewendet. Sortiert wird nach Ähnlichkeit (Muskelüberlappung, Messart gleich) und Präferenz. Die Dosierung wird übernommen bzw. für die neue Messart umgerechnet. Gewichte werden **nicht** übertragen, wenn sich das Gerät ändert.
 
@@ -260,6 +265,22 @@ Code: `src/domain/generator/weekPlan.ts` (`generateWeekPlan`, `chooseDays`, `ass
 | **Reihenfolge** | Alle Anordnungen werden bewertet: +3 für zwei beinlastige Einheiten (Kraft, HYROX, Mixed, Ganzkörper) an Folgetagen, +1 für denselben Schwerpunkt an Folgetagen – auch gegenüber bereits feststehenden Einheiten. Unter den besten Anordnungen wählt der Seed. |
 | **Intensität** | Regeneration locker; Ausdauer abwechselnd moderat/hart; sonst abwechselnd hart/moderat. |
 | **Workouts** | Je Tag `generateWorkout` mit Datum des Tages und eigenem Seed – deterministisch. |
+
+---
+
+## 5c. Skill-Block (Schritt 5.3, Konzept `docs/SKILLS.md` §2)
+
+Code: `src/domain/generator/skillBlock.ts`, eingebunden in `generateWorkout` und `generateWeekPlan`; Tests in `skillBlock.test.ts`. Generator-Version `rules-1.1.0`.
+
+| Thema | Umsetzung |
+|---|---|
+| **Budget** | `skillBudgetSec`: normal 15 %, klein 8 % der Dauer (auf Minuten gerundet), höchstens 15 min; unter 3 min kein Block. Einstellung `profiles.skill_block` (Ziele-Seite). |
+| **Zeit** | Die Skill-Übungen werden vorab dosiert; nur ihre tatsächliche Dauer geht von der Zielzeit des Haupttrainings ab. Bei zwei Skills: 60 % Kraft/Balance, 40 % Beweglichkeit. |
+| **Auswahl** | Höchstens ein Kraft-/Balance-/Sprung-Skill (am Ende des Warm-ups) und ein Beweglichkeits-Skill (im Cool-down). Abwechslung: das am längsten nicht geübte aktive Ziel zuerst („geübt" = Übung der aktuellen Stufe im Warm-up/Cool-down eines Trainings). |
+| **Ausschlüsse** | Regeneration: nur Beweglichkeit. Tagesform eher niedrig: keine Kraft- und Sprung-Skills. Stark ermüdete Skill-Muskeln: Skill entfällt (mit Begründung). Sprünge nie bei HYROX, Kraft, Ganzkörper, Mixed. Übungen, die schon im Training stehen, nicht doppelt. |
+| **Dosierung** | Rolle `skill`, Sätze aus der Übung (Presets `skillReps`/`skillHold`/`skillStretch`); Hauptübung der Stufe immer, weitere nur im Budget (notfalls weniger Sätze). Hinweis „Skill … · Stufe n: …" an der ersten Übung, `skillSlug` am Eintrag. |
+| **Von Hand** | Vorschau „Skill üben": `addSkill` baut einen Skill ein (ersetzt den an derselben Stelle, Budget wie Einstellung, bei „aus" wie normal, mindestens 5 min – die Zeit kommt dazu), `removeSkill` entfernt ihn. |
+| **Wochenplan** | Was an einem Tag eingeplant ist, gilt für die folgenden Tage als „zuletzt geübt" → aktive Ziele wechseln sich ab. |
 
 ---
 

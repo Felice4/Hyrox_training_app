@@ -1,4 +1,5 @@
 import { useExerciseCatalog } from '@/features/exercises/useExerciseCatalog'
+import { useSkillGoals } from '@/features/goals/useSkillGoals'
 import { useProfileDetails } from '@/features/profile/useProfile'
 import { useTrainingHistory } from '@/features/training/useTrainingHistory'
 import type { PlanningData } from './planning'
@@ -9,15 +10,18 @@ type PlanningState =
   | { status: 'ready'; data: PlanningData; historyFailed: boolean }
 
 /**
- * Lädt Profil, Übungen und Verlauf für die Planung. Fehlt nur der Verlauf, wird ohne ihn
+ * Lädt Profil, Übungen, Verlauf und Skill-Ziele für die Planung. Fehlt nur der Verlauf, wird ohne ihn
  * geplant (wie beim Generator) – das wird angezeigt.
  */
 export function usePlanningData(): PlanningState {
   const details = useProfileDetails()
   const { catalog } = useExerciseCatalog()
   const history = useTrainingHistory()
+  const skillGoals = useSkillGoals()
 
-  if (details.isPending || catalog.isPending || history.isPending) return { status: 'loading' }
+  if (details.isPending || catalog.isPending || history.isPending || skillGoals.isPending) {
+    return { status: 'loading' }
+  }
   if (details.isError || catalog.isError) {
     return {
       status: 'error',
@@ -33,6 +37,7 @@ export function usePlanningData(): PlanningState {
       details: details.data,
       exercises: catalog.data.exercises,
       history: history.data ?? [],
+      skillGoals: skillGoals.data?.goals,
     },
     historyFailed: history.isError,
   }

@@ -20,6 +20,15 @@ import {
 } from './dosing'
 import { buildHistoryIndex, filterPool } from './pool'
 import { excludesFatiguedMuscles, scoreCandidate, SCORING, type ScoringContext } from './scoring'
+import {
+  buildSkillItems,
+  chooseSkills,
+  hasSkillBudget,
+  insertSkillItems,
+  skillBudgetSec,
+  skillPlacement,
+  type SkillChoice,
+} from './skillBlock'
 import { buildTemplate, type SlotSpec, type Template } from './templates'
 import type {
   BlockType,
@@ -480,6 +489,33 @@ export function generateWorkout(input: WorkoutRequestInput): GeneratedWorkout {
     )
   }
 
+  // Skill-Block: vorab planen, damit seine Zeit vom Haupttraining abgeht (docs/SKILLS.md §2).
+  // Bei zwei Skills bekommt Kraft/Balance 60 % der Zeit.
+  const skills = input.skills
+  const skillChoice: SkillChoice | undefined =
+    skills && hasSkillBudget(request.durationMin, skills.setting)
+      ? chooseSkills(skills, {
+          focus: request.focus,
+          lowReadiness: readiness.intensityShift < 0,
+          fatigue,
+          history: input.history,
+          now: input.now,
+        })
+      : undefined
+  const skillBudget = skills ? skillBudgetSec(request.durationMin, skills.setting) : 0
+  const skillPlans = (skillChoice?.chosen ?? []).map((practice, index, chosen) => ({
+    practice,
+    items: buildSkillItems(
+      practice,
+      Math.round(skillBudget * (chosen.length === 1 ? 1 : index === 0 ? 0.6 : 0.4)),
+      { exercises: pool, level: profile.trainingLevel, intensity, history: input.history },
+    ),
+  }))
+  const plannedSkillSec = skillPlans.reduce(
+    (sum, plan) => sum + plan.items.reduce((s, item) => s + item.estimatedSec, 0),
+    0,
+  )
+
   // 5. Vorlage
   const template = buildTemplate(request.focus, request.durationMin, intensity)
   explanation.unshift(template.description)
@@ -503,7 +539,7 @@ export function generateWorkout(input: WorkoutRequestInput): GeneratedWorkout {
     rounds: template.circuit?.rounds ?? 0,
     items: [],
     explanation,
-    targetSec: request.durationMin * 60,
+    targetSec: request.durationMin * 60 - plannedSkillSec,
   }
 
   // 6./7. Slots füllen und dosieren
@@ -556,7 +592,7 @@ export function generateWorkout(input: WorkoutRequestInput): GeneratedWorkout {
   }
 
   // Ergebnis zusammenbauen
-  const blocks: WorkoutBlock[] = BLOCK_ORDER.map((type) => {
+  let blocks: WorkoutBlock[] = BLOCK_ORDER.map((type) => {
     const items = state.items.filter((i) => i.spec.block === type)
     return {
       type,
@@ -572,7 +608,35 @@ export function generateWorkout(input: WorkoutRequestInput): GeneratedWorkout {
     }
   }).filter((block) => block.items.length > 0)
 
-  const estimatedDurationMin = Math.round(totalSeconds(state) / 60)
+  // Skill-Block einfügen; Übungen, die schon im Training stehen, nicht doppelt
+  let skillSeconds = 0
+  const inWorkout = new Set(state.items.map((i) => i.exercise.slug))
+  for (const { practice, items: planned } of skillPlans) {
+    const items = planned.filter((item) => !inWorkout.has(item.exerciseSlug))
+    if (items.length === 0) {
+      explanation.push(
+        planned.length > 0
+          ? `${practice.skill.name}: Die Übungen der aktuellen Stufe stehen heute schon im Training.`
+          : `${practice.skill.name}: keine Übung der aktuellen Stufe mit deinen Geräten möglich.`,
+      )
+      continue
+    }
+    if (items[0] !== planned[0]) items[0] = { ...items[0]!, note: planned[0]?.note }
+    const placement = skillPlacement(practice.skill)
+    blocks = insertSkillItems(blocks, items, placement)
+    skillSeconds += items.reduce((sum, item) => sum + item.estimatedSec, 0)
+    explanation.push(
+      `Skill-Block ${placement === 'warmup' ? 'nach dem Warm-up' : 'im Cool-down'}: ${practice.skill.name} – Stufe ${practice.stageNumber} (${practice.stage.title}).`,
+    )
+  }
+  explanation.push(...(skillChoice?.notes ?? []))
+  if (skillSeconds > 0) {
+    explanation.push(
+      `Der Skill-Block dauert etwa ${Math.round(skillSeconds / 60)} min und ist in der Trainingsdauer enthalten – das Haupttraining hat Vorrang.`,
+    )
+  }
+
+  const estimatedDurationMin = Math.round((totalSeconds(state) + skillSeconds) / 60)
   explanation.push(
     `Geschätzte Dauer ${estimatedDurationMin} min bei Ziel ${request.durationMin} min, Intensität ${INTENSITY_LABELS[intensity]}.`,
   )

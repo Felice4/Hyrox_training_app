@@ -5,7 +5,7 @@ import type { TrainingLevel } from '@/domain/profile/vocabulary'
  * Alle Stellschrauben des Generators an einer Stelle (siehe docs/GENERATOR.md).
  * Werte hier anpassen – die Logik bleibt unverändert.
  */
-export const GENERATOR_VERSION = 'rules-1.0.0'
+export const GENERATOR_VERSION = 'rules-1.1.0'
 
 export const READINESS = {
   /** Schnellauswahl → Score (1–5) */

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { fetchProfile, fetchProfileDetails, saveProfile } from '@/api/profile'
+import { fetchProfile, fetchProfileDetails, saveProfile, updateSkillBlock } from '@/api/profile'
 import { useSupabase } from '@/app/supabaseContext'
+import type { SkillBlockSetting } from '@/domain/generator'
 import type { SaveProfilePayload } from '@/domain/profile/payload'
 import { useAuth } from '@/features/auth/authContext'
 
@@ -53,6 +54,25 @@ export function useSaveProfile() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: profileQueryKey(userId) }),
         queryClient.invalidateQueries({ queryKey: ['exercises', userId] }),
+        queryClient.invalidateQueries({ queryKey: profileDetailsQueryKey(userId) }),
+      ])
+    },
+  })
+}
+
+/** Umfang des Skill-Blocks speichern (Ziele-Seite). */
+export function useSaveSkillBlock() {
+  const supabase = useSupabase()
+  const userId = useUserId()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (setting: SkillBlockSetting) => {
+      if (!userId) throw new Error('Nicht angemeldet')
+      return updateSkillBlock(supabase, userId, setting)
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: profileQueryKey(userId) }),
         queryClient.invalidateQueries({ queryKey: profileDetailsQueryKey(userId) }),
       ])
     },

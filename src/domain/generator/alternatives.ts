@@ -1,5 +1,10 @@
-import type { Equipment } from '@/data/exercises/vocabulary'
-import { HYROX_STATION_LABELS, MOVEMENT_PATTERN_LABELS } from '@/data/exercises/vocabulary'
+import type { Category, Equipment } from '@/data/exercises/vocabulary'
+import {
+  CATEGORY_LABELS,
+  HYROX_STATION_LABELS,
+  MOVEMENT_PATTERN_LABELS,
+  MUSCLE_GROUP_LABELS,
+} from '@/data/exercises/vocabulary'
 import type { TrainingLevel } from '@/domain/profile/vocabulary'
 import { doseExercise } from './dosing'
 import { estimateWorkoutItem } from './generateWorkout'
@@ -19,6 +24,7 @@ export interface AlternativeInput {
   unavailableEquipment?: readonly Equipment[] | undefined
   /** Übungen, die schon im Workout sind */
   excludeSlugs?: readonly string[] | undefined
+  /** Höchstzahl (Standard 5); `Infinity` liefert alle ähnlichen Übungen der Bibliothek */
   limit?: number | undefined
 }
 
@@ -32,9 +38,23 @@ export interface ExerciseSuggestion {
 const overlap = <T>(a: readonly T[], b: readonly T[]) => a.filter((x) => b.includes(x)).length
 
 /**
+ * Kategorien, in denen die Kategorie selbst die Ähnlichkeit ausmacht (Warm-up gegen
+ * Warm-up, Dehnung gegen Mobility) – unabhängig von den Muskeln.
+ */
+const CATEGORY_FAMILIES: readonly (readonly Category[])[] = [
+  ['warmup'],
+  ['cooldown', 'mobility', 'recovery'],
+]
+const sameFamily = (a: Category, b: Category) =>
+  CATEGORY_FAMILIES.some((family) => family.includes(a) && family.includes(b))
+
+/**
  * Austauschübungen mit vergleichbarem Trainingseffekt (docs/GENERATOR.md, §4):
  * 1. gepflegte Alternativen, 2. gleiches Bewegungsmuster + gleiche Hauptmuskeln,
- * 3. gleiche HYROX-Station bzw. gleiche Kategorie und Trainingsart.
+ * 3. gleiche HYROX-Station bzw. gleiche Kategorie und Trainingsart,
+ * 4. gleiche Kategorie (Warm-up, Mobility/Cool-down) bzw. gleiche Kategorie mit
+ *    gemeinsamen Hauptmuskeln, 5. gemeinsame Hauptmuskeln.
+ * Skill-Übungen nur, wenn die Übung selbst eine ist.
  * Es gelten dieselben Filter wie im Generator (Geräte, Einschränkungen, ausgeblendet).
  */
 export function suggestAlternatives(input: AlternativeInput): ExerciseSuggestion[] {
@@ -45,6 +65,7 @@ export function suggestAlternatives(input: AlternativeInput): ExerciseSuggestion
 
   const suggestions = pool.flatMap((candidate): ExerciseSuggestion[] => {
     if (exclude.has(candidate.slug)) return []
+    if (candidate.category === 'skill' && original.category !== 'skill') return []
     const curatedIndex = original.alternatives.indexOf(candidate.slug)
     const primaryOverlap = overlap(original.primaryMuscles, candidate.primaryMuscles)
     const samePattern = candidate.movementPattern === original.movementPattern
@@ -69,12 +90,23 @@ export function suggestAlternatives(input: AlternativeInput): ExerciseSuggestion
     } else if (sameEffect) {
       base = 20
       reason = 'Ähnlicher Trainingseffekt'
+    } else if (
+      sameFamily(original.category, candidate.category) ||
+      (candidate.category === original.category && primaryOverlap > 0)
+    ) {
+      base = 10
+      reason = `Gleiche Kategorie (${CATEGORY_LABELS[candidate.category]})`
+    } else if (primaryOverlap > 0) {
+      base = 0
+      const shared = original.primaryMuscles.filter((m) => candidate.primaryMuscles.includes(m))
+      reason = `Ähnliche Muskeln (${shared.map((m) => MUSCLE_GROUP_LABELS[m]).join(', ')})`
     } else {
       return []
     }
 
+    // Die Stufe entscheidet zuerst; innerhalb der Stufe Muskeln, Messart und Vorliebe
     const similarity =
-      base +
+      base * 10 +
       primaryOverlap * 5 +
       overlap(original.secondaryMuscles, candidate.secondaryMuscles) +
       (candidate.measurement === original.measurement ? 5 : 0) +
@@ -128,7 +160,9 @@ export function swapExercise(
     exerciseName: replacement.name,
     role: item.role,
     sets,
-    note: dosed.note,
+    // Skill-Block: Zuordnung und Hinweis zur Stufe bleiben
+    note: item.role === 'skill' ? item.note : dosed.note,
+    skillSlug: item.skillSlug,
     estimatedSec: estimateWorkoutItem(sets, replacement, context.level, block.type, inCircuit),
   }
   const blocks = workout.blocks.map((b, bi) =>

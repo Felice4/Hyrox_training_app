@@ -4,6 +4,7 @@ import { ChevronRightIcon } from '@/components/icons'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
+import { SingleChoiceChips } from '@/components/ui/ChoiceChips'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { Spinner } from '@/components/ui/Spinner'
 import {
@@ -21,6 +22,9 @@ import {
   type MilestoneProgress,
   type ResolvedMilestone,
 } from '@/domain/skills/milestones'
+import type { SkillBlockSetting } from '@/domain/generator'
+import { toSkillBlockSetting } from '@/features/generator/inputs'
+import { useProfileDetails, useSaveSkillBlock } from '@/features/profile/useProfile'
 import { cn } from '@/lib/cn'
 import { describeMilestoneProgress } from './format'
 import { ActiveGoalLink, ProgressBar, SkillRow } from './parts'
@@ -176,6 +180,8 @@ function SkillsTab() {
         )}
       </Section>
 
+      {active.length > 0 && <SkillBlockSettingCard />}
+
       {achieved.length > 0 && (
         <Section title="Erreicht">
           <ul className="flex flex-wrap gap-2">
@@ -219,6 +225,47 @@ function SkillsTab() {
         })}
       </div>
     </div>
+  )
+}
+
+const SKILL_BLOCK_CHOICES: { value: SkillBlockSetting; label: string }[] = [
+  { value: 'off', label: 'Aus' },
+  { value: 'small', label: 'Klein' },
+  { value: 'normal', label: 'Normal' },
+]
+const SKILL_BLOCK_HINTS: Record<SkillBlockSetting, string> = {
+  off: 'Der Generator plant keine Skills ein. In der Vorschau kannst du trotzdem einen Skill einbauen.',
+  small: 'Etwa 8 % der Trainingsdauer – bei 60 min rund 5 min.',
+  normal: 'Etwa 15 % der Trainingsdauer, höchstens 15 min – bei 60 min rund 9 min.',
+}
+
+/** Umfang des Skill-Blocks, den der Generator automatisch einplant. */
+function SkillBlockSettingCard() {
+  const details = useProfileDetails()
+  const save = useSaveSkillBlock()
+  if (!details.data) return null
+  const value =
+    save.isPending && save.variables ? save.variables : toSkillBlockSetting(details.data)
+
+  return (
+    <Section title="Skill-Block im Training">
+      <SingleChoiceChips<SkillBlockSetting>
+        label="Umfang"
+        options={SKILL_BLOCK_CHOICES}
+        value={value}
+        onChange={(setting) => save.mutate(setting)}
+      />
+      <p className="mt-2 text-sm text-fg-muted">{SKILL_BLOCK_HINTS[value]}</p>
+      <p className="mt-1 text-xs text-fg-muted">
+        Die Zeit geht vom Training ab, das Haupttraining hat Vorrang. Kraft- und Balance-Skills
+        kommen ans Ende des Warm-ups, Beweglichkeit ins Cool-down; mehrere Ziele wechseln sich ab.
+      </p>
+      {save.isError && (
+        <p role="alert" className="mt-2 text-sm text-danger">
+          Speichern fehlgeschlagen. Bitte versuche es erneut.
+        </p>
+      )}
+    </Section>
   )
 }
 

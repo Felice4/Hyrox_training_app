@@ -2,13 +2,19 @@ import type { ProfileDetails } from '@/api/profile'
 import { EQUIPMENT, STRESS_REGIONS } from '@/data/exercises/vocabulary'
 import { DEFAULT_PROFILE_VALUES } from '@/domain/profile/defaults'
 import { TRAINING_LEVELS, type TrainingLevel } from '@/domain/profile/vocabulary'
+import { getSkill } from '@/data/skills'
+import { activeGoals, type SkillGoal } from '@/domain/skills/goals'
 import {
   FOCUSES,
   INTENSITIES,
+  SKILL_BLOCK_SETTINGS,
   generatedWorkoutSchema,
   type GeneratedWorkout,
   type GeneratorProfile,
   type GoalWeights,
+  type SkillBlockSetting,
+  type SkillPractice,
+  type SkillRequest,
   type WorkoutRequest,
 } from '@/domain/generator'
 
@@ -33,6 +39,30 @@ export function toGoalWeights(details: ProfileDetails): GoalWeights {
     endurance: goals.weight_endurance,
     hyrox: goals.weight_hyrox,
   }
+}
+
+/** Umfang des Skill-Blocks aus dem Profil (Standard „normal"). */
+export function toSkillBlockSetting(details: ProfileDetails): SkillBlockSetting {
+  const value = details.profile?.skill_block
+  return SKILL_BLOCK_SETTINGS.find((s) => s === value) ?? 'normal'
+}
+
+/** Skill mit der Stufe, an der gearbeitet wird; `undefined`, wenn alle Stufen geschafft. */
+export function toSkillPractice(skillSlug: string, goal: SkillGoal | undefined) {
+  const skill = getSkill(skillSlug)
+  const stage = (goal?.completedStages ?? 0) + 1
+  if (!skill || stage > skill.stages.length) return undefined
+  return { skillSlug, stage } satisfies SkillPractice
+}
+
+/** Aktive Skill-Ziele und Einstellung → Eingabe des Generators. */
+export function toSkillRequest(
+  details: ProfileDetails,
+  goals: readonly SkillGoal[] | undefined,
+): SkillRequest | undefined {
+  if (!goals) return undefined
+  const active = activeGoals(goals).flatMap((goal) => toSkillPractice(goal.skillSlug, goal) ?? [])
+  return { setting: toSkillBlockSetting(details), active }
 }
 
 /** Ein erzeugtes Workout samt Anfrage – lokal gesichert, bis trainiert oder neu erzeugt wird. */

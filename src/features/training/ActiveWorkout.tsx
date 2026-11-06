@@ -21,6 +21,7 @@ import {
   workTimerRemaining,
 } from '@/domain/session/session'
 import type { ActiveSession } from '@/domain/session/types'
+import { SwapPicker } from '@/features/generator/SwapPicker'
 import { formatDurationClock } from '@/lib/time'
 import { CurrentSetCard } from './CurrentSetCard'
 import { describeTarget } from './format'
@@ -242,57 +243,46 @@ function SwapPanel({
     exercises: catalog,
     profile,
     excludeSlugs: session.exercises.map((e) => e.exerciseSlug),
+    limit: Infinity,
   })
 
   return (
     <Card className="flex flex-col gap-3">
       <h2 className="font-semibold">„{exercise.exerciseName}" tauschen gegen:</h2>
-      {suggestions.length === 0 && (
-        <p className="text-sm text-fg-muted">
-          Keine passende Alternative mit deinen Geräten gefunden.
-        </p>
-      )}
-      {suggestions.map(({ exercise: alternative, reason }) => (
-        <button
-          key={alternative.slug}
-          type="button"
-          onClick={() => {
-            const dosed = doseExercise(alternative, exercise.role, {
-              intensity: session.workout.intensity,
-              volumeFactor: 1,
-              loadFactor: 1,
-              history,
-              fixedSets: exercise.inCircuit ? exercise.sets.length : undefined,
-            })
-            // Im Zirkel bleiben die Pausen an ihrer Position (Rundenpause nach der letzten Übung)
-            const sets = exercise.inCircuit
-              ? dosed.sets.map((s, i) => ({
-                  ...s,
-                  restSec: exercise.sets[i]?.target.restSec ?? s.restSec,
-                }))
-              : dosed.sets
-            apply((s, _now, newId) =>
-              replaceExercise(
-                s,
-                exercise.id,
-                {
-                  slug: alternative.slug,
-                  name: alternative.name,
-                  measurement: alternative.measurement,
-                  sets,
-                  note: dosed.note,
-                },
-                newId,
-              ),
-            )
-            onDone()
-          }}
-          className="flex min-h-12 flex-col items-start justify-center rounded-xl bg-surface-raised px-4 py-2 text-left hover:bg-line"
-        >
-          <span className="font-medium">{alternative.name}</span>
-          <span className="text-xs text-fg-muted">{reason}</span>
-        </button>
-      ))}
+      <SwapPicker
+        suggestions={suggestions}
+        onPick={({ exercise: alternative }) => {
+          const dosed = doseExercise(alternative, exercise.role, {
+            intensity: session.workout.intensity,
+            volumeFactor: 1,
+            loadFactor: 1,
+            history,
+            fixedSets: exercise.inCircuit ? exercise.sets.length : undefined,
+          })
+          // Im Zirkel bleiben die Pausen an ihrer Position (Rundenpause nach der letzten Übung)
+          const sets = exercise.inCircuit
+            ? dosed.sets.map((s, i) => ({
+                ...s,
+                restSec: exercise.sets[i]?.target.restSec ?? s.restSec,
+              }))
+            : dosed.sets
+          apply((s, _now, newId) =>
+            replaceExercise(
+              s,
+              exercise.id,
+              {
+                slug: alternative.slug,
+                name: alternative.name,
+                measurement: alternative.measurement,
+                sets,
+                note: dosed.note,
+              },
+              newId,
+            ),
+          )
+          onDone()
+        }}
+      />
       <Button variant="secondary" onClick={onDone}>
         Abbrechen
       </Button>

@@ -9,13 +9,17 @@ import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Spinner } from '@/components/ui/Spinner'
 import {
+  addSkill,
+  removeSkill,
   ruleBasedGenerator,
   swapExercise,
   type GeneratedWorkout,
   type WorkoutRequest,
 } from '@/domain/generator'
+import { filterPool } from '@/domain/generator/pool'
 import { GeneratorForm } from '@/features/generator/GeneratorForm'
-import { newSeed, toGeneratorProfile } from '@/features/generator/inputs'
+import { newSeed, toGeneratorProfile, toSkillBlockSetting } from '@/features/generator/inputs'
+import { skillOptions } from '@/features/generator/skillOptions'
 import { FOCUS_LABELS, INTENSITY_LABELS } from '@/features/generator/labels'
 import { WorkoutPreview } from '@/features/generator/WorkoutPreview'
 import { readActiveSession, useActiveSessionKey } from '@/features/training/useActiveSession'
@@ -424,8 +428,22 @@ function WorkoutView({
           exercises: data.exercises,
           profile,
           excludeSlugs: slugsInWorkout,
+          limit: Infinity,
         })
       }
+      skills={{
+        options: skillOptions(data.skillGoals ?? []),
+        onAdd: (practice) =>
+          onChange(
+            addSkill(workout, practice, toSkillBlockSetting(data.details), {
+              exercises: filterPool(data.exercises, profile),
+              level: profile.trainingLevel,
+              intensity: workout.intensity,
+              history: data.history,
+            }),
+          ),
+        onRemove: (skillSlug) => onChange(removeSkill(workout, skillSlug)),
+      }}
       onSwap={(blockIndex, itemIndex, suggestion) =>
         onChange(
           swapExercise(workout, blockIndex, itemIndex, suggestion.exercise, {

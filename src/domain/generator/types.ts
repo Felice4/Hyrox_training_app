@@ -97,8 +97,35 @@ export interface HistorySession {
   exercises: readonly HistoryExercise[]
 }
 
+// -----------------------------------------------------------------------------
+// Skill-Block (docs/SKILLS.md §2)
+// -----------------------------------------------------------------------------
+
+/** Umfang des Skill-Blocks: aus · klein (≈ 8 %) · normal (≈ 15 % der Trainingsdauer). */
+export const SKILL_BLOCK_SETTINGS = ['off', 'small', 'normal'] as const
+export type SkillBlockSetting = (typeof SKILL_BLOCK_SETTINGS)[number]
+
+/** Ein Skill mit der Stufe, an der gerade gearbeitet wird (1-basiert). */
+export interface SkillPractice {
+  skillSlug: string
+  stage: number
+}
+
+export interface SkillRequest {
+  setting: SkillBlockSetting
+  /** Aktive Skill-Ziele; bei Gleichstand gewinnt das zuerst genannte. */
+  active: readonly SkillPractice[]
+  /**
+   * Zusätzlich „zuletzt geübt" (ISO je Skill) – z. B. für die Tage davor im Wochenplan,
+   * die noch nicht im Verlauf stehen.
+   */
+  lastPracticed?: Readonly<Record<string, string>> | undefined
+}
+
 export interface WorkoutRequestInput {
   request: WorkoutRequest
+  /** Aktive Skill-Ziele und Umfang des Skill-Blocks; ohne Angabe kein Skill-Block */
+  skills?: SkillRequest | undefined
   profile: GeneratorProfile
   goals: GoalWeights
   exercises: readonly GeneratorExercise[]
@@ -135,6 +162,7 @@ export const SLOT_ROLES = [
   'mobility',
   'cooldown_cardio',
   'stretch',
+  'skill',
 ] as const
 export type SlotRole = (typeof SLOT_ROLES)[number]
 
@@ -157,6 +185,8 @@ export interface WorkoutItem {
   note?: string | undefined
   /** Geschätzte Dauer der Übung inkl. Pausen und Wechsel (Sekunden) */
   estimatedSec: number
+  /** Skill-Block: zu welchem Skill-Ziel die Übung gehört */
+  skillSlug?: string | undefined
 }
 
 export interface WorkoutBlock {

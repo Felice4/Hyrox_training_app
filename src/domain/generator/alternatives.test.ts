@@ -26,7 +26,17 @@ describe('suggestAlternatives – Pflichttest 4 (SPEC §15)', () => {
         )
         const sameStation =
           original.hyroxStation !== undefined && candidate.hyroxStation === original.hyroxStation
-        if (!curated && !(samePattern && sharedMuscle) && !sameStation && !sharedMuscle) {
+        const relaxing = ['cooldown', 'mobility', 'recovery']
+        const sameWarmupOrCooldown =
+          (candidate.category === 'warmup' && original.category === 'warmup') ||
+          (relaxing.includes(candidate.category) && relaxing.includes(original.category))
+        if (
+          !curated &&
+          !(samePattern && sharedMuscle) &&
+          !sameStation &&
+          !sharedMuscle &&
+          !sameWarmupOrCooldown
+        ) {
           problems.push(`${original.slug} → ${candidate.slug}`)
         }
       }
@@ -78,6 +88,56 @@ describe('suggestAlternatives – Pflichttest 4 (SPEC §15)', () => {
     expect(slugs).not.toContain('front-squat')
     expect(slugs).not.toContain('goblet-squat')
     expect(slugs).not.toContain('back-squat')
+  })
+
+  it('liefert auf Wunsch alle ähnlichen Übungen der Bibliothek – nie Fremdes oder Skills', () => {
+    const all = suggestAlternatives({
+      exerciseSlug: 'back-squat',
+      exercises: LIBRARY,
+      profile,
+      limit: Infinity,
+    })
+    expect(all.length).toBeGreaterThan(5)
+    const original = bySlug.get('back-squat')!
+    for (const { exercise } of all) {
+      expect(exercise.category, exercise.slug).not.toBe('skill')
+      expect(
+        exercise.primaryMuscles.some((m) => original.primaryMuscles.includes(m)) ||
+          exercise.movementPattern === original.movementPattern ||
+          original.alternatives.includes(exercise.slug),
+        exercise.slug,
+      ).toBe(true)
+    }
+    // Die ersten fünf sind dieselben wie in der Kurzliste
+    expect(all.slice(0, 5)).toEqual(
+      suggestAlternatives({ exerciseSlug: 'back-squat', exercises: LIBRARY, profile }),
+    )
+  })
+
+  it('bietet im Warm-up und Cool-down Übungen derselben Kategorie an', () => {
+    for (const category of ['warmup', 'cooldown'] as const) {
+      const original = LIBRARY.find((e) => e.category === category)!
+      const all = suggestAlternatives({
+        exerciseSlug: original.slug,
+        exercises: LIBRARY,
+        profile,
+        limit: Infinity,
+      })
+      const sameCategory = all.filter((s) => s.exercise.category === category)
+      expect(sameCategory.length, category).toBe(
+        LIBRARY.filter((e) => e.category === category).length - 1,
+      )
+    }
+  })
+
+  it('tauscht Skill-Übungen auch gegen Skill-Übungen', () => {
+    const slugs = suggestAlternatives({
+      exerciseSlug: 'tuck-front-lever',
+      exercises: LIBRARY,
+      profile,
+      limit: Infinity,
+    }).map((s) => s.exercise)
+    expect(slugs.some((e) => e.category === 'skill')).toBe(true)
   })
 
   it('findet für eine unbekannte Übung nichts', () => {

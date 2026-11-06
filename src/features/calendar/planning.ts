@@ -9,7 +9,8 @@ import {
   type WorkoutRequest,
 } from '@/domain/generator'
 import { generateWeekPlan, type GeneratedWeekPlan } from '@/domain/generator/weekPlan'
-import { toGeneratorProfile, toGoalWeights } from '@/features/generator/inputs'
+import type { SkillGoal } from '@/domain/skills/goals'
+import { toGeneratorProfile, toGoalWeights, toSkillRequest } from '@/features/generator/inputs'
 import { doneInWeek, keptForReplan } from './week'
 
 /** Alles, was zum Erzeugen von Workouts und Wochenplänen gebraucht wird. */
@@ -17,6 +18,8 @@ export interface PlanningData {
   details: ProfileDetails
   exercises: CatalogExercise[]
   history: readonly HistorySession[]
+  /** Skill-Ziele für den Skill-Block (fehlen sie, wird ohne Skills geplant) */
+  skillGoals?: readonly SkillGoal[] | undefined
 }
 
 /** Erstellt den Wochenplan aus Profil, Verlauf und den bestehenden Einheiten der Woche. */
@@ -36,6 +39,7 @@ export function planWeek(
     durationMin: profile?.default_duration_min ?? 60,
     profile: toGeneratorProfile(data.details),
     goals: toGoalWeights(data.details),
+    skills: toSkillRequest(data.details, data.skillGoals),
     exercises: data.exercises,
     history: data.history,
     done: doneInWeek(data.history, weekStart),
@@ -57,6 +61,7 @@ export function generateForDay(
 ): GeneratedWorkout {
   return ruleBasedGenerator.generateWorkout({
     request,
+    skills: toSkillRequest(data.details, data.skillGoals),
     profile: toGeneratorProfile(data.details),
     goals: toGoalWeights(data.details),
     exercises: data.exercises,

@@ -57,6 +57,7 @@ const ROLE_SETS: Record<SlotRole, number | 'range'> = {
   mobility: 1,
   cooldown_cardio: 1,
   stretch: 1,
+  skill: 'range',
 }
 
 /** Rollen, deren Satzzahl sich mit Intensität und Tagesform ändert. */

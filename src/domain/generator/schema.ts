@@ -24,6 +24,7 @@ export const workoutItemSchema = z.strictObject({
   sets: z.array(plannedSetSchema).min(1),
   note: z.string().optional(),
   estimatedSec: z.number().min(0),
+  skillSlug: z.string().min(1).optional(),
 })
 
 export const workoutBlockSchema = z.strictObject({

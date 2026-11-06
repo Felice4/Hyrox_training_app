@@ -20,7 +20,7 @@ Erreichte Ziele werden als **Abzeichen** mit Datum gespeichert.
 ## 2. Grundregeln – das Haupttraining hat Vorrang
 
 1. **Wochenverteilung bleibt.** HYROX, Kraft, Ausdauer, Ganzkörper und Regeneration werden wie bisher verteilt (GENERATOR.md §5). Skills ändern keine Schwerpunkte.
-2. **Festes Zeitbudget.** Der Skill-Block ist Teil der gewählten Trainingsdauer und höchstens **15 % davon** (Stufe „normal": 45 min → 7 min, 60 min → 9 min, 90 min → 13 min; nie über 15 min). Einstellbar: aus · klein (≈ 8 %) · normal (≈ 15 %).
+2. **Festes Zeitbudget.** Der Skill-Block ist Teil der gewählten Trainingsdauer und höchstens **15 % davon** (Stufe „normal": 45 min → 7 min, 60 min → 9 min, 90 min → 14 min; nie über 15 min). Einstellbar: aus · klein (≈ 8 %) · normal (≈ 15 %).
 3. **Platzierung nach Art:**
    - Kraft- und Balance-Skills (Muscle-Up, Handstand, Lever …): **direkt nach dem Warm-up** – Technik lernt man frisch, und das Warm-up wärmt die passenden Gelenke mit auf.
    - Beweglichkeit (Spagat, Brücke, Pike): **im Cool-down** – kostet kaum Erholung.
@@ -231,5 +231,7 @@ Meilensteine brauchen keine Aktivierung – die App zeigt, wie nah du dran bist 
 | **Training** | Skill-Übungen wie alle anderen; nach dem Speichern prüft die App die Kriterien → „Stufe geschafft!" |
 | **Dashboard** | Karte mit dem aktiven Ziel und dem nächsten Kriterium |
 | **Statistik → Rekorde** | Abzeichen erreichter Ziele und Meilensteine |
+
+**Umsetzung 5.3:** Generator und Wochenplan siehe `docs/GENERATOR.md` §5c. In der Vorschau eines Workouts (Training und Kalender) gibt es die Karte **„Skill üben"** zwischen Begründung und Warm-up: aktive Ziele mit ihrer Stufe oder jeden anderen Skill einbauen bzw. entfernen. Kraft-/Balance-/Sprung-Skills kommen ans Ende des Warm-ups, Beweglichkeit ins Cool-down (statisches Dehnen vor dem Training ist ungünstig). Einstellung „Skill-Block im Training: Aus · Klein · Normal" auf der Ziele-Seite.
 
 **Daten:** Skills und Stufen stehen im Code (`src/data/skills/`, wie die Übungsbibliothek). In der Datenbank (Migration 0007) nur deine Auswahl: Ziel, Status (aktiv/später/erreicht), aktuelle Stufe, Verlauf der geschafften Stufen. Neue Übungen für die Stufen (z. B. Muscle-Up-Negative, Wandhandstand, Tuck Front Lever, Frosch-Dehnung) kommen in die Übungsbibliothek.

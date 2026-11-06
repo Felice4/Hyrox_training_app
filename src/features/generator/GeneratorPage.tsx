@@ -9,13 +9,18 @@ import type { CatalogExercise } from '@/api/exercises'
 import type { ProfileDetails } from '@/api/profile'
 import { toReadinessInput } from '@/api/readiness'
 import {
+  addSkill,
+  removeSkill,
   ruleBasedGenerator,
   swapExercise,
   type HistorySession,
   type WorkoutRequest,
 } from '@/domain/generator'
+import { filterPool } from '@/domain/generator/pool'
+import type { SkillGoal } from '@/domain/skills/goals'
 import { useAuth } from '@/features/auth/authContext'
 import { useExerciseCatalog } from '@/features/exercises/useExerciseCatalog'
+import { useSkillGoals } from '@/features/goals/useSkillGoals'
 import { useTrainingHistory } from '@/features/training/useTrainingHistory'
 import { storageKeys } from '@/features/training/storage'
 import { readActiveSession, useActiveSessionKey } from '@/features/training/useActiveSession'
@@ -31,8 +36,11 @@ import {
   restoreStoredWorkout,
   toGeneratorProfile,
   toGoalWeights,
+  toSkillBlockSetting,
+  toSkillRequest,
   type StoredWorkout,
 } from './inputs'
+import { skillOptions } from './skillOptions'
 import { WorkoutPreview } from './WorkoutPreview'
 
 export function GeneratorPage() {
@@ -40,11 +48,13 @@ export function GeneratorPage() {
   const { catalog } = useExerciseCatalog()
   // Verlauf für Ermüdung, Abwechslung, Belastung und Gewichtsvorschläge
   const history = useTrainingHistory()
+  // Skill-Ziele für den Skill-Block; fehlen sie, wird ohne Skills erzeugt
+  const skillGoals = useSkillGoals()
 
   return (
     <>
       <PageHeader title="Training" subtitle="Workout erstellen und starten" />
-      {details.isPending || catalog.isPending || history.isPending ? (
+      {details.isPending || catalog.isPending || history.isPending || skillGoals.isPending ? (
         <div role="status" className="flex justify-center py-12">
           <Spinner className="text-accent" />
         </div>
@@ -76,6 +86,7 @@ export function GeneratorPage() {
             details={details.data}
             exercises={catalog.data.exercises}
             history={history.data ?? []}
+            skillGoals={skillGoals.data?.goals}
           />
         </>
       )}
@@ -87,10 +98,12 @@ function Generator({
   details,
   exercises,
   history,
+  skillGoals,
 }: {
   details: ProfileDetails
   exercises: CatalogExercise[]
   history: readonly HistorySession[]
+  skillGoals: readonly SkillGoal[] | undefined
 }) {
   const auth = useAuth()
   const startTraining = useStartTraining(exercises)
@@ -130,6 +143,7 @@ function Generator({
   function generate(request: WorkoutRequest) {
     const workout = ruleBasedGenerator.generateWorkout({
       request,
+      skills: toSkillRequest(details, skillGoals),
       profile,
       goals,
       exercises,
@@ -191,8 +205,24 @@ function Generator({
             profile,
             unavailableEquipment: stored.request.unavailableEquipment,
             excludeSlugs: slugsInWorkout,
+            limit: Infinity,
           })
         }
+        skills={{
+          options: skillOptions(skillGoals ?? []),
+          onAdd: (practice) =>
+            setStored({
+              ...stored,
+              workout: addSkill(stored.workout, practice, toSkillBlockSetting(details), {
+                exercises: filterPool(exercises, profile, stored.request.unavailableEquipment),
+                level: profile.trainingLevel,
+                intensity: stored.workout.intensity,
+                history,
+              }),
+            }),
+          onRemove: (skillSlug) =>
+            setStored({ ...stored, workout: removeSkill(stored.workout, skillSlug) }),
+        }}
         onSwap={(blockIndex, itemIndex, suggestion) =>
           setStored({
             ...stored,

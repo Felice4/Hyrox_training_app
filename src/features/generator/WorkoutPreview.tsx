@@ -4,16 +4,24 @@ import { InfoIcon, RefreshIcon, SwapIcon } from '@/components/icons'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import type { ExerciseSuggestion, GeneratedWorkout, WorkoutItem } from '@/domain/generator'
+import type {
+  ExerciseSuggestion,
+  GeneratedWorkout,
+  SkillPractice,
+  WorkoutItem,
+} from '@/domain/generator'
 import { circuitRest, describeRest, summarizeItem } from './describe'
 import { BLOCK_LABELS, FOCUS_LABELS, INTENSITY_LABELS } from './labels'
+import { SkillPracticeCard } from './SkillPracticeCard'
+import type { SkillOption } from './skillOptions'
+import { SwapPicker } from './SwapPicker'
 
 interface WorkoutPreviewProps {
   workout: GeneratedWorkout
   onRegenerate: () => void
   onEdit: () => void
   onSwitchToRecovery: () => void
-  /** Liefert Austauschvorschläge für eine Übung */
+  /** Liefert alle ähnlichen Übungen zum Austausch, die besten zuerst */
   alternativesFor: (exerciseSlug: string) => ExerciseSuggestion[]
   onSwap: (blockIndex: number, itemIndex: number, suggestion: ExerciseSuggestion) => void
   onStart: () => void
@@ -22,6 +30,12 @@ interface WorkoutPreviewProps {
   /** Hinweis unter „Training starten" (z. B. dass die Einheit auf heute verschoben wird) */
   startHint?: string
   startDisabled?: boolean
+  /** „Skill üben": Skills für dieses Training einbauen (ohne Angabe ausgeblendet) */
+  skills?: {
+    options: readonly SkillOption[]
+    onAdd: (practice: SkillPractice) => void
+    onRemove: (skillSlug: string) => void
+  }
 }
 
 export function WorkoutPreview({
@@ -35,6 +49,7 @@ export function WorkoutPreview({
   backTo = '/training',
   startHint,
   startDisabled = false,
+  skills,
 }: WorkoutPreviewProps) {
   const [showWhy, setShowWhy] = useState(false)
   const [swapping, setSwapping] = useState<string | null>(null)
@@ -82,6 +97,15 @@ export function WorkoutPreview({
         </div>
       )}
 
+      {skills && (
+        <SkillPracticeCard
+          workout={workout}
+          options={skills.options}
+          onAdd={skills.onAdd}
+          onRemove={skills.onRemove}
+        />
+      )}
+
       {workout.blocks.map((block, blockIndex) => {
         const inCircuit = block.rounds !== undefined
         return (
@@ -109,13 +133,15 @@ export function WorkoutPreview({
                       onToggleSwap={() => setSwapping(swapping === key ? null : key)}
                     />
                     {swapping === key && (
-                      <SwapList
-                        suggestions={alternativesFor(item.exerciseSlug)}
-                        onPick={(suggestion) => {
-                          onSwap(blockIndex, itemIndex, suggestion)
-                          setSwapping(null)
-                        }}
-                      />
+                      <div className="mt-3">
+                        <SwapPicker
+                          suggestions={alternativesFor(item.exerciseSlug)}
+                          onPick={(suggestion) => {
+                            onSwap(blockIndex, itemIndex, suggestion)
+                            setSwapping(null)
+                          }}
+                        />
+                      </div>
                     )}
                   </li>
                 )
@@ -185,38 +211,6 @@ function ItemRow({
       >
         <SwapIcon width={20} height={20} />
       </button>
-    </div>
-  )
-}
-
-function SwapList({
-  suggestions,
-  onPick,
-}: {
-  suggestions: ExerciseSuggestion[]
-  onPick: (suggestion: ExerciseSuggestion) => void
-}) {
-  if (suggestions.length === 0) {
-    return (
-      <p className="mt-3 rounded-xl bg-surface-raised px-4 py-3 text-sm text-fg-muted">
-        Keine passende Alternative mit deinen verfügbaren Geräten gefunden.
-      </p>
-    )
-  }
-  return (
-    <div className="mt-3 flex flex-col gap-2">
-      <p className="text-xs font-medium text-fg-muted">Ersetzen durch:</p>
-      {suggestions.map((suggestion) => (
-        <button
-          key={suggestion.exercise.slug}
-          type="button"
-          onClick={() => onPick(suggestion)}
-          className="flex min-h-12 flex-col items-start justify-center rounded-xl bg-surface-raised px-4 py-2 text-left hover:bg-line"
-        >
-          <span className="font-medium">{suggestion.exercise.name}</span>
-          <span className="text-xs text-fg-muted">{suggestion.reason}</span>
-        </button>
-      ))}
     </div>
   )
 }

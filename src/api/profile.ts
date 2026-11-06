@@ -1,3 +1,4 @@
+import type { SkillBlockSetting } from '@/domain/generator'
 import type { SaveProfilePayload } from '@/domain/profile/payload'
 import type { AppSupabaseClient } from '@/lib/supabase'
 import type { Json, Tables } from '@/types/database'
@@ -111,4 +112,17 @@ export async function saveProfile(
   const { data, error } = await supabase.rpc('save_profile', { p: payload as unknown as Json })
   if (error) throw error
   return data as unknown as SaveProfileResult
+}
+
+/** Umfang des Skill-Blocks im Training (`off` · `small` · `normal`). */
+export async function updateSkillBlock(
+  supabase: AppSupabaseClient,
+  userId: string,
+  setting: SkillBlockSetting,
+): Promise<void> {
+  const { error } = await supabase
+    .from('profiles')
+    .update({ skill_block: setting })
+    .eq('user_id', userId)
+  if (error) throw error
 }

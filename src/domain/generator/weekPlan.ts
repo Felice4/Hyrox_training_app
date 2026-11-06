@@ -1,6 +1,7 @@
 import { createRandom } from '@/domain/random'
 import type { Weekday } from '@/domain/profile/vocabulary'
 import { generateWorkout } from './generateWorkout'
+import { skillsInWorkout } from './skillBlock'
 import type {
   Focus,
   GeneratedWorkout,
@@ -9,6 +10,7 @@ import type {
   GoalWeights,
   HistorySession,
   Intensity,
+  SkillRequest,
 } from './types'
 
 /** Bereits absolviertes Training dieser Woche (lokales Datum). */
@@ -38,6 +40,8 @@ export interface WeekPlanInput {
   durationMin: number
   profile: GeneratorProfile
   goals: GoalWeights
+  /** Aktive Skill-Ziele – werden über die Woche abwechselnd eingeplant */
+  skills?: SkillRequest | undefined
   exercises: readonly GeneratorExercise[]
   history: readonly HistorySession[]
   /** Absolvierte Trainings dieser Woche (lokale Daten) – zählen zum Wochenziel */
@@ -215,18 +219,23 @@ export function generateWeekPlan(input: WeekPlanInput): GeneratedWeekPlan {
   ]
   const order = assignFocuses(days, focuses.slice(0, days.length), fixedDays, input.seed)
 
+  // Skills wechseln sich ab: Was an einem Tag eingeplant ist, gilt danach als „zuletzt geübt"
+  const lastPracticed: Record<string, string> = { ...input.skills?.lastPracticed }
   const planned: PlannedDay[] = days.map((date, index) => {
     const focus = order[index] as Focus
     const intensity = intensityFor(focus, index)
+    const now = `${date}T12:00:00.000Z`
     const workout = generateWorkout({
       request: { durationMin: input.durationMin, focus, intensity },
+      skills: input.skills && { ...input.skills, lastPracticed: { ...lastPracticed } },
       profile: input.profile,
       goals: input.goals,
       exercises: input.exercises,
       history: input.history,
-      now: `${date}T12:00:00.000Z`,
+      now,
       seed: input.seed + index * 7919,
     })
+    for (const slug of skillsInWorkout(workout)) lastPracticed[slug] = now
     return { date, focus, intensity, durationMin: input.durationMin, workout }
   })
 
