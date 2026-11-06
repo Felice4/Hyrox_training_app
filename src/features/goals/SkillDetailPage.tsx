@@ -26,9 +26,12 @@ import {
   type SkillGoal,
   type StageLogEntry,
 } from '@/domain/skills/goals'
+import { stageProgress } from '@/domain/skills/detect'
+import { useTrainingHistory } from '@/features/training/useTrainingHistory'
 import { cn } from '@/lib/cn'
-import { requirementText, STATUS_LABELS } from './format'
+import { describeCriterion, requirementText, STATUS_LABELS } from './format'
 import { ProgressBar } from './parts'
+import { StageAchievedCards } from './StageAchieved'
 import { useDeleteSkillGoal, useSetSkillProgress, useSkillGoals } from './useSkillGoals'
 
 const dateFormat = new Intl.DateTimeFormat('de-DE', {
@@ -124,7 +127,7 @@ function SkillContent({
       )}
 
       {goal?.status === 'active' && !assessing ? (
-        <ActiveCard skill={skill} goal={goal} onReassess={() => setAssessing(true)} />
+        <ActiveCard skill={skill} goal={goal} log={log} onReassess={() => setAssessing(true)} />
       ) : goal?.status === 'achieved' ? (
         <AchievedCard skill={skill} goal={goal} />
       ) : (
@@ -297,14 +300,18 @@ function StartCard({
 function ActiveCard({
   skill,
   goal,
+  log,
   onReassess,
 }: {
   skill: SkillDefinition
   goal: SkillGoal
+  log: StageLogEntry[]
   onReassess: () => void
 }) {
   const save = useSetSkillProgress()
   const state = skillState(skill, goal)
+  const history = useTrainingHistory()
+  const progress = history.data ? stageProgress(goal, log, history.data) : undefined
   const [justDone, setJustDone] = useState<string | undefined>()
 
   function completeStage() {
@@ -321,54 +328,73 @@ function ActiveCard({
   }
 
   return (
-    <Card className="flex flex-col gap-4 border-accent/40">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-sm text-fg-muted">
-            {STATUS_LABELS.active} · Stufe {state.currentNumber} von {state.total}
-          </p>
-          <p className="font-display text-2xl font-bold uppercase">{state.current?.title}</p>
+    <>
+      {/* Immer eingebunden, damit die Bestätigung nach dem Speichern stehen bleibt */}
+      <StageAchievedCards detected={progress?.met ? [progress] : []} goals={[goal]} />
+      <Card className="flex flex-col gap-4 border-accent/40">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-sm text-fg-muted">
+              {STATUS_LABELS.active} · Stufe {state.currentNumber} von {state.total}
+            </p>
+            <p className="font-display text-2xl font-bold uppercase">{state.current?.title}</p>
+          </div>
         </div>
-      </div>
-      <ProgressBar
-        ratio={state.completed / state.total}
-        label={`${state.completed} von ${state.total} Stufen geschafft`}
-      />
-      {justDone && (
-        <p role="status" className="font-semibold text-hyrox">
-          Stark! „{justDone}" ist geschafft.
+        <ProgressBar
+          ratio={state.completed / state.total}
+          label={`${state.completed} von ${state.total} Stufen geschafft`}
+        />
+        {justDone && (
+          <p role="status" className="font-semibold text-hyrox">
+            Stark! „{justDone}" ist geschafft.
+          </p>
+        )}
+        {progress && !progress.manualOnly && (
+          <div className="text-sm">
+            <p className="text-fg-muted">Dein Bestwert seit Beginn der Stufe:</p>
+            <ul className="mt-1 flex flex-col gap-0.5">
+              {progress.criteria.map((c, i) => (
+                <li key={i} className={c.met ? 'text-hyrox' : undefined}>
+                  {c.met ? '✓ ' : ''}
+                  {describeCriterion(c)}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <p className="text-sm text-fg-muted">
+          {progress?.manualOnly
+            ? 'Diese Stufe bestätigst du selbst, sobald du sie sicher kannst.'
+            : 'Die App erkennt die Stufe nach dem Speichern eines Trainings. Im Test außerhalb der App geschafft? Dann trage sie hier ein.'}
         </p>
-      )}
-      <p className="text-sm text-fg-muted">
-        Hast du das Kriterium im Training oder in einem Test geschafft? Dann trage die Stufe ein.
-      </p>
-      {save.isError && (
-        <p role="alert" className="text-sm text-danger">
-          Speichern fehlgeschlagen. Bitte versuche es erneut.
-        </p>
-      )}
-      <div className="flex flex-wrap gap-2">
-        <Button loading={save.isPending} onClick={completeStage}>
-          Stufe geschafft
-        </Button>
-        <Button
-          variant="secondary"
-          disabled={save.isPending}
-          onClick={() =>
-            save.mutate({
-              skillSlug: skill.slug,
-              update: { status: 'later', completedStages: goal.completedStages },
-              source: 'manual',
-            })
-          }
-        >
-          Auf später verschieben
-        </Button>
-        <Button variant="ghost" disabled={save.isPending} onClick={onReassess}>
-          Einstufung ändern
-        </Button>
-      </div>
-    </Card>
+        {save.isError && (
+          <p role="alert" className="text-sm text-danger">
+            Speichern fehlgeschlagen. Bitte versuche es erneut.
+          </p>
+        )}
+        <div className="flex flex-wrap gap-2">
+          <Button loading={save.isPending} onClick={completeStage}>
+            Stufe geschafft
+          </Button>
+          <Button
+            variant="secondary"
+            disabled={save.isPending}
+            onClick={() =>
+              save.mutate({
+                skillSlug: skill.slug,
+                update: { status: 'later', completedStages: goal.completedStages },
+                source: 'manual',
+              })
+            }
+          >
+            Auf später verschieben
+          </Button>
+          <Button variant="ghost" disabled={save.isPending} onClick={onReassess}>
+            Einstufung ändern
+          </Button>
+        </div>
+      </Card>
+    </>
   )
 }
 

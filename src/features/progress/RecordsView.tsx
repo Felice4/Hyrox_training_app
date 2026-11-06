@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Spinner } from '@/components/ui/Spinner'
 import { useExerciseCatalog } from '@/features/exercises/useExerciseCatalog'
+import { BadgesCard } from '@/features/goals/BadgesCard'
 import { useProfileDetails } from '@/features/profile/useProfile'
 import { describeRecord } from '@/features/training/format'
 import { formatDurationClock } from '@/lib/time'
@@ -61,15 +62,19 @@ export function RecordsView() {
 
   if (records.length === 0 && hyroxTime === null) {
     return (
-      <Card className="text-sm text-fg-muted">
-        Noch keine Bestleistungen. Sie entstehen automatisch beim Speichern deiner Trainings;
-        frühere Bestwerte kannst du im Profil eintragen.
-      </Card>
+      <div className="flex flex-col gap-4">
+        <BadgesCard />
+        <Card className="text-sm text-fg-muted">
+          Noch keine Bestleistungen. Sie entstehen automatisch beim Speichern deiner Trainings;
+          frühere Bestwerte kannst du im Profil eintragen.
+        </Card>
+      </div>
     )
   }
 
   return (
     <div className="flex flex-col gap-4">
+      <BadgesCard />
       {hyroxTime !== null && (
         <Card className="p-4">
           <p className="text-xs text-fg-muted">HYROX-Bestzeit (Wettkampf, laut Profil)</p>

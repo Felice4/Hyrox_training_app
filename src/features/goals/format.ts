@@ -1,3 +1,5 @@
+import type { CriterionProgress } from '@/domain/skills/detect'
+import { getLibraryExercise } from '@/data/exercises'
 import { getSkill, type MilestoneMetric, type SkillDefinition } from '@/data/skills'
 import type { SkillGoalStatus } from '@/domain/skills/goals'
 import type { MilestoneProgress, MilestoneUnit } from '@/domain/skills/milestones'
@@ -58,4 +60,14 @@ export function describeMetric(metric: MilestoneMetric, nameOf: (slug: string) =
     case 'hyrox_time':
       return 'HYROX-Wettkampfzeit aus deinem Profil'
   }
+}
+
+const CRITERION_UNIT = { reps: 'Wdh.', hold: 's', distance: 'm' } as const
+
+/** „Klimmzug: 8 von 8 Wdh." – bester Wert seit Beginn der Stufe. */
+export function describeCriterion({ criterion, best, target }: CriterionProgress): string {
+  if (criterion.kind === 'manual') return 'Bestätigst du selbst'
+  const name = getLibraryExercise(criterion.exercise)?.name ?? criterion.exercise
+  const value = best === undefined ? 'noch kein Wert' : `${best.toLocaleString('de-DE')}`
+  return `${name}: ${value} von ${target?.toLocaleString('de-DE')} ${CRITERION_UNIT[criterion.kind]}`
 }

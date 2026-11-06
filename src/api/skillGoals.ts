@@ -69,12 +69,15 @@ export async function setSkillProgress(
   skillSlug: string,
   update: ProgressUpdate,
   source: StageSource,
+  /** Training, in dem die Stufe geschafft wurde (Quelle „session") */
+  sessionId?: string,
 ): Promise<void> {
   const { error } = await supabase.rpc('set_skill_progress', {
     p_skill_slug: skillSlug,
     p_status: update.status,
     p_completed_stages: update.completedStages,
     p_source: source,
+    ...(sessionId ? { p_session_id: sessionId } : {}),
   })
   if (error) throw error
 }

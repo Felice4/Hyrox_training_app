@@ -6,12 +6,16 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { TextArea } from '@/components/ui/TextArea'
 import { toSaveSessionPayload } from '@/domain/session/payload'
+import { detectCompletedStages } from '@/domain/skills/detect'
+import { StageAchievedCards } from '@/features/goals/StageAchieved'
+import { useSkillGoals } from '@/features/goals/useSkillGoals'
 import { reopenSession, summarizeSession, type SessionSummary } from '@/domain/session/session'
 import type { ActiveSession } from '@/domain/session/types'
 import { describeRecord } from './format'
 import { RpePicker } from './inputs/RpePicker'
 import type { SessionAction } from './useActiveSession'
 import { useSaveSession } from './useSaveSession'
+import { useTrainingHistory } from './useTrainingHistory'
 
 function SummaryGrid({ summary }: { summary: SessionSummary }) {
   const items = [
@@ -135,12 +139,26 @@ interface SavedScreenProps {
 /** Bestätigung nach dem Speichern mit neuen Bestleistungen. */
 export function SavedScreen({ result, summary, catalog }: SavedScreenProps) {
   const nameOf = (slug: string) => catalog.find((e) => e.slug === slug)?.name ?? slug
+  // Skill-Stufen, die dieses Training erfüllt hat (Verlauf ist nach dem Speichern neu geladen)
+  const skillGoals = useSkillGoals()
+  const history = useTrainingHistory()
+  const detected =
+    skillGoals.data && history.data
+      ? detectCompletedStages(skillGoals.data.goals, skillGoals.data.log, history.data).filter(
+          (d) => d.sessionIds.includes(result.session_id),
+        )
+      : []
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-xl flex-col gap-4 px-4 pt-[calc(env(safe-area-inset-top)+1.5rem)] pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
       <h1 className="font-display text-4xl font-bold tracking-wide uppercase">Gespeichert ✓</h1>
       <Card>
         <SummaryGrid summary={summary} />
       </Card>
+      <StageAchievedCards
+        detected={detected}
+        goals={skillGoals.data?.goals ?? []}
+        sessionId={result.session_id}
+      />
       {result.new_records.length > 0 && (
         <Card className="flex flex-col gap-3 border-accent/40">
           <h2 className="font-display text-2xl font-bold text-accent uppercase">

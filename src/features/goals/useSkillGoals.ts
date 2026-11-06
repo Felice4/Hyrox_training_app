@@ -25,6 +25,7 @@ export interface SkillProgressInput {
   skillSlug: string
   update: ProgressUpdate
   source: StageSource
+  sessionId?: string
 }
 
 export function useSetSkillProgress() {
@@ -32,8 +33,8 @@ export function useSetSkillProgress() {
   const userId = useUserId()
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ skillSlug, update, source }: SkillProgressInput) =>
-      setSkillProgress(supabase, skillSlug, update, source),
+    mutationFn: ({ skillSlug, update, source, sessionId }: SkillProgressInput) =>
+      setSkillProgress(supabase, skillSlug, update, source, sessionId),
     onSettled: () => queryClient.invalidateQueries({ queryKey: skillGoalsKey(userId) }),
   })
 }
