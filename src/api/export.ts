@@ -33,6 +33,8 @@ export interface ExportData {
   skillStageLog: Tables<'skill_stage_log'>[]
   /** Eigene Meilensteine und Änderungen an Standard-Meilensteinen */
   userMilestones: Tables<'user_milestones'>[]
+  /** HYROX-Simulationen mit Format, Division und Zwischenzeiten */
+  hyroxSimulations: Tables<'hyrox_simulations'>[]
 }
 
 /** Supabase liefert höchstens 1000 Zeilen je Abfrage – darum seitenweise laden. */
@@ -68,6 +70,7 @@ export async function fetchExportData(supabase: AppSupabaseClient): Promise<Expo
     skillGoals,
     skillStageLog,
     userMilestones,
+    hyroxSimulations,
   ] = await Promise.all([
     // Trainings mit Übungen und Sätzen – kleinere Seiten, weil jede Zeile verschachtelt ist
     fetchAll(
@@ -126,6 +129,9 @@ export async function fetchExportData(supabase: AppSupabaseClient): Promise<Expo
     fetchAll((from, to) =>
       supabase.from('user_milestones').select('*').order('created_at').range(from, to),
     ),
+    fetchAll((from, to) =>
+      supabase.from('hyrox_simulations').select('*').order('started_at').range(from, to),
+    ),
   ])
 
   return {
@@ -147,5 +153,6 @@ export async function fetchExportData(supabase: AppSupabaseClient): Promise<Expo
     skillGoals,
     skillStageLog,
     userMilestones,
+    hyroxSimulations,
   }
 }

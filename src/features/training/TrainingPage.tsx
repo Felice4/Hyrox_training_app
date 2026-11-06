@@ -4,10 +4,12 @@ import type { SaveSessionResult } from '@/api/sessions'
 import { Button } from '@/components/ui/Button'
 import { FullScreenSpinner } from '@/components/ui/Spinner'
 import type { SessionSummary } from '@/domain/session/session'
+import type { SimulationRecord } from '@/domain/simulation/simulation'
 import { useAuth } from '@/features/auth/authContext'
 import { useExerciseCatalog } from '@/features/exercises/useExerciseCatalog'
 import { toGeneratorProfile } from '@/features/generator/inputs'
 import { useProfileDetails } from '@/features/profile/useProfile'
+import { SimulationRun } from '@/features/simulation/SimulationRun'
 import { clearDraft } from '@/lib/localDraft'
 import { ActiveWorkout } from './ActiveWorkout'
 import { FinishScreen, SavedScreen } from './FinishScreen'
@@ -22,20 +24,27 @@ export function TrainingPage() {
   const details = useProfileDetails()
   const history = useTrainingHistory()
   const { catalog } = useExerciseCatalog()
-  const [saved, setSaved] = useState<{ result: SaveSessionResult; summary: SessionSummary } | null>(
-    null,
-  )
+  const [saved, setSaved] = useState<{
+    result: SaveSessionResult
+    summary: SessionSummary
+    simulation: SimulationRecord | undefined
+  } | null>(null)
 
   if (saved) {
     return (
       <SavedScreen
         result={saved.result}
+        simulation={saved.simulation}
         summary={saved.summary}
         catalog={catalog.data?.exercises ?? []}
       />
     )
   }
   if (!session) return <Navigate to="/training" replace />
+  // HYROX-Simulation: eigene Rennansicht, Abschluss wie jedes Training
+  if (session.simulation && !session.finishedAt) {
+    return <SimulationRun session={session} apply={apply} onDiscard={discard} />
+  }
   if (details.isPending || catalog.isPending) {
     return <FullScreenSpinner label="Training wird geladen …" />
   }
@@ -63,8 +72,8 @@ export function TrainingPage() {
       <FinishScreen
         session={session}
         apply={apply}
-        onSaved={(result, summary) => {
-          setSaved({ result, summary })
+        onSaved={(result, summary, simulation) => {
+          setSaved({ result, summary, simulation })
           // Gespeichert → lokale Kopien des Trainings und des erzeugten Workouts entfernen
           discard()
           if (auth.status === 'signedIn') {

@@ -50,6 +50,13 @@ export const router = createBrowserRouter([
             children: [
               { index: true, element: <DashboardPage /> },
               { path: 'training', element: <GeneratorPage /> },
+              {
+                path: 'training/simulation',
+                lazy: page(
+                  () => import('@/features/simulation/SimulationSetupPage'),
+                  'SimulationSetupPage',
+                ),
+              },
               { path: 'calendar', element: <CalendarPage /> },
               {
                 path: 'calendar/planned/:id',

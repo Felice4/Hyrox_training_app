@@ -6,9 +6,12 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { TextArea } from '@/components/ui/TextArea'
 import { toSaveSessionPayload } from '@/domain/session/payload'
+import { toSimulationRecord, type SimulationRecord } from '@/domain/simulation/simulation'
 import { detectCompletedStages } from '@/domain/skills/detect'
 import { StageAchievedCards } from '@/features/goals/StageAchieved'
 import { useSkillGoals } from '@/features/goals/useSkillGoals'
+import { useProfileDetails } from '@/features/profile/useProfile'
+import { SimulationResultCard } from '@/features/simulation/SimulationResultCard'
 import { reopenSession, summarizeSession, type SessionSummary } from '@/domain/session/session'
 import type { ActiveSession } from '@/domain/session/types'
 import { describeRecord } from './format'
@@ -53,7 +56,11 @@ function SummaryGrid({ summary }: { summary: SessionSummary }) {
 interface FinishScreenProps {
   session: ActiveSession
   apply: (action: SessionAction) => void
-  onSaved: (result: SaveSessionResult, summary: SessionSummary) => void
+  onSaved: (
+    result: SaveSessionResult,
+    summary: SessionSummary,
+    simulation: SimulationRecord | undefined,
+  ) => void
   /** Training verwerfen, ohne zu speichern */
   onDiscard: () => void
 }
@@ -66,9 +73,14 @@ export function FinishScreen({ session, apply, onSaved, onDiscard }: FinishScree
   const summary = summarizeSession(session, session.finishedAt ?? session.startedAt)
 
   function handleSave() {
-    save.mutate(toSaveSessionPayload(session, { sessionRpe, notes }), {
-      onSuccess: (result) => onSaved(result, summary),
-    })
+    const payload = toSaveSessionPayload(session, { sessionRpe, notes })
+    const simulation = toSimulationRecord(session)
+    save.mutate(
+      { payload, simulation },
+      {
+        onSuccess: (result) => onSaved(result, summary, simulation),
+      },
+    )
   }
 
   return (
@@ -132,12 +144,15 @@ export function FinishScreen({ session, apply, onSaved, onDiscard }: FinishScree
 
 interface SavedScreenProps {
   result: SaveSessionResult
+  /** Gespeicherte HYROX-Simulation (Zwischenzeiten) */
+  simulation?: SimulationRecord | undefined
   summary: SessionSummary
   catalog: readonly CatalogExercise[]
 }
 
 /** Bestätigung nach dem Speichern mit neuen Bestleistungen. */
-export function SavedScreen({ result, summary, catalog }: SavedScreenProps) {
+export function SavedScreen({ result, simulation, summary, catalog }: SavedScreenProps) {
+  const details = useProfileDetails()
   const nameOf = (slug: string) => catalog.find((e) => e.slug === slug)?.name ?? slug
   // Skill-Stufen, die dieses Training erfüllt hat (Verlauf ist nach dem Speichern neu geladen)
   const skillGoals = useSkillGoals()
@@ -154,6 +169,12 @@ export function SavedScreen({ result, summary, catalog }: SavedScreenProps) {
       <Card>
         <SummaryGrid summary={summary} />
       </Card>
+      {simulation && (
+        <SimulationResultCard
+          record={simulation}
+          hyroxBestSec={details.data?.profile?.hyrox_best_time_sec}
+        />
+      )}
       <StageAchievedCards
         detected={detected}
         goals={skillGoals.data?.goals ?? []}

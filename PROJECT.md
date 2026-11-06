@@ -12,9 +12,9 @@
 
 | | |
 |---|---|
-| **Aktuelle Phase** | Phase 5 abgeschlossen – Feedback aus dem Training und optionale Erweiterungen |
+| **Aktuelle Phase** | Phase 6 – Erweiterungen (6.1 HYROX-Simulation) |
 | **Letzter verifizierter Meilenstein** | 5.4 Fortschritt & Abzeichen – Phase 5 fertig (vom Nutzer freigegeben) |
-| **Nächster Schritt** | Feedback des Nutzers aus dem Training umsetzen bzw. nächste optionale Erweiterung wählen (§9) |
+| **Nächster Schritt** | Migration 0009 testen und einspielen (CLI hängt bei aktivem VPN), dann Test von 6.1 durch den Nutzer |
 | **Blocker** | keine |
 | **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: 5.4 Fortschritt & Abzeichen. |
 
@@ -148,6 +148,12 @@ Gezielt auf Muscle-Up, Handstand, Spagat & Co. hinarbeiten – das HYROX-, Kraft
 | **5.3 Generator & Wochenplan** ✅ | Skill-Block nach Warm-up bzw. im Cool-down mit Zeitbudget, Ermüdung und Tagesform; Wochenplan verteilt aktive Ziele; Tests, dass der Hauptteil erhalten bleibt. Dazu (Wunsch des Nutzers): „Skill üben“ in der Workout-Vorschau und Austausch aus allen ähnlichen Übungen der Bibliothek |
 | **5.4 Fortschritt & Abzeichen** ✅ | Automatische Stufenprüfung nach dem Speichern („Stufe geschafft!"), manuelle Bestätigung (z. B. Back Flip), Abzeichen in der Statistik |
 
+### Phase 6 – Erweiterungen (nach Wahl des Nutzers)
+
+| Schritt | Inhalt |
+|---|---|
+| **6.1 HYROX-Simulation** 🔄 | Konzept `docs/SIMULATION.md`: Formate (Komplett, Hälfte 1/2, Kurz), Division beim Start, Rennuhr mit Zwischenzeit je Lauf (inkl. Roxzone) und Station, Vergleich mit der letzten Simulation, größte Zeitverluste, Statistik-Reiter „HYROX"; Migration 0009 `hyrox_simulations` |
+
 ---
 
 ## 7. Abgeschlossene Meilensteine
@@ -231,9 +237,11 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
    - **5.2b** ✅ umgesetzt (Wunsch des Nutzers nach dem Test von 5.2; 23 Wall Balls kamen aus 2 Zirkelrunden à 23 vom 26.10. – korrekt gezählt): Migration 0008 `user_milestones` (in zurückgerollter Transaktion getestet, eingespielt). Neue Messart „Gewicht in kg" und Bereich „Weitere". Logik `resolveMilestones` (Standard + Änderungen + eigene), Stand mit Zählbeginn und Hand-Eintrag; Kraft und Zeiten jetzt auch aus dem Verlauf. Reiter Meilensteine: alle Meilensteine nach Bereich, „+ Eigener Meilenstein", Ausgeblendete separat. Detailseite `/goals/milestones/:key`: Stand, Messung, Hand-Eintrag, Name/Ziel ändern, ab heute neu zählen, aus-/einblenden, Standard wiederherstellen, eigene löschen. Formular `/goals/milestones/new` bzw. `…/edit` (`milestoneForm.ts`, getestet). Export enthält `user_milestones` (384 Tests). Commit `3207a14`, gepusht, vom Nutzer geprüft.
    - **5.3** ✅ umgesetzt: Skill-Block im Generator (`src/domain/generator/skillBlock.ts`, Details `docs/GENERATOR.md` §5c): Budget normal 15 % / klein 8 % (max. 15 min), nur die tatsächliche Skill-Zeit geht vom Haupttraining ab; höchstens ein Kraft-/Balance-/Sprung-Skill am Ende des Warm-ups und ein Beweglichkeits-Skill im Cool-down; Abwechslung nach „zuletzt geübt“; Ausschlüsse bei Regeneration, niedriger Tagesform, stark ermüdeten Muskeln, Sprünge nie vor Bein-/HYROX-Tagen; keine doppelten Übungen. Wochenplan verteilt die aktiven Ziele. Generator-Version `rules-1.1.0`. Vorschau (Training und Kalender): Karte **„Skill üben“** zwischen Begründung und Warm-up – aktive Ziele oder jeden anderen Skill mit der aktuellen Stufe einbauen bzw. entfernen. Ziele-Seite: „Skill-Block im Training: Aus · Klein · Normal“ (`profiles.skill_block`). **Austausch:** zuerst 5 Vorschläge, dann „Alle ähnlichen Übungen durchsuchen“ mit Suche (auch eigene Übungen; neue Stufen „gleiche Kategorie“ und „ähnliche Muskeln“; Skill-Übungen nur gegen Skill-Übungen) – in Vorschau, Kalender und laufendem Training (`SwapPicker`). 403 Tests. Commit `0c056e0`, vom Nutzer getestet und gepusht.
    - **5.4** ✅ umgesetzt: Automatische Stufenprüfung `src/domain/skills/detect.ts` (getestet): bester einzelner Satz je Kriterium (Wiederholungen, Haltezeit, Strecke) seit Beginn der Stufe (Aktivierung bzw. letzte geschaffte Stufe), in allen Blöcken inkl. Skill-Block, ohne Aufwärm- und offene Sätze; mehrere Kriterien dürfen aus verschiedenen Trainings stammen; „von Hand“-Stufen nie automatisch. Nach dem Speichern eines Trainings: Karte **„Stufe geschafft!“** mit Bestwerten, „Stufe bestätigen“ (Quelle `session`, Training im Stufenverlauf vermerkt) oder „Noch nicht“. Skill-Detailseite: Bestwert je Kriterium seit Stufenbeginn und dieselbe Bestätigung, falls erfüllt. **Abzeichen** in Statistik → Rekorde: erreichte Skills, geschaffte Meilensteine, geschaffte Skill-Stufen mit Datum (ohne Einstufung). 409 Tests. Commit `5c3a473`, vom Nutzer getestet und gepusht. **Phase 5 abgeschlossen.**
+1. Phase 6 – Erweiterungen:
+   - **6.1** 🔄 umgesetzt (Konzept `docs/SIMULATION.md`): Logik `src/domain/simulation/` (Formate und Wettkampfgewichte je Division, Abschnitte, Rennuhr mit Zwischenzeiten über Zeitstempel, Rückgängig, vorzeitiges Ende, Vergleich mit der letzten Simulation, größte Zeitverluste, beste Zeit je Abschnitt, Lauf vs. Stationen; 9 Tests). Seite `/training/simulation` (Einstieg auf der Training-Seite), Rennansicht im Trainingsmodus, Ergebnis nach dem Speichern, Statistik-Reiter „HYROX". Gespeichert als normales Training plus `hyrox_simulations` (Migration 0009, Typen von Hand ergänzt – nach dem Einspielen `npm run db:types`). Export enthält die Simulationen. 418 Tests.
 1. Mögliche Erweiterungen (optional, Reihenfolge nach Nutzen):
    1. Tempo-Vorgaben für Laufen/Rudern/SkiErg aus dem Verlauf (Pace-Progression im Generator)
-   2. HYROX-Simulation mit Zwischenzeiten je Station, Vergleich mit früheren Simulationen und der Wettkampf-Bestzeit
+   2. ~~HYROX-Simulation~~ → Schritt 6.1
    3. Import der JSON-Sicherung (Wiederherstellung)
    4. Kalorien im Trainingsverlauf speichern und auswerten (z. B. Assault Bike)
    5. Studio-Test der Gerätefunktionen (Wake Lock, Vibration, Timer im Hintergrund) – `docs/CHECKLIST.md` §4
@@ -347,6 +355,7 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 | 05.11.2026 | Nicht messbare Stufen (Spagat-Höhe, Box-Höhe, Back Flip) mit Kriterium „manual" – Bestätigung von Hand | Ehrlich statt geraten; Back Flip nie automatisch „geschafft" |
 | 05.11.2026 | Skill-Fortschritt als „Anzahl geschaffter Stufen" plus Verlauf je Stufe; Änderungen nur über `set_skill_progress` (atomar) | Einstufung, Korrektur nach unten und spätere automatische Erkennung nutzen denselben Weg; Datum jeder Stufe bleibt für Abzeichen erhalten |
 | 06.11.2026 | Skill-Block: nur die tatsächlich geplante Skill-Zeit geht vom Haupttraining ab; von Hand eingebaute Skills kommen zur Dauer dazu. Beweglichkeits-Skills auch von Hand ins Cool-down, nicht ins Warm-up | Haupttraining bleibt vollständig; statisches Dehnen vor dem Training ist ungünstig |
+| 06.11.2026 | HYROX-Simulation als normales Training (je Abschnitt eine Übung mit Zeit) plus Tabelle `hyrox_simulations` mit Zwischenzeiten; Roxzone zählt zum Lauf; Division beim Start | Verlauf, Kalender, Ermüdung und Bestleistungen funktionieren ohne Sonderfälle; Vergleiche über alle Simulationen ohne den ganzen Verlauf zu laden; Entscheidungen des Nutzers |
 | 06.11.2026 | Erkannte Skill-Stufen werden nicht automatisch eingetragen, sondern mit einem Tipp bestätigt | Wiederholungen mit Hilfe oder unsauberer Technik sollen nicht zählen; der Nutzer behält die Kontrolle |
 | 06.11.2026 | Austausch aus allen ähnlichen Übungen der Bibliothek (5 Vorschläge + Suche); Skill-Übungen nur gegen Skill-Übungen | Wunsch des Nutzers nach mehr Auswahl, ohne unpassende Übungen anzubieten |
 | 05.11.2026 | Meilenstein „zurücksetzen" = ab heute neu zählen; Bestleistungen bleiben unverändert. Stand von Hand möglich, es zählt der bessere Wert | Entscheidung des Nutzers; Statistik und Rekorde bleiben vollständig |

@@ -38,7 +38,8 @@ auth.users (Supabase)
    ├── personal_records       1:n  Bestleistungen (aus Trainings oder manuell erfasst)
    ├── skill_goals            1:n  Gewählte Skill-Ziele (Inhalte im Code)
    │     └── skill_stage_log  1:n  Geschaffte Stufen mit Datum
-   └── user_milestones        1:n  Eigene Meilensteine und Änderungen an Standard-Meilensteinen
+   ├── user_milestones        1:n  Eigene Meilensteine und Änderungen an Standard-Meilensteinen
+   └── hyrox_simulations      1:n  HYROX-Simulationen (je eine zu einem Training) mit Zwischenzeiten
 ```
 
 ---
@@ -262,6 +263,19 @@ Skills, Stufen und Kriterien stehen im Code (docs/SKILLS.md); die Tabelle hält 
 
 Ein Zurücksetzen löscht keine Bestleistung – es wirkt nur auf den Meilenstein. Nach dem Zurücksetzen wertet die App Trainings aus dem geladenen Verlauf (90 Tage) und Bestleistungen mit späterem Datum aus. Am 05.11.2026 in zurückgerollter Transaktion getestet (Upsert über `builtin_slug` ohne Dubletten, unvollständige eigene Meilensteine, Hand-Eintrag ohne Datum und unbekannter Bereich werden abgelehnt).
 
+### 3.15 `hyrox_simulations`
+
+| Spalte | Typ | Hinweis |
+|---|---|---|
+| session_id | uuid PK, FK → workout_sessions (cascade) | das gespeicherte Training der Simulation |
+| format | text | `full`, `half_1`, `half_2`, `short` |
+| division | text | `open_men`, `open_women`, `pro_men`, `pro_women` |
+| started_at | timestamptz | Start der Rennuhr |
+| total_sec | integer > 0 | Summe der Zwischenzeiten |
+| splits | integer[] | Zeit je Abschnitt (Lauf, Station, …), 1–16 Werte, alle > 0; Roxzone im Lauf |
+
+RLS: eigene Zeilen; Anlegen/Ändern nur, wenn das Training dem Nutzer gehört (Fremdschlüssel prüfen kein RLS). Gespeichert nach `save_workout_session` per Upsert über `session_id` (idempotent). Konzept: `docs/SIMULATION.md`.
+
 ---
 
 ## 4. Synchronisierung der Übungsbibliothek
@@ -324,5 +338,6 @@ Dateinamen folgen der Supabase-CLI: `supabase/migrations/<Zeitstempel>_<name>.sq
 | 0006 | `readiness_checkins` | 3.5 |
 | 0007 | `skill_goals`, `skill_stage_log`, `profiles.skill_block`, `set_skill_progress()` | 5.2 |
 | 0008 | `user_milestones` | 5.2b |
+| 0009 | `hyrox_simulations` | 6.1 |
 
 Die Übungsbibliothek (2.4) kommt vor dem Onboarding (2.5), weil das Onboarding bevorzugte/unbeliebte Übungen und manuelle Bestleistungen auf Übungen bezieht.

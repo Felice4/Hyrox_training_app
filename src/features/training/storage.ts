@@ -1,5 +1,6 @@
 import { generatedWorkoutSchema } from '@/domain/generator/schema'
 import type { ActiveSession } from '@/domain/session/types'
+import { DIVISIONS, SIMULATION_FORMATS } from '@/domain/simulation/formats'
 
 /** Schlüssel für lokal gesicherte Daten (je Nutzer). */
 export const storageKeys = {
@@ -21,6 +22,9 @@ export function restoreActiveSession(stored: unknown): ActiveSession | null {
     typeof s.pausedSec === 'number' &&
     (s.plannedWorkoutId === undefined || typeof s.plannedWorkoutId === 'string') &&
     (s.readinessCheckinId === undefined || typeof s.readinessCheckinId === 'string') &&
+    (s.simulation === undefined ||
+      (SIMULATION_FORMATS.includes(s.simulation?.format) &&
+        DIVISIONS.includes(s.simulation?.division))) &&
     Array.isArray(s.exercises) &&
     s.exercises.every(
       (e) =>

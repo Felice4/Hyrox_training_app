@@ -66,6 +66,7 @@ const data = {
   skillGoals: [],
   skillStageLog: [],
   userMilestones: [],
+  hyroxSimulations: [],
 } as ExportData
 
 describe('csvFiles', () => {

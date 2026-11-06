@@ -2,6 +2,7 @@ import {
   CartesianGrid,
   Line,
   LineChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -24,10 +25,13 @@ export function TrendChart({
   data,
   format,
   height = 220,
+  reference,
 }: {
   data: readonly TrendPoint[]
   format: (value: number) => string
   height?: number
+  /** Gestrichelte Vergleichslinie, z. B. Wettkampf-Bestzeit */
+  reference?: { value: number; label: string } | undefined
 }) {
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -62,6 +66,20 @@ export function TrendChart({
             ) : null
           }}
         />
+        {reference && (
+          <ReferenceLine
+            y={reference.value}
+            stroke={CHART.muted}
+            strokeDasharray="4 4"
+            ifOverflow="extendDomain"
+            label={{
+              value: reference.label,
+              position: 'insideTopRight',
+              fill: CHART.axis,
+              fontSize: 12,
+            }}
+          />
+        )}
         <Line
           type="monotone"
           dataKey="value"

@@ -6,12 +6,14 @@ import { toLocalIsoDate } from '@/lib/date'
 import { BodyView } from './BodyView'
 import { ExerciseProgressView } from './ExerciseProgressView'
 import { Overview } from './Overview'
+import { SimulationsView } from '@/features/simulation/SimulationsView'
 import { RecordsView } from './RecordsView'
 
 const TABS = [
   { value: 'overview', label: 'Übersicht' },
   { value: 'exercises', label: 'Übungen' },
   { value: 'records', label: 'Rekorde' },
+  { value: 'hyrox', label: 'HYROX' },
   { value: 'body', label: 'Körper' },
 ] as const
 
@@ -51,6 +53,7 @@ export function StatsPage() {
       {tab === 'overview' && <Overview today={today} />}
       {tab === 'exercises' && <ExerciseProgressView today={today} />}
       {tab === 'records' && <RecordsView />}
+      {tab === 'hyrox' && <SimulationsView />}
       {tab === 'body' && <BodyView today={today} />}
     </>
   )

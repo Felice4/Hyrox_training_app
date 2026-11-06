@@ -140,6 +140,50 @@ export type Database = {
         }
         Relationships: []
       }
+      hyrox_simulations: {
+        Row: {
+          created_at: string
+          division: string
+          format: string
+          session_id: string
+          splits: number[]
+          started_at: string
+          total_sec: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          division: string
+          format: string
+          session_id: string
+          splits: number[]
+          started_at: string
+          total_sec: number
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          division?: string
+          format?: string
+          session_id?: string
+          splits?: number[]
+          started_at?: string
+          total_sec?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hyrox_simulations_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: true
+            referencedRelation: "workout_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       personal_records: {
         Row: {
           achieved_at: string

@@ -173,6 +173,18 @@ function Generator({
         <div className="mb-4">
           <CheckinCard today={today} />
         </div>
+        <Link
+          to="/training/simulation"
+          className="mb-4 flex min-h-14 items-center justify-between gap-3 rounded-xl border border-hyrox/40 bg-hyrox/10 px-4 py-3"
+        >
+          <span>
+            <span className="block font-semibold">HYROX-Simulation</span>
+            <span className="block text-sm text-fg-muted">
+              Rennuhr mit Zwischenzeiten für Läufe und Stationen
+            </span>
+          </span>
+          <span aria-hidden="true">→</span>
+        </Link>
         <GeneratorForm
           // Neu aufbauen, sobald ein Check-in gespeichert oder geändert wurde
           key={checkin.data ? `${checkin.data.id}-${checkin.data.score}` : 'ohne-checkin'}

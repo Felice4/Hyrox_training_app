@@ -1,5 +1,6 @@
 import type { Measurement } from '@/data/exercises/vocabulary'
 import type { BlockType, GeneratedWorkout, SetType, SlotRole } from '@/domain/generator/types'
+import type { Division, SimulationFormat } from '@/domain/simulation/formats'
 
 /** Messwerte eines Satzes (Vorgabe oder tatsächlich). */
 export interface SetValues {
@@ -58,6 +59,14 @@ export interface WorkTimer {
   durationSec?: number | undefined
 }
 
+/** HYROX-Simulation: Format, Division und Start der Rennuhr (docs/SIMULATION.md). */
+export interface SimulationMeta {
+  format: SimulationFormat
+  division: Division
+  /** Start der Rennuhr; vorher läuft noch nichts */
+  raceStartedAt?: string | undefined
+}
+
 /** Ein laufendes Training. Wird bei jeder Änderung lokal gesichert. */
 export interface ActiveSession {
   id: string
@@ -76,6 +85,8 @@ export interface ActiveSession {
   rest?: RestTimer | undefined
   workTimer?: WorkTimer | undefined
   finishedAt?: string | undefined
+  /** Gesetzt, wenn das Training eine HYROX-Simulation ist */
+  simulation?: SimulationMeta | undefined
 }
 
 /** Ein Schritt im Ablauf: Satz `setIndex` der Übung `exerciseIndex`. */
