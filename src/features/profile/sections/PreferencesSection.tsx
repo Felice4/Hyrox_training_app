@@ -153,7 +153,7 @@ function SelectedList({
             key={slug}
             type="button"
             onClick={() => onRemove(slug)}
-            className="inline-flex min-h-10 items-center gap-2 rounded-full bg-surface-raised px-4 text-sm hover:bg-line"
+            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-line bg-surface-raised px-4 text-sm transition hover:border-line-strong hover:bg-surface-high"
             aria-label={`${nameOf(slug)} entfernen`}
           >
             {nameOf(slug)}

@@ -60,14 +60,26 @@ export function LoginPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center px-4 py-10">
+    <main className="mx-auto flex min-h-dvh w-full max-w-sm animate-enter flex-col justify-center px-4 py-10">
       <div className="mb-8 flex flex-col items-center text-center">
-        <img src="/favicon.svg" alt="" width={64} height={64} className="mb-4" />
-        <h1 className="font-display text-4xl font-bold tracking-wide uppercase">HYROX Coach</h1>
+        <img
+          src="/favicon.svg"
+          alt=""
+          width={72}
+          height={72}
+          className="mb-5 rounded-2xl shadow-glow"
+        />
+        <h1 className="font-display text-5xl font-bold tracking-wide uppercase">
+          HYROX <span className="text-accent">Coach</span>
+        </h1>
         <p className="mt-1 text-fg-muted">Melde dich an, um weiterzutrainieren.</p>
       </div>
 
-      <form noValidate onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form
+        noValidate
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-4 rounded-2xl border border-line bg-surface p-5 shadow-raised"
+      >
         <TextField
           label="E-Mail"
           type="email"

@@ -107,7 +107,7 @@ function OnboardingWizard({ storageKey }: { storageKey: string }) {
           Einrichtung · Schritt {stepIndex + 1} von {ONBOARDING_STEPS.length}
         </p>
         <div
-          className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-raised"
+          className="mt-2 h-2 overflow-hidden rounded-full bg-surface-high"
           role="progressbar"
           aria-valuemin={1}
           aria-valuemax={ONBOARDING_STEPS.length}

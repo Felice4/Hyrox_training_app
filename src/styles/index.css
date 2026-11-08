@@ -1,33 +1,103 @@
 @import 'tailwindcss';
 
 /*
- * Design-Tokens (siehe docs/ARCHITECTURE.md §8).
+ * Design-Tokens (siehe docs/ARCHITECTURE.md §8 und docs/DESIGN.md).
  * Farben hier ändern → wirkt in der ganzen App, z. B. bg-canvas, text-fg-muted, bg-accent.
+ *
+ * Premium-Dark: tiefer, leicht kühler Hintergrund, Flächen in drei Höhen, feine Linien,
+ * Lime als Leistungs-Akzent, Orange für HYROX. Kontraste: Text ≥ 4,5:1 auf allen Flächen.
  */
 @theme {
-  --color-canvas: #0a0a0b;
-  --color-surface: #141416;
-  --color-surface-raised: #1c1c1f;
-  --color-line: #2a2a2e;
-  --color-fg: #f4f4f5;
-  --color-fg-muted: #a1a1aa;
+  --color-canvas: #07080a;
+  --color-surface: #101216;
+  --color-surface-raised: #181b21;
+  --color-surface-high: #21252d;
+  --color-line: #252a32;
+  --color-line-strong: #333944;
+  --color-fg: #f5f6f8;
+  --color-fg-muted: #a4aab5;
   --color-accent: #c6f432;
-  --color-on-accent: #0a0a0b;
+  --color-accent-strong: #d7ff4f;
+  --color-on-accent: #0a0c05;
   --color-hyrox: #ff7a1a;
-  --color-danger: #f04444;
+  --color-danger: #f25555;
 
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Barlow Condensed', ui-sans-serif, system-ui, sans-serif;
+
+  /* Einheitliche Rundungen: Bedienelemente xl, Karten 2xl, große Flächen 3xl */
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.75rem;
+
+  /* Tiefe: feine Lichtkante oben + weicher Schatten */
+  --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 12px 32px -20px rgb(0 0 0 / 0.8);
+  --shadow-raised: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 16px 40px -18px rgb(0 0 0 / 0.9);
+  --shadow-glow: 0 8px 28px -10px rgb(198 244 50 / 0.45);
+  --shadow-glow-hyrox: 0 8px 28px -10px rgb(255 122 26 / 0.45);
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-enter: enter 0.35s var(--ease-out-soft) both;
+  --animate-fade: fade 0.25s ease-out both;
+  --animate-pop: pop 0.4s var(--ease-out-soft) both;
+
+  @keyframes enter {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes pop {
+    0% {
+      opacity: 0;
+      transform: scale(0.94);
+    }
+    100% {
+      opacity: 1;
+      transform: none;
+    }
+  }
 }
 
 @layer base {
   html {
     color-scheme: dark;
     -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
   }
 
   body {
     @apply bg-canvas font-sans text-fg antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    /* Dezentes Licht oben – gibt der dunklen Fläche Tiefe */
+    background-image:
+      radial-gradient(60rem 28rem at 15% -10%, rgb(198 244 50 / 0.07), transparent 60%),
+      radial-gradient(48rem 24rem at 100% -5%, rgb(255 122 26 / 0.05), transparent 60%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+  }
+
+  /* Zahlen in Anzeigen gleich breit (Uhren, Gewichte, Tabellen) */
+  .font-display {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: rgb(198 244 50 / 0.3);
   }
 
   /* Tastaturfokus überall gut sichtbar (nicht bei Maus/Touch) */
@@ -41,6 +111,13 @@
   textarea:focus-visible,
   select:focus-visible {
     outline: none;
+  }
+}
+
+@layer components {
+  /* Kleine Abschnittsüberschrift („Eyebrow"), z. B. über Listen in Karten */
+  .eyebrow {
+    @apply text-xs font-semibold tracking-[0.12em] text-fg-muted uppercase;
   }
 }
 

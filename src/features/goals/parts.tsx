@@ -24,10 +24,15 @@ export function ProgressBar({
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={percent}
-      className="h-2 overflow-hidden rounded-full bg-surface-raised"
+      className="h-2 overflow-hidden rounded-full bg-surface-high"
     >
       <div
-        className={cn('h-full rounded-full', tone === 'done' ? 'bg-hyrox' : 'bg-accent')}
+        className={cn(
+          'h-full rounded-full transition-[width] duration-700 ease-out',
+          tone === 'done'
+            ? 'bg-linear-to-r from-hyrox/80 to-hyrox'
+            : 'bg-linear-to-r from-accent/70 to-accent',
+        )}
         style={{ width: `${percent}%` }}
       />
     </div>
@@ -91,7 +96,7 @@ export function SkillRow({
   return (
     <Link
       to={`/goals/${skill.slug}`}
-      className="flex min-h-14 items-center gap-3 py-2.5 hover:text-accent"
+      className="flex min-h-14 items-center gap-3 py-2.5 transition-colors hover:text-accent"
     >
       <div className="min-w-0 flex-1">
         <p className="font-medium">{skill.name}</p>

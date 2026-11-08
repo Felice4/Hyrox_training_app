@@ -44,7 +44,7 @@ export function BadgesCard() {
 
   return (
     <Card className="flex flex-col gap-4 p-4">
-      <h2 className="text-sm font-semibold tracking-wide text-fg-muted uppercase">Abzeichen</h2>
+      <h2 className="eyebrow">Abzeichen</h2>
       {empty && (
         <p className="text-sm text-fg-muted">
           Noch keine Abzeichen. Sie erscheinen hier, sobald du Skill-Stufen oder Meilensteine

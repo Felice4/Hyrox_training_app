@@ -15,7 +15,7 @@ export function Stepper({ label, value, onChange, min, max, step = 1, unit }: St
   const id = useId()
   const set = (next: number) => onChange(Math.min(max, Math.max(min, next)))
   const buttonClass =
-    'grid size-12 place-items-center rounded-xl border border-line bg-surface-raised text-2xl font-semibold transition-colors hover:bg-line disabled:opacity-40'
+    'grid size-12 place-items-center rounded-xl border border-line-strong bg-surface-raised text-2xl font-semibold shadow-card transition duration-200 hover:bg-surface-high active:scale-95 disabled:opacity-40'
 
   return (
     <div className="flex flex-col gap-2">

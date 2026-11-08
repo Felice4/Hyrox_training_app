@@ -88,9 +88,7 @@ export function RecordsView() {
         if (inGroup.length === 0) return null
         return (
           <Card key={group} className="p-4">
-            <h2 className="mb-1 text-sm font-semibold tracking-wide text-fg-muted uppercase">
-              {group}
-            </h2>
+            <h2 className="mb-1 eyebrow">{group}</h2>
             <ul className="divide-y divide-line">
               {inGroup.map((record) => (
                 <li

@@ -206,7 +206,7 @@ export function SavedScreen({ result, simulation, summary, catalog }: SavedScree
       )}
       <Link
         to="/"
-        className="inline-flex min-h-14 items-center justify-center rounded-xl bg-accent px-5 text-lg font-semibold text-on-accent"
+        className="inline-flex min-h-14 items-center justify-center rounded-xl bg-accent px-5 text-lg font-semibold text-on-accent shadow-glow transition duration-200 hover:bg-accent-strong active:scale-[0.97]"
       >
         Zur Startseite
       </Link>

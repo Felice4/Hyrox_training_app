@@ -70,7 +70,7 @@ export function CurrentSetCard({
     (exercise.measurement === 'weight_reps' || exercise.measurement === 'reps')
 
   return (
-    <Card className="flex flex-col gap-5">
+    <Card className="flex animate-enter flex-col gap-5 border-accent/20 shadow-raised">
       <div>
         <p className="text-sm text-fg-muted">
           {BLOCK_LABELS[exercise.block]} · {positionLabel(exercise, set)}
@@ -82,7 +82,7 @@ export function CurrentSetCard({
           <Link
             to={`/exercises/${exercise.exerciseSlug}`}
             state={{ backTo: '/training/active' }}
-            className="grid size-11 shrink-0 place-items-center rounded-xl text-fg-muted hover:bg-surface-raised hover:text-fg"
+            className="grid size-11 shrink-0 place-items-center rounded-xl text-fg-muted transition hover:bg-surface-raised hover:text-fg"
             aria-label="Anleitung anzeigen"
           >
             <InfoIcon />
@@ -249,7 +249,7 @@ function WorkTimerControl({
   const shown =
     timer?.mode === 'countdown' ? workTimerRemaining(session, now) : workTimerElapsed(session, now)
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl bg-surface-raised py-5">
+    <div className="flex flex-col items-center gap-3 rounded-2xl border border-line bg-surface-raised py-6 shadow-card">
       <p className="text-sm text-fg-muted">
         {timer?.mode === 'countdown' ? 'Noch' : 'Gemessene Zeit'}
       </p>

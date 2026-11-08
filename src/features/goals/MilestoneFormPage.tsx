@@ -61,7 +61,7 @@ export function MilestoneFormPage() {
     <>
       <Link
         to={back}
-        className="-ml-2 mb-2 inline-flex min-h-11 items-center gap-1 px-2 text-sm text-fg-muted hover:text-fg"
+        className="-ml-2 mb-3 inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-sm font-medium text-fg-muted transition hover:bg-surface-raised hover:text-fg"
       >
         <ChevronLeftIcon width={18} height={18} /> Zurück
       </Link>

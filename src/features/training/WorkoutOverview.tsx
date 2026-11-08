@@ -23,7 +23,7 @@ export function WorkoutOverview({ session, current, apply, onClose }: WorkoutOve
         return (
           <div key={exercise.id}>
             {showBlock && (
-              <h2 className="mt-2 mb-2 text-sm font-semibold tracking-wide text-fg-muted uppercase">
+              <h2 className="mt-2 mb-2 eyebrow">
                 {BLOCK_LABELS[exercise.block]}
                 {exercise.inCircuit && ' · Zirkel'}
               </h2>

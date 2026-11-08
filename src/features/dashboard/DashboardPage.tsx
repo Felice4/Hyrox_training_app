@@ -75,11 +75,19 @@ export function DashboardPage() {
         {hasActive && (
           <Link
             to="/training/active"
-            className="flex min-h-16 items-center justify-between rounded-2xl border border-accent/40 bg-accent/10 px-5 font-semibold"
+            className="flex min-h-16 animate-pop items-center justify-between rounded-2xl border border-accent/40 bg-accent/10 px-5 font-semibold shadow-glow transition hover:bg-accent/15"
           >
-            <span>
-              Training läuft
-              <span className="block text-sm font-normal text-fg-muted">Tippen zum Fortsetzen</span>
+            <span className="flex items-center gap-3">
+              <span aria-hidden="true" className="relative flex size-3">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-60 motion-reduce:hidden" />
+                <span className="relative inline-flex size-3 rounded-full bg-accent" />
+              </span>
+              <span>
+                Training läuft
+                <span className="block text-sm font-normal text-fg-muted">
+                  Tippen zum Fortsetzen
+                </span>
+              </span>
             </span>
             <ChevronRightIcon className="text-accent" />
           </Link>
@@ -87,16 +95,21 @@ export function DashboardPage() {
 
         <CheckinCard today={today} />
 
-        <Card className="flex flex-col gap-3">
+        <Card className="relative flex flex-col gap-4 overflow-hidden border-accent/20 shadow-raised">
+          {/* Dekoratives Licht – Hauptkarte des Tages */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-24 -right-20 size-64 rounded-full bg-accent/15 blur-3xl"
+          />
           {next ? (
             <NextPlanned planned={next} today={today} />
           ) : (
             <NextTraining details={details.data} sessions={sessions} now={now} />
           )}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="relative grid grid-cols-2 gap-3">
             <Link
               to="/training"
-              className="inline-flex min-h-14 items-center justify-center rounded-xl bg-accent px-3 text-center font-semibold text-on-accent"
+              className="inline-flex min-h-14 items-center justify-center rounded-xl bg-accent px-3 text-center font-semibold text-on-accent shadow-glow transition duration-200 hover:bg-accent-strong active:scale-[0.97]"
             >
               Workout generieren
             </Link>
@@ -170,7 +183,7 @@ function Section({
 }) {
   return (
     <Card>
-      <h2 className="mb-3 text-sm font-semibold tracking-wide text-fg-muted uppercase">{title}</h2>
+      <h2 className="mb-3 eyebrow">{title}</h2>
       {loading ? (
         <div className="flex justify-center py-4">
           <Spinner className="text-accent" />
@@ -198,13 +211,13 @@ function NextTraining({
   const isToday = next !== undefined && next.toDateString() === now.toDateString()
 
   return (
-    <div className="flex items-center gap-3">
-      <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-surface-raised text-accent">
-        <DumbbellIcon />
+    <div className="relative flex items-center gap-4">
+      <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-accent/10 text-accent ring-1 ring-accent/20">
+        <DumbbellIcon width={28} height={28} />
       </span>
       <div>
         <p className="text-sm text-fg-muted">Nächstes Training</p>
-        <p className="font-display text-2xl font-bold uppercase">
+        <p className="font-display text-3xl leading-tight font-bold uppercase">
           {next ? (isToday ? 'Heute' : weekdayName.format(next)) : 'Wann du willst'}
         </p>
         <p className="text-xs text-fg-muted">
@@ -220,15 +233,20 @@ function NextTraining({
 /** Nächste Einheit aus dem Wochenplan. */
 function NextPlanned({ planned, today }: { planned: PlannedWorkout; today: string }) {
   return (
-    <Link to={`/calendar/planned/${planned.id}`} className="flex items-center gap-3">
-      <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-surface-raised text-accent">
-        <DumbbellIcon />
+    <Link
+      to={`/calendar/planned/${planned.id}`}
+      className="relative flex items-center gap-4 transition hover:opacity-90"
+    >
+      <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-accent/10 text-accent ring-1 ring-accent/20">
+        <DumbbellIcon width={28} height={28} />
       </span>
       <div className="min-w-0 flex-1">
         <p className="text-sm text-fg-muted">
           Nächstes Training · {planned.date === today ? 'Heute' : formatShortDay(planned.date)}
         </p>
-        <p className="font-display text-2xl font-bold uppercase">{FOCUS_LABELS[planned.focus]}</p>
+        <p className="font-display text-3xl leading-tight font-bold uppercase">
+          {FOCUS_LABELS[planned.focus]}
+        </p>
         <p className="text-xs text-fg-muted">
           {planned.durationMin} min · {INTENSITY_LABELS[planned.intensity]} · laut Wochenplan
         </p>
@@ -276,9 +294,9 @@ function ThisWeek({
             </span>
             <span
               className={cn(
-                'grid size-9 place-items-center rounded-full border text-sm font-semibold',
+                'grid size-9 place-items-center rounded-full border text-sm font-semibold transition',
                 day.trained
-                  ? 'border-accent bg-accent text-on-accent'
+                  ? 'border-accent bg-accent text-on-accent shadow-glow'
                   : day.preferred && !day.isPast
                     ? 'border-accent/60 text-accent'
                     : 'border-line text-fg-muted/60',
@@ -348,7 +366,7 @@ function RecentWorkouts({ sessions }: { sessions: readonly HistorySession[] }) {
             <Link
               to={session.id ? `/history/${session.id}` : '/history'}
               state={{ from: '/' }}
-              className="flex items-center justify-between gap-3 py-2.5 hover:text-accent"
+              className="flex items-center justify-between gap-3 py-2.5 transition-colors hover:text-accent"
             >
               <div>
                 <p className="font-semibold">{FOCUS_LABELS[session.focus]}</p>

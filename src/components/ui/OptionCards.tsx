@@ -36,10 +36,10 @@ export function OptionCards<T extends string>({
             aria-checked={selected}
             onClick={() => onChange(option.value)}
             className={cn(
-              'flex min-h-16 flex-col items-start justify-center rounded-xl border px-4 py-3 text-left transition-colors duration-150',
+              'flex min-h-16 flex-col items-start justify-center rounded-xl border px-4 py-3 text-left transition duration-200 active:scale-[0.99]',
               selected
-                ? 'border-accent bg-accent/10'
-                : 'border-line bg-surface hover:bg-surface-raised',
+                ? 'border-accent bg-accent/10 shadow-glow'
+                : 'border-line-strong bg-surface-raised hover:border-fg-muted/40 hover:bg-surface-high',
             )}
           >
             <span className={cn('font-semibold', selected && 'text-accent')}>{option.label}</span>

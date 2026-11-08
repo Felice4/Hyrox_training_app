@@ -30,7 +30,7 @@ export function StatsPage() {
       <div
         role="tablist"
         aria-label="Bereich"
-        className="mb-4 grid auto-cols-fr grid-flow-col gap-1 rounded-xl border border-line bg-surface p-1"
+        className="mb-4 grid auto-cols-fr grid-flow-col gap-1 rounded-2xl border border-line bg-surface/80 p-1 shadow-card backdrop-blur"
       >
         {TABS.map((t) => (
           <button
@@ -42,8 +42,10 @@ export function StatsPage() {
               setParams(t.value === 'overview' ? {} : { tab: t.value }, { replace: true })
             }
             className={cn(
-              'min-h-11 rounded-lg text-sm font-semibold transition',
-              tab === t.value ? 'bg-surface-raised text-fg' : 'text-fg-muted hover:text-fg',
+              'min-h-11 rounded-xl text-sm font-semibold transition duration-200',
+              tab === t.value
+                ? 'bg-surface-high text-fg shadow-card ring-1 ring-line-strong'
+                : 'text-fg-muted hover:text-fg',
             )}
           >
             {t.label}

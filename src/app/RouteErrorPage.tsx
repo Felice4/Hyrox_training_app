@@ -17,7 +17,7 @@ export function RouteErrorPage() {
       </p>
       <Link
         to="/"
-        className="mt-2 inline-flex min-h-12 items-center rounded-xl bg-accent px-6 font-semibold text-on-accent"
+        className="mt-2 inline-flex min-h-12 items-center rounded-xl bg-accent px-6 font-semibold text-on-accent shadow-glow transition duration-200 hover:bg-accent-strong active:scale-[0.97]"
       >
         Zur Startseite
       </Link>

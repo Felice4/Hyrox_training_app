@@ -245,7 +245,7 @@ function FormatDetails({
               <li key={r.sessionId}>
                 <Link
                   to={`/history/${r.sessionId}`}
-                  className="flex min-h-11 items-center justify-between gap-3 py-2 hover:text-accent"
+                  className="flex min-h-11 items-center justify-between gap-3 py-2 transition-colors hover:text-accent"
                 >
                   <span>{longDate.format(new Date(r.startedAt))}</span>
                   <span className="flex items-baseline gap-3 tabular-nums">

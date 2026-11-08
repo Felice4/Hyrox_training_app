@@ -150,7 +150,7 @@ function ProfileForm({ details, showSaved, onSaved, onEdit }: ProfileFormProps) 
         <PreferencesSection {...sectionProps} />
       </ProfileCard>
 
-      <div className="sticky bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] z-10 -mx-4 border-t border-line bg-canvas/95 px-4 py-3 backdrop-blur-md">
+      <div className="sticky bottom-[calc(env(safe-area-inset-bottom)+5.25rem)] z-10 rounded-2xl border border-line-strong/70 bg-surface/85 px-4 py-3 shadow-raised backdrop-blur-xl md:bottom-4">
         <div aria-live="polite">
           {hasErrors && (
             <p role="alert" className="mb-2 text-sm text-danger">

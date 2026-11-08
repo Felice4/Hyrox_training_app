@@ -200,7 +200,9 @@ Siehe [`DATABASE.md` §4](DATABASE.md#4-synchronisierung-der-übungsbibliothek).
 
 ## 8. Design-System (Kurzfassung)
 
-- **Farben:** Hintergrund nahezu schwarz (`#0A0A0B`), Flächen anthrazit (`#141416` / `#1C1C1F`), Text hell (`#F4F4F5`) / gedämpft (`#A1A1AA`). **Akzent Lime** (`#C6F432`) für Hauptaktionen und Fortschritt; Orange (`#FF7A1A`) sparsam für HYROX-Kennzeichnung und Warnungen. Werte als Tokens in Tailwind definiert und an einer Stelle änderbar.
+Vollständig in `docs/DESIGN.md` (Redesign „Premium Dark“, 08.11.2026).
+
+- **Farben:** Hintergrund nahezu schwarz (`#07080A`) mit dezentem Licht oben, Flächen in drei Höhen (`#101216` / `#181B21` / `#21252D`), Text hell (`#F5F6F8`) / gedämpft (`#A4AAB5`). **Akzent Lime** (`#C6F432`) für Hauptaktionen und Fortschritt; Orange (`#FF7A1A`) sparsam für HYROX-Kennzeichnung und Warnungen. Werte als Tokens in Tailwind definiert und an einer Stelle änderbar.
 - **Typografie:** Inter für Text; eine kräftige, schmale Schrift (z. B. Barlow Condensed) für große Zahlen (Timer, Gewichte, Statistiken). Schriften werden lokal mit der App ausgeliefert, nicht von Google geladen.
 - **Touch:** Bedienelemente mindestens 48 × 48 px; Hauptaktionen als breite Buttons im unteren Daumenbereich; numerische Eingaben mit `inputmode="decimal"` und Plus/Minus-Steppern.
 - **Zustände:** Jede Datenansicht hat Lade-, Leer- und Fehlerzustand.

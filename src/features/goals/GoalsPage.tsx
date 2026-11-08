@@ -57,7 +57,7 @@ export function GoalsPage() {
       <div
         role="tablist"
         aria-label="Bereich"
-        className="mb-4 grid auto-cols-fr grid-flow-col gap-1 rounded-xl border border-line bg-surface p-1"
+        className="mb-4 grid auto-cols-fr grid-flow-col gap-1 rounded-2xl border border-line bg-surface/80 p-1 shadow-card backdrop-blur"
       >
         {TABS.map((t) => (
           <button
@@ -69,8 +69,10 @@ export function GoalsPage() {
               setParams(t.value === 'skills' ? {} : { tab: t.value }, { replace: true })
             }
             className={cn(
-              'min-h-11 rounded-lg text-sm font-semibold transition',
-              tab === t.value ? 'bg-surface-raised text-fg' : 'text-fg-muted hover:text-fg',
+              'min-h-11 rounded-xl text-sm font-semibold transition duration-200',
+              tab === t.value
+                ? 'bg-surface-high text-fg shadow-card ring-1 ring-line-strong'
+                : 'text-fg-muted hover:text-fg',
             )}
           >
             {t.label}
@@ -113,7 +115,7 @@ function Section({
   return (
     <Card>
       <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h2 className="text-sm font-semibold tracking-wide text-fg-muted uppercase">{title}</h2>
+        <h2 className="eyebrow">{title}</h2>
         {aside}
       </div>
       {children}
@@ -170,7 +172,7 @@ function SkillsTab() {
                 <Link
                   key={skill.slug}
                   to={`/goals/${skill.slug}`}
-                  className="inline-flex min-h-11 items-center rounded-full border border-line px-4 text-sm font-medium hover:border-accent hover:text-accent"
+                  className="inline-flex min-h-11 items-center rounded-full border border-line px-4 text-sm font-medium hover:border-accent transition-colors hover:text-accent"
                 >
                   {skill.name}
                 </Link>
@@ -294,7 +296,7 @@ function MilestonesTab() {
         </p>
         <Link
           to="/goals/milestones/new"
-          className="inline-flex min-h-11 items-center rounded-xl bg-accent px-4 text-sm font-semibold text-on-accent"
+          className="inline-flex min-h-11 items-center rounded-xl bg-accent px-4 text-sm font-semibold text-on-accent shadow-glow transition duration-200 hover:bg-accent-strong active:scale-[0.97]"
         >
           + Eigener Meilenstein
         </Link>
@@ -357,7 +359,7 @@ function MilestoneRow({
   return (
     <Link
       to={`/goals/milestones/${milestone.key}`}
-      className="flex items-center gap-3 py-3 hover:text-accent"
+      className="flex items-center gap-3 py-3 transition-colors hover:text-accent"
     >
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <div className="flex items-baseline justify-between gap-3">

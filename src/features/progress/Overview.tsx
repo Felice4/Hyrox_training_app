@@ -141,9 +141,13 @@ function OverviewContent({
     <>
       <dl className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {tiles.map((tile) => (
-          <Card key={tile.label} className="p-4">
-            <dt className="text-xs text-fg-muted">{tile.label}</dt>
-            <dd className="mt-1 font-display text-3xl font-bold">{tile.value}</dd>
+          <Card key={tile.label} className="relative overflow-hidden p-4">
+            <span
+              aria-hidden="true"
+              className="absolute top-0 left-4 h-0.5 w-8 rounded-full bg-accent"
+            />
+            <dt className="eyebrow mt-1">{tile.label}</dt>
+            <dd className="mt-1.5 font-display text-4xl leading-none font-bold">{tile.value}</dd>
             {tile.hint && <dd className="text-xs text-fg-muted">{tile.hint}</dd>}
           </Card>
         ))}

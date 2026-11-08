@@ -60,7 +60,7 @@ export function AppStatus() {
             </button>
             <button
               type="button"
-              className="min-h-10 rounded-lg bg-accent px-3 font-semibold text-on-accent disabled:opacity-50"
+              className="min-h-10 rounded-lg bg-accent px-3 font-semibold text-on-accent transition hover:bg-accent-strong active:scale-[0.97] disabled:opacity-50"
               disabled={updating}
               onClick={() => {
                 setUpdating(true)

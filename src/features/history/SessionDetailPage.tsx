@@ -264,7 +264,7 @@ function ExerciseRow({ exercise }: { exercise: SessionExerciseDetail }) {
           <Link
             to={`/exercises/${exercise.slug}`}
             state={{ backTo: location.pathname }}
-            className="font-semibold hover:text-accent"
+            className="font-semibold transition-colors hover:text-accent"
           >
             {exercise.name}
           </Link>

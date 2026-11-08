@@ -15,13 +15,13 @@ export function RestCard({ remaining, total, apply }: RestCardProps) {
   return (
     <section
       aria-label="Satzpause"
-      className="flex flex-col items-center gap-3 rounded-2xl border border-accent/40 bg-accent/10 px-4 py-5"
+      className="flex animate-pop flex-col items-center gap-3 rounded-2xl border border-accent/40 bg-accent/10 px-4 py-6 shadow-glow"
     >
-      <p className="text-sm font-semibold tracking-wide text-accent uppercase">Pause</p>
+      <p className="text-xs font-semibold tracking-[0.2em] text-accent uppercase">Pause</p>
       <p className="font-display text-7xl font-bold tabular-nums">
         {formatDurationClock(remaining)}
       </p>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-raised">
+      <div className="h-2 w-full overflow-hidden rounded-full bg-surface-high">
         <div
           className="h-full rounded-full bg-accent transition-[width] duration-1000 ease-linear"
           style={{ width: `${progress}%` }}

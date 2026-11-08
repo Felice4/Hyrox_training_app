@@ -66,7 +66,7 @@ export function ExerciseListPage() {
       <div className="flex flex-col gap-3">
         <Link
           to="/exercises/new"
-          className="inline-flex min-h-12 items-center justify-center rounded-xl bg-accent px-5 font-semibold text-on-accent"
+          className="inline-flex min-h-12 items-center justify-center rounded-xl bg-accent px-5 font-semibold text-on-accent shadow-glow transition duration-200 hover:bg-accent-strong active:scale-[0.97]"
         >
           + Eigene Übung anlegen
         </Link>

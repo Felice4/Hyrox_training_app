@@ -66,7 +66,7 @@ export function SwapPicker({
             key={suggestion.exercise.slug}
             type="button"
             onClick={() => onPick(suggestion)}
-            className="flex min-h-12 shrink-0 flex-col items-start justify-center rounded-xl bg-surface-raised px-4 py-2 text-left hover:bg-line"
+            className="flex min-h-12 shrink-0 flex-col items-start justify-center rounded-xl border border-line bg-surface-raised px-4 py-2 text-left transition duration-200 hover:border-line-strong hover:bg-surface-high active:scale-[0.99]"
           >
             <span className="font-medium">{suggestion.exercise.name}</span>
             <span className="text-xs text-fg-muted">{suggestion.reason}</span>

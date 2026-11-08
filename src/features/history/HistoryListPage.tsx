@@ -51,7 +51,7 @@ export function HistoryListPage() {
         <div className="flex flex-col gap-5">
           {months.map((month) => (
             <section key={month.title}>
-              <h2 className="mb-2 text-sm font-semibold tracking-wide text-fg-muted uppercase">
+              <h2 className="mb-2 eyebrow">
                 {month.title} · {month.items.length}
               </h2>
               <Card className="p-0">

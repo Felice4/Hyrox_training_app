@@ -400,9 +400,7 @@ function WorkoutView({
   if (!interactive) {
     return (
       <Card>
-        <h2 className="mb-2 text-sm font-semibold tracking-wide text-fg-muted uppercase">
-          Geplantes Workout
-        </h2>
+        <h2 className="mb-2 eyebrow">Geplantes Workout</h2>
         {workout.blocks.map((block) => (
           <p key={block.type} className="text-sm">
             {block.items.map((item) => item.exerciseName).join(' · ')}

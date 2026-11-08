@@ -193,7 +193,7 @@ export function ExerciseDetailPage() {
                   <Link
                     to={`/exercises/${alt.slug}`}
                     state={{ backTo }}
-                    className="flex min-h-12 items-center justify-between rounded-xl bg-surface-raised px-4 hover:bg-line"
+                    className="flex min-h-12 items-center justify-between rounded-xl border border-line bg-surface-raised px-4 transition duration-200 hover:border-line-strong hover:bg-surface-high"
                   >
                     <span>{alt.name}</span>
                     <span className="text-xs text-fg-muted">{CATEGORY_LABELS[alt.category]}</span>
@@ -211,7 +211,7 @@ export function ExerciseDetailPage() {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <Card>
-      <h2 className="mb-3 text-sm font-semibold tracking-wide text-fg-muted uppercase">{title}</h2>
+      <h2 className="mb-3 eyebrow">{title}</h2>
       <div className="flex flex-col gap-3">{children}</div>
     </Card>
   )

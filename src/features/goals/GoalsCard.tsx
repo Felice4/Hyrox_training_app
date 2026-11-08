@@ -16,9 +16,7 @@ export function GoalsCard() {
 
   return (
     <Card>
-      <h2 className="mb-3 text-sm font-semibold tracking-wide text-fg-muted uppercase">
-        Skill-Ziele
-      </h2>
+      <h2 className="mb-3 eyebrow">Skill-Ziele</h2>
       {skillGoals.isPending ? (
         <div className="flex justify-center py-4">
           <Spinner className="text-accent" />

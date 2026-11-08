@@ -36,11 +36,17 @@ export function MorePage() {
             <li key={to}>
               <Link
                 to={to}
-                className="flex min-h-16 items-center gap-3 px-5 first:rounded-t-2xl last:rounded-b-2xl hover:bg-surface-raised"
+                className="group flex min-h-16 items-center gap-4 px-5 transition first:rounded-t-2xl last:rounded-b-2xl hover:bg-surface-raised"
               >
-                <Icon className="text-accent" />
+                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-accent/10 text-accent ring-1 ring-accent/20">
+                  <Icon width={20} height={20} />
+                </span>
                 <span className="flex-1 font-medium">{label}</span>
-                <ChevronRightIcon width={20} height={20} className="text-fg-muted" />
+                <ChevronRightIcon
+                  width={20}
+                  height={20}
+                  className="text-fg-muted transition group-hover:translate-x-0.5 group-hover:text-fg"
+                />
               </Link>
             </li>
           ))}

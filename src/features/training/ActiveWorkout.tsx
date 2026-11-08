@@ -84,11 +84,11 @@ export function ActiveWorkout({ session, apply, catalog, profile, history }: Act
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-xl flex-col px-4 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
-      <header className="sticky top-0 z-10 -mx-4 border-b border-line bg-canvas/95 px-4 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-3 backdrop-blur-md">
+      <header className="sticky top-0 z-10 -mx-4 border-b border-line bg-canvas/80 px-4 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-3 backdrop-blur-xl">
         <div className="flex items-center gap-2">
           <Link
             to="/training"
-            className="grid size-11 place-items-center rounded-xl text-fg-muted hover:bg-surface-raised"
+            className="grid size-11 place-items-center rounded-xl text-fg-muted transition hover:bg-surface-raised hover:text-fg"
             aria-label="Zur Trainingsübersicht (Training läuft weiter)"
           >
             <ChevronLeftIcon />
@@ -109,7 +109,7 @@ export function ActiveWorkout({ session, apply, catalog, profile, history }: Act
         </div>
         <div className="mt-3 flex items-center gap-3">
           <div
-            className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-raised"
+            className="h-2 flex-1 overflow-hidden rounded-full bg-surface-high"
             role="progressbar"
             aria-valuemin={0}
             aria-valuemax={progress.totalSets}
@@ -127,7 +127,10 @@ export function ActiveWorkout({ session, apply, catalog, profile, history }: Act
             {progress.completedSets}/{progress.totalSets}
           </span>
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-2" role="tablist">
+        <div
+          className="mt-3 grid grid-cols-2 gap-1 rounded-xl border border-line bg-surface p-1"
+          role="tablist"
+        >
           {(['set', 'overview'] as const).map((v) => (
             <button
               key={v}
@@ -135,7 +138,7 @@ export function ActiveWorkout({ session, apply, catalog, profile, history }: Act
               role="tab"
               aria-selected={view === v}
               onClick={() => setView(v)}
-              className={`min-h-10 rounded-lg text-sm font-medium ${view === v ? 'bg-surface-raised text-fg' : 'text-fg-muted'}`}
+              className={`min-h-10 rounded-lg text-sm font-semibold transition ${view === v ? 'bg-surface-high text-fg shadow-card' : 'text-fg-muted hover:text-fg'}`}
             >
               {v === 'set' ? 'Aktueller Satz' : 'Übersicht'}
             </button>
@@ -203,7 +206,7 @@ export function ActiveWorkout({ session, apply, catalog, profile, history }: Act
 
             {upcomingExercise && upcomingSet && !swapping && (
               <Card className="p-4">
-                <p className="text-xs text-fg-muted uppercase">Als Nächstes</p>
+                <p className="eyebrow">Als Nächstes</p>
                 <p className="font-semibold">{upcomingExercise.exerciseName}</p>
                 <p className="text-sm text-fg-muted">{describeTarget(upcomingSet.target)}</p>
               </Card>

@@ -14,7 +14,7 @@ const PREFERENCE_HINTS = {
 } as const
 
 const LINK_BUTTON =
-  'inline-flex min-h-12 items-center rounded-xl border border-line bg-surface-raised px-5 font-semibold hover:bg-line'
+  'inline-flex min-h-12 items-center rounded-xl border border-line-strong bg-surface-raised px-5 font-semibold shadow-card transition duration-200 hover:bg-surface-high active:scale-[0.97]'
 
 /** Persönliche Einstellung und Verwaltung einer Übung (Detailseite). */
 export function ExerciseActions({ exercise }: { exercise: CatalogExercise }) {

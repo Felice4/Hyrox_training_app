@@ -23,7 +23,7 @@ export function SelectField<T extends string>({
   const id = useId()
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-      <label htmlFor={id} className="text-xs font-medium text-fg-muted">
+      <label htmlFor={id} className="text-sm font-medium text-fg-muted">
         {label}
       </label>
       <div className="relative">
@@ -34,7 +34,7 @@ export function SelectField<T extends string>({
             const selected = options.find((option) => option.value === event.target.value)
             if (selected) onChange(selected.value)
           }}
-          className="min-h-12 w-full appearance-none truncate rounded-xl border border-line bg-surface pr-10 pl-4 text-base text-fg outline-none focus:border-accent"
+          className="min-h-12 w-full appearance-none truncate rounded-xl border border-line-strong bg-surface-raised pr-10 pl-4 text-base text-fg transition duration-200 outline-none hover:border-fg-muted/40 focus:border-accent focus:ring-4 focus:ring-accent/15"
         >
           {options.map((option) => (
             <option key={option.value} value={option.value}>

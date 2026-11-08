@@ -97,7 +97,7 @@ function BackLink() {
   return (
     <Link
       to="/goals"
-      className="-ml-2 mb-2 inline-flex min-h-11 items-center gap-1 px-2 text-sm text-fg-muted hover:text-fg"
+      className="-ml-2 mb-3 inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-sm font-medium text-fg-muted transition hover:bg-surface-raised hover:text-fg"
     >
       <ChevronLeftIcon width={18} height={18} /> Ziele
     </Link>
@@ -142,7 +142,7 @@ function SkillContent({
 
       <Card>
         <div className="mb-3 flex items-baseline justify-between gap-3">
-          <h2 className="text-sm font-semibold tracking-wide text-fg-muted uppercase">Stufen</h2>
+          <h2 className="eyebrow">Stufen</h2>
           <span className="text-sm text-fg-muted">
             {state.completed} / {state.total} geschafft
           </span>
@@ -196,7 +196,7 @@ function SkillContent({
                       <li key={exerciseSlug}>
                         <Link
                           to={`/exercises/${exerciseSlug}`}
-                          className="inline-flex min-h-9 items-center rounded-full border border-line px-3 text-xs hover:border-accent hover:text-accent"
+                          className="inline-flex min-h-9 items-center rounded-full border border-line px-3 text-xs hover:border-accent transition-colors hover:text-accent"
                         >
                           {getLibraryExercise(exerciseSlug)?.name ?? exerciseSlug}
                         </Link>

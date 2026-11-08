@@ -9,14 +9,22 @@ export function SideNav() {
   return (
     <nav
       aria-label="Hauptnavigation"
-      className="fixed inset-y-0 left-0 z-20 hidden w-60 flex-col gap-6 border-r border-line bg-surface px-3 py-6 md:flex"
+      className="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col gap-8 border-r border-line bg-surface/70 px-4 py-7 backdrop-blur-xl md:flex"
     >
       <Link
         to="/"
-        className="px-3 font-display text-2xl font-bold tracking-wide uppercase"
+        className="flex items-center gap-3 rounded-xl px-2"
         aria-label="HYROX Coach – Start"
       >
-        HYROX <span className="text-accent">Coach</span>
+        <span
+          aria-hidden="true"
+          className="grid size-10 place-items-center rounded-xl bg-accent font-display text-2xl font-bold text-on-accent shadow-glow"
+        >
+          H
+        </span>
+        <span className="font-display text-2xl leading-none font-bold tracking-wide uppercase">
+          HYROX <span className="text-accent">Coach</span>
+        </span>
       </Link>
       <ul className="flex flex-col gap-1">
         {NAV_ITEMS.map((item) => {
@@ -28,12 +36,18 @@ export function SideNav() {
                 to={item.to}
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
-                  'flex min-h-12 items-center gap-3 rounded-xl px-3 font-medium transition-colors duration-150',
+                  'relative flex min-h-12 items-center gap-3 rounded-xl px-3 font-medium transition duration-200',
                   isActive
-                    ? 'bg-surface-raised text-accent'
+                    ? 'bg-accent/10 text-accent'
                     : 'text-fg-muted hover:bg-surface-raised hover:text-fg',
                 )}
               >
+                {isActive && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute top-2.5 bottom-2.5 left-0 w-1 rounded-full bg-accent"
+                  />
+                )}
                 <Icon width={22} height={22} />
                 {item.label}
               </Link>
@@ -41,6 +55,7 @@ export function SideNav() {
           )
         })}
       </ul>
+      <p className="mt-auto px-3 text-xs text-fg-muted">Train hard. Race smart.</p>
     </nav>
   )
 }

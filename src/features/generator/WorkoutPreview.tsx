@@ -56,28 +56,35 @@ export function WorkoutPreview({
 
   return (
     <div className="flex flex-col gap-4">
-      <Card>
-        <div className="flex flex-wrap items-center gap-2">
+      <Card className="relative overflow-hidden border-accent/20 shadow-raised">
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-24 -right-16 size-60 rounded-full bg-accent/15 blur-3xl"
+        />
+        <div className="relative flex flex-wrap items-center gap-2">
           <Badge tone="accent">{FOCUS_LABELS[workout.focus]}</Badge>
           <Badge>{INTENSITY_LABELS[workout.intensity]}</Badge>
+          <Badge>{workout.blocks.reduce((n, b) => n + b.items.length, 0)} Übungen</Badge>
         </div>
-        <p className="mt-3 font-display text-5xl font-bold">
+        <p className="relative mt-4 font-display text-6xl leading-none font-bold">
           {workout.estimatedDurationMin}
           <span className="ml-1 text-xl font-semibold text-fg-muted">min</span>
         </p>
-        <p className="text-sm text-fg-muted">geschätzt · Ziel {workout.targetDurationMin} min</p>
+        <p className="relative mt-1 text-sm text-fg-muted">
+          geschätzt · Ziel {workout.targetDurationMin} min
+        </p>
 
         <button
           type="button"
           onClick={() => setShowWhy((v) => !v)}
           aria-expanded={showWhy}
-          className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-accent"
+          className="relative mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl border border-accent/25 bg-accent/10 px-4 text-sm font-semibold text-accent transition hover:bg-accent/15"
         >
           <InfoIcon width={18} height={18} />
           {showWhy ? 'Begründung ausblenden' : 'Warum dieses Training?'}
         </button>
         {showWhy && (
-          <ul className="mt-2 flex list-disc flex-col gap-1.5 pl-5 text-sm text-fg-muted">
+          <ul className="relative mt-3 flex animate-fade list-disc flex-col gap-1.5 pl-5 text-sm text-fg-muted marker:text-accent">
             {workout.explanation.map((line) => (
               <li key={line}>{line}</li>
             ))}
@@ -110,8 +117,18 @@ export function WorkoutPreview({
         const inCircuit = block.rounds !== undefined
         return (
           <Card key={block.type} className="p-0">
-            <header className="flex items-baseline justify-between gap-3 px-5 pt-4 pb-2">
-              <h2 className="font-display text-2xl font-bold tracking-wide uppercase">
+            <header className="flex items-center justify-between gap-3 border-b border-line px-5 pt-4 pb-3">
+              <h2 className="flex items-center gap-2.5 font-display text-2xl font-bold tracking-wide uppercase">
+                <span
+                  aria-hidden="true"
+                  className={
+                    block.type === 'main'
+                      ? 'h-5 w-1 rounded-full bg-accent'
+                      : block.type === 'conditioning'
+                        ? 'h-5 w-1 rounded-full bg-hyrox'
+                        : 'h-5 w-1 rounded-full bg-line-strong'
+                  }
+                />
                 {BLOCK_LABELS[block.type]}
               </h2>
               {inCircuit && (
@@ -124,7 +141,10 @@ export function WorkoutPreview({
               {block.items.map((item, itemIndex) => {
                 const key = `${blockIndex}-${itemIndex}`
                 return (
-                  <li key={key} className="px-5 py-3">
+                  <li
+                    key={key}
+                    className="px-5 py-3.5 transition-colors hover:bg-surface-raised/40"
+                  >
                     <ItemRow
                       item={item}
                       inCircuit={inCircuit}
@@ -190,7 +210,7 @@ function ItemRow({
         <Link
           to={`/exercises/${item.exerciseSlug}`}
           state={{ backTo }}
-          className="font-semibold hover:text-accent"
+          className="font-semibold transition-colors hover:text-accent"
         >
           {item.exerciseName}
         </Link>
@@ -207,7 +227,7 @@ function ItemRow({
         onClick={onToggleSwap}
         aria-expanded={isSwapping}
         aria-label={`${item.exerciseName} tauschen`}
-        className="grid size-11 shrink-0 place-items-center rounded-xl text-fg-muted hover:bg-surface-raised hover:text-fg aria-expanded:bg-surface-raised aria-expanded:text-accent"
+        className="grid size-11 shrink-0 place-items-center rounded-xl border border-transparent text-fg-muted transition hover:border-line hover:bg-surface-raised hover:text-fg aria-expanded:border-accent/30 aria-expanded:bg-accent/10 aria-expanded:text-accent"
       >
         <SwapIcon width={20} height={20} />
       </button>

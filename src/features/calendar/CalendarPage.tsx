@@ -49,7 +49,7 @@ export function CalendarPage() {
       <div
         role="tablist"
         aria-label="Ansicht"
-        className="mb-4 grid grid-cols-2 gap-1 rounded-xl border border-line bg-surface p-1"
+        className="mb-4 grid grid-cols-2 gap-1 rounded-2xl border border-line bg-surface/80 p-1 shadow-card backdrop-blur"
       >
         {(
           [
@@ -68,8 +68,10 @@ export function CalendarPage() {
                 : showMonth(monthOf(weekStart === weekStartOf(today) ? today : weekStart))
             }
             className={cn(
-              'min-h-11 rounded-lg font-semibold transition',
-              view === value ? 'bg-surface-raised text-fg' : 'text-fg-muted hover:text-fg',
+              'min-h-11 rounded-xl font-semibold transition duration-200',
+              view === value
+                ? 'bg-surface-high text-fg shadow-card ring-1 ring-line-strong'
+                : 'text-fg-muted hover:text-fg',
             )}
           >
             {label}

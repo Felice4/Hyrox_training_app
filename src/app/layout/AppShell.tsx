@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router'
+import { Outlet, useLocation } from 'react-router'
 import { LibrarySyncNotice } from '@/features/exercises/LibrarySyncNotice'
 import { BottomNav } from './BottomNav'
 import { SideNav } from './SideNav'
@@ -9,8 +9,9 @@ import { SideNav } from './SideNav'
  * breiterer Inhalt.
  */
 export function AppShell() {
+  const { pathname } = useLocation()
   return (
-    <div className="min-h-dvh md:pl-60">
+    <div className="min-h-dvh md:pl-64">
       {/* Für Tastaturnutzer: Navigation überspringen (erscheint erst beim Fokussieren) */}
       <a
         href="#inhalt"
@@ -22,10 +23,13 @@ export function AppShell() {
       <main
         id="inhalt"
         tabIndex={-1}
-        className="mx-auto w-full max-w-xl px-4 pt-[calc(env(safe-area-inset-top)+1.5rem)] pb-[calc(env(safe-area-inset-bottom)+6rem)] outline-none md:max-w-3xl md:px-8 md:pt-10 md:pb-12"
+        className="mx-auto w-full max-w-xl px-4 pt-[calc(env(safe-area-inset-top)+1.5rem)] pb-[calc(env(safe-area-inset-bottom)+7.5rem)] outline-none md:max-w-3xl md:px-10 md:pt-12 md:pb-16 xl:max-w-4xl"
       >
         <LibrarySyncNotice />
-        <Outlet />
+        {/* Sanfter Übergang beim Seitenwechsel */}
+        <div key={pathname} className="animate-enter">
+          <Outlet />
+        </div>
       </main>
       <BottomNav />
     </div>

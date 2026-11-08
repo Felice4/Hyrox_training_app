@@ -109,7 +109,7 @@ export function SkillPracticeCard({
                   key={option.practice.skillSlug}
                   type="button"
                   onClick={() => add(option.practice)}
-                  className="flex min-h-12 flex-col items-start justify-center rounded-xl bg-surface-raised px-4 py-2 text-left hover:bg-line"
+                  className="flex min-h-12 flex-col items-start justify-center rounded-xl border border-line bg-surface-raised px-4 py-2 text-left transition duration-200 hover:border-line-strong hover:bg-surface-high active:scale-[0.99]"
                 >
                   <span className="font-medium">
                     + {option.name} · Stufe {option.practice.stage}

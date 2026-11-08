@@ -46,7 +46,7 @@ export function MilestoneDetailPage() {
     <>
       <Link
         to="/goals?tab=milestones"
-        className="-ml-2 mb-2 inline-flex min-h-11 items-center gap-1 px-2 text-sm text-fg-muted hover:text-fg"
+        className="-ml-2 mb-3 inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-sm font-medium text-fg-muted transition hover:bg-surface-raised hover:text-fg"
       >
         <ChevronLeftIcon width={18} height={18} /> Meilensteine
       </Link>
@@ -147,11 +147,11 @@ function MilestoneContent({
         <ManualEntry milestone={milestone} unit={progress.unit} />
 
         <Card className="flex flex-col gap-3">
-          <h2 className="text-sm font-semibold tracking-wide text-fg-muted uppercase">Anpassen</h2>
+          <h2 className="eyebrow">Anpassen</h2>
           <div className="flex flex-wrap gap-2">
             <Link
               to={`/goals/milestones/${milestone.key}/edit`}
-              className="inline-flex min-h-12 items-center rounded-xl border border-line bg-surface-raised px-5 font-semibold hover:bg-line"
+              className="inline-flex min-h-12 items-center rounded-xl border border-line-strong bg-surface-raised px-5 font-semibold shadow-card transition duration-200 hover:bg-surface-high active:scale-[0.97]"
             >
               {milestone.builtin ? 'Name und Ziel ändern' : 'Bearbeiten'}
             </Link>
