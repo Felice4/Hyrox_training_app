@@ -94,6 +94,10 @@ export interface HistorySession {
   durationMin: number
   /** Anstrengung des ganzen Trainings (1–10), falls erfasst */
   sessionRpe?: number | undefined
+  /** Herkunft, falls nicht aus dem Trainingsmodus: nachgetragen bzw. mit Trainer */
+  source?: 'manual' | 'trainer' | undefined
+  /** Titel einer Trainer-Session, z. B. „HYROX Class" */
+  title?: string | undefined
   exercises: readonly HistoryExercise[]
 }
 

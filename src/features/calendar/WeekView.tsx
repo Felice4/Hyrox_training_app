@@ -8,7 +8,7 @@ import { Spinner } from '@/components/ui/Spinner'
 import { GENERATOR_VERSION } from '@/domain/generator/config'
 import { newSeed } from '@/features/generator/inputs'
 import { cn } from '@/lib/cn'
-import { AddUnitLink, DayContent, type NameOf } from './DayItems'
+import { AddEntryMenu, DayContent, type NameOf } from './DayItems'
 import { formatShortDay, formatWeek } from './format'
 import { periodStats } from './month'
 import { PeriodNav } from './PeriodNav'
@@ -127,7 +127,7 @@ function WeekContent({
                   {formatShortDay(day.date)}
                   {day.isToday && <span className="ml-2 text-sm text-accent">Heute</span>}
                 </p>
-                {!day.isPast && <AddUnitLink date={day.date} />}
+                <AddEntryMenu day={day} />
               </div>
               <DayContent day={day} nameOf={nameOf} />
             </Card>

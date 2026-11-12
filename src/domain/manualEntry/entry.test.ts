@@ -9,6 +9,7 @@ import {
   newEntry,
   removeExercise,
   removeSet,
+  restoreEntryDraft,
   setBlock,
   toEntryPayload,
   updateSet,
@@ -176,5 +177,25 @@ describe('entryToSession / toEntryPayload', () => {
     let entry = filledEntry()
     entry = setBlock(entry, entry.exercises[1]!.id, 'warmup')
     expect(toEntryPayload(entry).records.some((r) => r.exercise_slug === 'wall-balls')).toBe(false)
+  })
+})
+
+describe('restoreEntryDraft', () => {
+  it('stellt einen gültigen Entwurf wieder her', () => {
+    const draft = { key: '2026-11-10:trainer', entry: filledEntry() }
+    expect(restoreEntryDraft(JSON.parse(JSON.stringify(draft)))).toEqual(draft)
+  })
+
+  it('verwirft Beschädigtes', () => {
+    expect(restoreEntryDraft(null)).toBeNull()
+    expect(restoreEntryDraft({ key: 'x' })).toBeNull()
+    expect(restoreEntryDraft({ key: 'x', entry: { ...filledEntry(), source: 'app' } })).toBeNull()
+    const entry = filledEntry()
+    expect(
+      restoreEntryDraft({
+        key: 'x',
+        entry: { ...entry, exercises: [{ ...entry.exercises[0], block: 'accessory' }] },
+      }),
+    ).toBeNull()
   })
 })

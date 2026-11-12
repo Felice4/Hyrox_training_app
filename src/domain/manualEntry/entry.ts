@@ -332,3 +332,48 @@ export function toEntryPayload(entry: ManualEntry): ManualPayload {
     },
   }
 }
+
+// -----------------------------------------------------------------------------
+// Lokaler Entwurf
+// -----------------------------------------------------------------------------
+
+/** Lokal gesicherter Entwurf; `key` beschreibt, wofür er gilt (Tag + Art bzw. Bearbeitung). */
+export interface EntryDraft {
+  key: string
+  entry: ManualEntry
+}
+
+const isOptionalString = (value: unknown) => value === undefined || typeof value === 'string'
+const isOptionalNumber = (value: unknown) => value === undefined || typeof value === 'number'
+
+/** Prüft einen gespeicherten Entwurf – Beschädigtes wird verworfen. */
+export function restoreEntryDraft(stored: unknown): EntryDraft | null {
+  if (typeof stored !== 'object' || stored === null) return null
+  const { key, entry } = stored as Partial<EntryDraft>
+  if (typeof key !== 'string' || typeof entry !== 'object' || entry === null) return null
+  const e = entry as Partial<ManualEntry>
+  const valid =
+    typeof e.id === 'string' &&
+    (ENTRY_SOURCES as readonly unknown[]).includes(e.source) &&
+    typeof e.date === 'string' &&
+    typeof e.time === 'string' &&
+    typeof e.durationMin === 'number' &&
+    typeof e.focus === 'string' &&
+    isOptionalString(e.title) &&
+    isOptionalString(e.coach) &&
+    isOptionalString(e.notes) &&
+    isOptionalString(e.plannedWorkoutId) &&
+    isOptionalNumber(e.sessionRpe) &&
+    Array.isArray(e.exercises) &&
+    e.exercises.every(
+      (x) =>
+        typeof x?.id === 'string' &&
+        typeof x.exerciseSlug === 'string' &&
+        typeof x.exerciseName === 'string' &&
+        typeof x.measurement === 'string' &&
+        (ENTRY_BLOCKS as readonly unknown[]).includes(x.block) &&
+        Array.isArray(x.sets) &&
+        x.sets.every((s) => typeof s?.id === 'string' && typeof s.values === 'object'),
+    )
+  return valid ? { key, entry: entry as ManualEntry } : null
+}

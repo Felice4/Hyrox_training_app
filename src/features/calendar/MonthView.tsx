@@ -7,7 +7,7 @@ import { FOCUSES } from '@/domain/generator/types'
 import { WEEKDAY_SHORT_LABELS, WEEKDAYS } from '@/domain/profile/vocabulary'
 import { FOCUS_LABELS } from '@/features/generator/labels'
 import { cn } from '@/lib/cn'
-import { AddUnitLink, DayContent, type NameOf } from './DayItems'
+import { AddEntryMenu, DayContent, type NameOf } from './DayItems'
 import { FOCUS_COLORS } from './focusColors'
 import { formatLongDay } from './format'
 import { monthOf, monthWeeks, periodStats, type PeriodStats } from './month'
@@ -162,7 +162,7 @@ export function MonthView({
               {formatLongDay(selected.date)}
               {selected.isToday && <span className="ml-2 text-sm text-accent">Heute</span>}
             </h2>
-            {!selected.isPast && <AddUnitLink date={selected.date} />}
+            <AddEntryMenu day={selected} />
           </div>
           <DayContent day={selected} nameOf={nameOf} />
           <Button

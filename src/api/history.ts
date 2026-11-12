@@ -17,6 +17,9 @@ export interface HistoryRow {
   focus: string
   active_duration_sec: number
   session_rpe: number | null
+  /** Ab Migration 0010 */
+  source?: string | undefined
+  title?: string | null | undefined
   session_exercises: {
     position: number
     block: string
@@ -45,6 +48,8 @@ export function toHistorySessions(rows: readonly HistoryRow[]): HistorySession[]
     focus: (FOCUSES as readonly string[]).includes(row.focus) ? (row.focus as Focus) : 'mixed',
     durationMin: Math.round((row.active_duration_sec / 60) * 10) / 10,
     sessionRpe: orUndefined(row.session_rpe),
+    source: row.source === 'manual' || row.source === 'trainer' ? row.source : undefined,
+    title: row.title ?? undefined,
     exercises: [...row.session_exercises]
       .sort((a, b) => a.position - b.position)
       .flatMap((exercise) =>
@@ -79,7 +84,7 @@ export function toHistorySessions(rows: readonly HistoryRow[]): HistorySession[]
 /** Wie weit der Verlauf zurückreicht (Generator nutzt 28 Tage, „Letztes Mal" gern länger). */
 export const HISTORY_DAYS = 90
 
-const HISTORY_SELECT = `id, started_at, focus, active_duration_sec, session_rpe,
+const HISTORY_SELECT = `id, started_at, focus, active_duration_sec, session_rpe, source, title,
    session_exercises (
      position, block,
      exercise:exercises!session_exercises_exercise_id_fkey ( slug ),

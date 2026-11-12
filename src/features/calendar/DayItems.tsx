@@ -13,7 +13,7 @@ import type { CalendarDay } from './week'
 /** Übungsname zum Slug (aus dem Katalog; Slug als Ersatz). */
 export type NameOf = (slug: string) => string
 
-/** Inhalt eines Tages: absolvierte Trainings, geplante Einheiten, „+ Einheit". */
+/** Inhalt eines Tages: absolvierte Trainings und geplante Einheiten. */
 export function DayContent({ day, nameOf }: { day: CalendarDay; nameOf: NameOf }) {
   const empty = day.sessions.length === 0 && day.planned.length === 0
   return (
@@ -29,15 +29,66 @@ export function DayContent({ day, nameOf }: { day: CalendarDay; nameOf: NameOf }
   )
 }
 
-export function AddUnitLink({ date }: { date: string }) {
+/**
+ * „+ Eintragen" an jedem Tag: Training mit Trainer oder eigenes Workout nachtragen
+ * (heute und Vergangenheit), Einheit planen (heute und Zukunft) – docs/MANUAL_ENTRY.md §1.
+ */
+export function AddEntryMenu({ day }: { day: CalendarDay }) {
+  const [open, setOpen] = useState(false)
+  const location = useLocation()
+  const state = { from: location.pathname + location.search }
+  const canLog = day.isPast || day.isToday
+  const canPlan = !day.isPast
+  const options = [
+    ...(canLog
+      ? [
+          { to: `/calendar/log/${day.date}?type=trainer`, label: 'Training mit Trainer' },
+          { to: `/calendar/log/${day.date}?type=manual`, label: 'Eigenes Workout nachtragen' },
+        ]
+      : []),
+    ...(canPlan ? [{ to: `/calendar/new/${day.date}`, label: 'Einheit planen (Generator)' }] : []),
+  ]
   return (
-    <Link
-      to={`/calendar/new/${date}`}
-      className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm text-fg-muted hover:text-fg"
-      aria-label={`Einheit am ${formatShortDay(date)} hinzufügen`}
-    >
-      + Einheit
-    </Link>
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm text-fg-muted hover:text-fg"
+        aria-label={`Am ${formatShortDay(day.date)} eintragen`}
+      >
+        + Eintragen
+      </button>
+      {open && (
+        <>
+          {/* Tippen außerhalb schließt das Menü */}
+          <button
+            type="button"
+            aria-label="Menü schließen"
+            className="fixed inset-0 z-30 cursor-default"
+            onClick={() => setOpen(false)}
+          />
+          <ul
+            role="menu"
+            className="absolute top-full right-0 z-40 mt-1 flex w-64 animate-pop flex-col gap-1 rounded-2xl border border-line-strong bg-surface-raised p-1.5 shadow-raised"
+          >
+            {options.map((option) => (
+              <li key={option.to} role="none">
+                <Link
+                  role="menuitem"
+                  to={option.to}
+                  state={state}
+                  className="flex min-h-11 items-center rounded-xl px-3 text-sm font-medium hover:bg-surface-high"
+                >
+                  {option.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </div>
   )
 }
 
@@ -64,8 +115,13 @@ function SessionItem({ session, nameOf }: { session: HistorySession; nameOf: Nam
           ✓
         </span>
         <div className="min-w-0 flex-1">
-          <p className="font-semibold">{FOCUS_LABELS[session.focus]}</p>
+          <p className="flex flex-wrap items-center gap-x-2 font-semibold">
+            {session.title ?? FOCUS_LABELS[session.focus]}
+            {session.source === 'trainer' && <Badge tone="hyrox">Trainer</Badge>}
+            {session.source === 'manual' && <Badge>Nachgetragen</Badge>}
+          </p>
           <p className="text-xs text-fg-muted">
+            {session.title && `${FOCUS_LABELS[session.focus]} · `}
             Absolviert {time} Uhr · {Math.round(session.durationMin)} min
             {session.sessionRpe !== undefined && ` · RPE ${session.sessionRpe}`}
           </p>

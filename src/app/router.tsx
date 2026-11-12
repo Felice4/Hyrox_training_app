@@ -72,6 +72,10 @@ export const router = createBrowserRouter([
                   'NewPlannedWorkoutPage',
                 ),
               },
+              {
+                path: 'calendar/log/:date',
+                lazy: page(() => import('@/features/manualEntry/LogEntryPage'), 'LogEntryPage'),
+              },
               // Diagramm-Bibliothek nur laden, wenn die Statistik geöffnet wird
               {
                 path: 'stats',
