@@ -94,8 +94,10 @@ function SessionRow({ session }: { session: SessionListItem }) {
     >
       <div className="min-w-0 flex-1">
         <p className="flex items-center gap-2 font-semibold">
-          {FOCUS_LABELS[session.focus]}
+          {session.title ?? FOCUS_LABELS[session.focus]}
           {session.status === 'partial' && <Badge>teilweise</Badge>}
+          {session.source === 'trainer' && <Badge tone="hyrox">Trainer</Badge>}
+          {session.source === 'manual' && <Badge>Nachgetragen</Badge>}
         </p>
         <p className="text-xs text-fg-muted">
           {dayLabel.format(start)},{' '}

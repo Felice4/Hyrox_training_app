@@ -147,6 +147,10 @@ export const router = createBrowserRouter([
                   'SessionDetailPage',
                 ),
               },
+              {
+                path: 'history/:id/edit',
+                lazy: page(() => import('@/features/manualEntry/EditEntryPage'), 'EditEntryPage'),
+              },
             ],
           },
         ],

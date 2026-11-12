@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useLocation, useParams } from 'react-router'
+import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import type { SessionDetail, SessionExerciseDetail, SessionSetDetail } from '@/api/sessionHistory'
 import { ChevronLeftIcon, DumbbellIcon } from '@/components/icons'
 import { Badge } from '@/components/ui/Badge'
@@ -11,6 +11,7 @@ import { TextArea } from '@/components/ui/TextArea'
 import { useExerciseCatalog } from '@/features/exercises/useExerciseCatalog'
 import { BLOCK_LABELS, FOCUS_LABELS, INTENSITY_LABELS } from '@/features/generator/labels'
 import { describeRecord, describeTarget, rpeLabel } from '@/features/training/format'
+import { useDeleteManualSession } from '@/features/manualEntry/useManualEntry'
 import { cn } from '@/lib/cn'
 import { useSessionDetail, useUpdateSessionNotes } from './useSessionHistory'
 
@@ -84,12 +85,12 @@ export function SessionDetailPage() {
   return (
     <>
       {backLink}
-      <SessionView session={detail.data} />
+      <SessionView session={detail.data} backTo={back.to} />
     </>
   )
 }
 
-function SessionView({ session }: { session: SessionDetail }) {
+function SessionView({ session, backTo }: { session: SessionDetail; backTo: string }) {
   const { catalog } = useExerciseCatalog()
   const nameOf = (slug: string) =>
     catalog.data?.exercises.find((e) => e.slug === slug)?.name ?? slug
@@ -109,15 +110,25 @@ function SessionView({ session }: { session: SessionDetail }) {
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone="accent">{INTENSITY_LABELS[session.intensity]}</Badge>
           {session.status === 'partial' && <Badge>teilweise absolviert</Badge>}
+          {session.source === 'trainer' && <Badge tone="hyrox">Trainer</Badge>}
+          {session.source === 'manual' && <Badge>Nachgetragen</Badge>}
         </div>
         <h1 className="mt-2 font-display text-4xl font-bold tracking-wide uppercase">
-          {FOCUS_LABELS[session.focus]}
+          {session.title ?? FOCUS_LABELS[session.focus]}
         </h1>
         <p className="text-fg-muted">
           {longDate.format(new Date(session.startedAt))} · {time(session.startedAt)}–
           {time(session.endedAt)} Uhr
         </p>
+        {(session.title || session.coach) && (
+          <p className="text-sm text-fg-muted">
+            {session.coach && `${session.coach} · `}
+            {FOCUS_LABELS[session.focus]}
+          </p>
+        )}
       </header>
+
+      {session.source !== 'app' && <LoggedActions session={session} backTo={backTo} />}
 
       <dl className="grid grid-cols-3 gap-2">
         <Card className="p-3">
@@ -312,5 +323,48 @@ function SetRow({ set }: { set: SessionSetDetail }) {
         )}
       </div>
     </li>
+  )
+}
+
+/** Nachgetragene Trainings und Trainer-Sessions: bearbeiten oder löschen (docs/MANUAL_ENTRY.md §4). */
+function LoggedActions({ session, backTo }: { session: SessionDetail; backTo: string }) {
+  const navigate = useNavigate()
+  const { catalog } = useExerciseCatalog()
+  const remove = useDeleteManualSession(
+    (slug) => catalog.data?.exercises.find((e) => e.slug === slug)?.measurement,
+  )
+  return (
+    <Card className="flex flex-col gap-3 p-4">
+      <div className="grid grid-cols-2 gap-2">
+        <Link
+          to={`/history/${session.id}/edit`}
+          className="inline-flex min-h-12 items-center justify-center rounded-xl border border-line-strong bg-surface-raised px-5 font-semibold shadow-card transition duration-200 hover:bg-surface-high"
+        >
+          Bearbeiten
+        </Link>
+        <Button
+          variant="ghost"
+          loading={remove.isPending}
+          disabled={catalog.isPending}
+          onClick={() => {
+            if (
+              !window.confirm(
+                'Dieses Training löschen? Bestleistungen daraus werden neu berechnet.',
+              )
+            ) {
+              return
+            }
+            remove.mutate(session.id, { onSuccess: () => void navigate(backTo) })
+          }}
+        >
+          Löschen
+        </Button>
+      </div>
+      {remove.isError && (
+        <p role="alert" className="text-sm text-danger">
+          Löschen fehlgeschlagen. Bitte versuche es erneut.
+        </p>
+      )}
+    </Card>
   )
 }

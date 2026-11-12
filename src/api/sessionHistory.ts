@@ -26,6 +26,10 @@ export interface SessionListItem {
   rpe: number | undefined
   notes: string | null
   exerciseCount: number
+  /** Herkunft: Trainingsmodus, nachgetragen oder Trainer-Session (Migration 0010) */
+  source: 'app' | 'manual' | 'trainer'
+  /** Titel einer Trainer-Session */
+  title: string | null
 }
 
 interface ListRow {
@@ -37,6 +41,8 @@ interface ListRow {
   active_duration_sec: number
   session_rpe: number | null
   notes: string | null
+  source?: string | undefined
+  title?: string | null | undefined
   session_exercises: { count: number }[]
 }
 
@@ -51,6 +57,8 @@ export function toListItem(row: ListRow): SessionListItem {
     rpe: orUndefined(row.session_rpe),
     notes: row.notes,
     exerciseCount: row.session_exercises[0]?.count ?? 0,
+    source: row.source === 'manual' || row.source === 'trainer' ? row.source : 'app',
+    title: row.title ?? null,
   }
 }
 
@@ -64,7 +72,7 @@ export async function fetchSessionList(
   let query = supabase
     .from('workout_sessions')
     .select(
-      'id, started_at, focus, intensity, status, active_duration_sec, session_rpe, notes, session_exercises(count)',
+      'id, started_at, focus, intensity, status, active_duration_sec, session_rpe, notes, source, title, session_exercises(count)',
     )
   if (before) query = query.lt('started_at', before)
   const { data, error } = await query
@@ -75,6 +83,8 @@ export async function fetchSessionList(
 }
 
 export interface SessionSetDetail {
+  /** Fehlt nur bei älteren Testdaten */
+  id?: string | undefined
   setNumber: number
   type: SetType
   target: SetValues
@@ -107,9 +117,14 @@ export interface SessionDetail extends SessionListItem {
   exercises: SessionExerciseDetail[]
   /** Bestleistungen, die (noch) aus diesem Training stammen */
   records: SessionRecord[]
+  /** Trainer/Studio einer Trainer-Session */
+  coach: string | null
+  /** Geplante Einheit, die mit diesem Training erledigt wurde */
+  plannedWorkoutId: string | null
 }
 
 interface SetRow {
+  id?: string | undefined
   set_number: number
   set_type: string
   target_reps: number | null
@@ -129,6 +144,8 @@ interface SetRow {
 interface DetailRow extends Omit<ListRow, 'session_exercises'> {
   ended_at: string
   training_load: number
+  coach?: string | null | undefined
+  planned_workout_id?: string | null | undefined
   session_exercises: {
     id: string
     position: number
@@ -151,6 +168,8 @@ export function toSessionDetail(row: DetailRow, records: SessionRecord[]): Sessi
     endedAt: row.ended_at,
     trainingLoad: row.training_load,
     records,
+    coach: row.coach ?? null,
+    plannedWorkoutId: row.planned_workout_id ?? null,
     exercises: exercises.map((e) => ({
       id: e.id,
       slug: e.exercise?.slug,
@@ -161,6 +180,7 @@ export function toSessionDetail(row: DetailRow, records: SessionRecord[]): Sessi
       sets: [...e.session_sets]
         .sort((a, b) => a.set_number - b.set_number)
         .map((s) => ({
+          id: s.id,
           setNumber: s.set_number,
           type: pick(SET_TYPES, s.set_type, 'working'),
           target: {
@@ -194,11 +214,12 @@ export async function fetchSessionDetail(
       .from('workout_sessions')
       .select(
         `id, started_at, ended_at, focus, intensity, status, active_duration_sec, session_rpe, notes, training_load,
+         source, title, coach, planned_workout_id,
          session_exercises (
            id, position, exercise_name, block, status,
            exercise:exercises!session_exercises_exercise_id_fkey ( slug ),
            replaced:exercises!session_exercises_replaced_exercise_id_fkey ( name ),
-           session_sets ( set_number, set_type, target_reps, target_weight_kg, target_distance_m, target_duration_sec, target_calories,
+           session_sets ( id, set_number, set_type, target_reps, target_weight_kg, target_distance_m, target_duration_sec, target_calories,
                           reps, weight_kg, distance_m, duration_sec, calories, rpe, completed )
          )`,
       )

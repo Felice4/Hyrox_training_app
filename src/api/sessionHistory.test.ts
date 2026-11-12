@@ -41,7 +41,16 @@ describe('toListItem', () => {
       rpe: 8,
       notes: 'Knie ok',
       exerciseCount: 4,
+      source: 'app',
+      title: null,
     })
+  })
+
+  it('übernimmt Herkunft und Titel (Migration 0010)', () => {
+    expect(
+      toListItem({ ...base, source: 'trainer', title: 'HYROX Class', session_exercises: [] }),
+    ).toMatchObject({ source: 'trainer', title: 'HYROX Class' })
+    expect(toListItem({ ...base, source: 'foo', session_exercises: [] }).source).toBe('app')
   })
 
   it('fängt unbekannte Werte ab', () => {
