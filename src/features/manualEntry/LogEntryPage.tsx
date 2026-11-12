@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation, useParams, useSearchParams } from 'react-router'
 import type { SaveSessionResult } from '@/api/sessions'
+import type { PlannedWorkout } from '@/api/weekPlans'
 import { CalendarIcon, ChevronLeftIcon } from '@/components/icons'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -14,6 +15,7 @@ import {
 } from '@/domain/manualEntry/entry'
 import { useAuth } from '@/features/auth/authContext'
 import { formatLongDay } from '@/features/calendar/format'
+import { usePlannedWorkout } from '@/features/calendar/usePlannedWorkouts'
 import { weekStartOf } from '@/features/calendar/week'
 import { useExerciseCatalog } from '@/features/exercises/useExerciseCatalog'
 import { toLocalIsoDate } from '@/lib/date'
@@ -39,17 +41,61 @@ function defaultTime(date: string, today: string, durationMin: number): string {
 /**
  * Training nachtragen (`/calendar/log/:date?type=trainer|manual`): Trainer-Session
  * oder eigenes Workout mit Übungen und Sätzen (docs/MANUAL_ENTRY.md §2).
+ * Mit `&planned=<id>` wird ein Trainer-Termin als absolviert eingetragen (vorausgefüllt).
  */
 export function LogEntryPage() {
-  const { date = '' } = useParams()
   const [params] = useSearchParams()
+  const plannedId = params.get('planned')
+  return plannedId ? <FromAppointment id={plannedId} /> : <LogEntryContent />
+}
+
+/** Lädt den Trainer-Termin und füllt das Formular damit vor. */
+function FromAppointment({ id }: { id: string }) {
+  const planned = usePlannedWorkout(id)
+  if (planned.isPending) {
+    return (
+      <div role="status" className="flex justify-center py-12">
+        <Spinner className="text-accent" />
+      </div>
+    )
+  }
+  if (planned.isError) {
+    return (
+      <EmptyState icon={CalendarIcon} title="Termin konnte nicht geladen werden">
+        <Button variant="secondary" className="mt-4" onClick={() => void planned.refetch()}>
+          Erneut versuchen
+        </Button>
+      </EmptyState>
+    )
+  }
+  if (!planned.data || planned.data.status === 'completed') {
+    return (
+      <EmptyState icon={CalendarIcon} title="Termin nicht offen">
+        Der Termin wurde entfernt oder ist bereits eingetragen.
+        <Link to="/calendar" className="mt-4 block font-medium text-accent">
+          Zum Kalender →
+        </Link>
+      </EmptyState>
+    )
+  }
+  return <LogEntryContent planned={planned.data} />
+}
+
+function LogEntryContent({ planned }: { planned?: PlannedWorkout }) {
+  const params = useParams()
+  const date = planned?.date ?? params.date ?? ''
+  const [search] = useSearchParams()
   const location = useLocation()
   const auth = useAuth()
   const userId = auth.status === 'signedIn' ? auth.session.user.id : ''
   const [today] = useState(() => toLocalIsoDate())
-  const source: EntrySource = params.get('type') === 'manual' ? 'manual' : 'trainer'
+  const source: EntrySource = planned
+    ? 'trainer'
+    : search.get('type') === 'manual'
+      ? 'manual'
+      : 'trainer'
   const valid = DATE_PATTERN.test(date) && date <= today
-  const key = `${date}:${source}`
+  const key = planned ? `planned:${planned.id}` : `${date}:${source}`
 
   const [entry, setEntry] = useState<ManualEntry>(() => {
     const draft = loadDraft(draftKey(userId), null, restoreEntryDraft)
@@ -58,7 +104,12 @@ export function LogEntryPage() {
       id: crypto.randomUUID(),
       source,
       date,
-      time: defaultTime(date, today, 60),
+      time: planned?.startTime ?? defaultTime(date, today, 60),
+      focus: planned?.focus,
+      durationMin: planned?.durationMin,
+      title: planned?.title ?? undefined,
+      coach: planned?.coach ?? undefined,
+      plannedWorkoutId: planned?.id,
     })
   })
   const [saved, setSaved] = useState<SaveSessionResult | null>(null)
@@ -141,7 +192,7 @@ export function LogEntryPage() {
             entry={entry}
             today={today}
             exercises={catalog.data.exercises}
-            canChangeSource
+            canChangeSource={!planned}
             saving={save.isPending}
             saveLabel="Training speichern"
             onChange={change}

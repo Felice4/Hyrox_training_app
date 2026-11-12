@@ -245,10 +245,12 @@ function NextPlanned({ planned, today }: { planned: PlannedWorkout; today: strin
           Nächstes Training · {planned.date === today ? 'Heute' : formatShortDay(planned.date)}
         </p>
         <p className="font-display text-3xl leading-tight font-bold uppercase">
-          {FOCUS_LABELS[planned.focus]}
+          {planned.title ?? FOCUS_LABELS[planned.focus]}
         </p>
         <p className="text-xs text-fg-muted">
-          {planned.durationMin} min · {INTENSITY_LABELS[planned.intensity]} · laut Wochenplan
+          {planned.source === 'trainer'
+            ? `Trainer-Termin${planned.startTime ? ` · ${planned.startTime} Uhr` : ''} · ${planned.durationMin} min`
+            : `${planned.durationMin} min · ${INTENSITY_LABELS[planned.intensity]} · laut Wochenplan`}
         </p>
       </div>
       <ChevronRightIcon className="shrink-0 text-fg-muted" />

@@ -28,14 +28,15 @@ export function doneInWeek(sessions: readonly HistorySession[], weekStart: strin
 
 /**
  * Einheiten, die eine Neuplanung überstehen (siehe replace_week_plan): ausgefallene,
- * vergangene und spontan hinzugefügte. Erledigte stecken bereits in den Trainings.
+ * vergangene, spontan hinzugefügte und Trainer-Termine. Erledigte stecken bereits in den Trainings.
  */
 export function keptForReplan(planned: readonly PlannedWorkout[], today: string): KeptPlanned[] {
   return planned
     .filter(
       (p) =>
         p.status === 'skipped' ||
-        (p.status === 'planned' && (p.date < today || p.source === 'manual')),
+        (p.status === 'planned' &&
+          (p.date < today || p.source === 'manual' || p.source === 'trainer')),
     )
     .map((p) => ({
       date: p.date,

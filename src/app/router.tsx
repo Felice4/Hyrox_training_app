@@ -73,6 +73,13 @@ export const router = createBrowserRouter([
                 ),
               },
               {
+                path: 'calendar/appointment/:date',
+                lazy: page(
+                  () => import('@/features/manualEntry/NewAppointmentPage'),
+                  'NewAppointmentPage',
+                ),
+              },
+              {
                 path: 'calendar/log/:date',
                 lazy: page(() => import('@/features/manualEntry/LogEntryPage'), 'LogEntryPage'),
               },

@@ -11,7 +11,7 @@ import type { Json, Tables } from '@/types/database'
 
 export type PlannedStatus = 'planned' | 'completed' | 'skipped'
 
-/** Eine geplante Einheit (aus dem Wochenplan oder spontan hinzugefügt). */
+/** Eine geplante Einheit (aus dem Wochenplan, spontan hinzugefügt oder Trainer-Termin). */
 export interface PlannedWorkout {
   id: string
   weekPlanId: string | null
@@ -25,7 +25,11 @@ export interface PlannedWorkout {
   durationMin: number
   /** `null`, wenn kein (gültiges) Workout gespeichert ist – dann neu erzeugen */
   workout: GeneratedWorkout | null
-  source: 'week_plan' | 'manual'
+  source: 'week_plan' | 'manual' | 'trainer'
+  /** Trainer-Termin: Titel (z. B. „HYROX Class"), Trainer/Studio, Uhrzeit „HH:MM" */
+  title: string | null
+  coach: string | null
+  startTime: string | null
   completedSessionId: string | null
 }
 
@@ -54,7 +58,11 @@ export function toPlannedWorkout(row: Tables<'planned_workouts'>): PlannedWorkou
       : 'moderate',
     durationMin: row.target_duration_min,
     workout: parsed?.success ? parsed.data : null,
-    source: row.source === 'manual' ? 'manual' : 'week_plan',
+    source: row.source === 'manual' || row.source === 'trainer' ? row.source : 'week_plan',
+    title: row.title,
+    coach: row.coach,
+    // Postgres liefert „18:00:00"
+    startTime: row.start_time ? row.start_time.slice(0, 5) : null,
     completedSessionId: row.completed_session_id,
   }
 }
@@ -146,6 +154,10 @@ export interface PlannedWorkoutChange {
   intensity?: Intensity
   durationMin?: number
   workout?: GeneratedWorkout
+  /** Nur Trainer-Termine */
+  title?: string
+  coach?: string | null
+  startTime?: string
 }
 
 export async function updatePlannedWorkout(
@@ -163,6 +175,9 @@ export async function updatePlannedWorkout(
       intensity: change.intensity,
       target_duration_min: change.durationMin,
       workout: change.workout as unknown as Json | undefined,
+      title: change.title,
+      coach: change.coach,
+      start_time: change.startTime,
     })
     .eq('id', id)
     // Erledigte Einheiten sind Teil der Historie und bleiben unverändert
@@ -198,4 +213,42 @@ export async function addPlannedWorkout(
 export async function deletePlannedWorkout(supabase: AppSupabaseClient, id: string): Promise<void> {
   const { error } = await supabase.from('planned_workouts').delete().eq('id', id)
   if (error) throw error
+}
+
+export interface TrainerAppointmentInput {
+  date: string
+  /** „HH:MM" */
+  startTime: string
+  title: string
+  coach: string | null
+  focus: Focus
+  intensity: Intensity
+  durationMin: number
+}
+
+/**
+ * Trainer-Termin im Voraus eintragen (docs/MANUAL_ENTRY.md §3). Ohne erzeugtes Workout;
+ * gehört zu keinem Wochenplan und bleibt daher bei einer Neuplanung bestehen.
+ */
+export async function addTrainerAppointment(
+  supabase: AppSupabaseClient,
+  input: TrainerAppointmentInput,
+): Promise<string> {
+  const { data, error } = await supabase
+    .from('planned_workouts')
+    .insert({
+      scheduled_date: input.date,
+      start_time: input.startTime,
+      title: input.title,
+      coach: input.coach,
+      focus: input.focus,
+      intensity: input.intensity,
+      target_duration_min: input.durationMin,
+      workout: null,
+      source: 'trainer',
+    })
+    .select('id')
+    .single()
+  if (error) throw error
+  return data.id
 }

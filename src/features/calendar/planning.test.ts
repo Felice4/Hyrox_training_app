@@ -42,6 +42,9 @@ const planned = (partial: Partial<PlannedWorkout>): PlannedWorkout => ({
   durationMin: 60,
   workout: null,
   source: 'week_plan',
+  title: null,
+  coach: null,
+  startTime: null,
   completedSessionId: null,
   ...partial,
 })

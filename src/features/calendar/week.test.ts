@@ -24,6 +24,9 @@ const planned = (partial: Partial<PlannedWorkout>): PlannedWorkout => ({
   durationMin: 60,
   workout: null,
   source: 'week_plan',
+  title: null,
+  coach: null,
+  startTime: null,
   completedSessionId: null,
   ...partial,
 })
@@ -59,7 +62,7 @@ describe('Neuplanung', () => {
     expect(done).toEqual([{ date: '2026-10-27', focus: 'strength' }])
   })
 
-  it('behält ausgefallene, vergangene und spontane Einheiten, nicht aber offene Planeinheiten', () => {
+  it('behält ausgefallene, vergangene, spontane Einheiten und Trainer-Termine, nicht aber offene Planeinheiten', () => {
     const kept = keptForReplan(
       [
         planned({ id: 'a', date: '2026-10-26', status: 'skipped' }),
@@ -67,6 +70,13 @@ describe('Neuplanung', () => {
         planned({ id: 'c', date: '2026-10-29' }),
         planned({ id: 'd', date: '2026-10-30', source: 'manual', focus: 'endurance' }),
         planned({ id: 'e', date: '2026-10-28', status: 'completed' }),
+        planned({
+          id: 'f',
+          date: '2026-11-01',
+          source: 'trainer',
+          focus: 'hyrox',
+          weekPlanId: null,
+        }),
       ],
       '2026-10-28',
     )
@@ -74,6 +84,7 @@ describe('Neuplanung', () => {
       { date: '2026-10-26', focus: 'strength', status: 'skipped' },
       { date: '2026-10-27', focus: 'strength', status: 'planned' },
       { date: '2026-10-30', focus: 'endurance', status: 'planned' },
+      { date: '2026-11-01', focus: 'hyrox', status: 'planned' },
     ])
   })
 })

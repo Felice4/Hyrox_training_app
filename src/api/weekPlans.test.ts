@@ -38,8 +38,23 @@ describe('toPlannedWorkout', () => {
       durationMin: 60,
       workout: null,
       source: 'week_plan',
+      title: null,
+      coach: null,
+      startTime: null,
       completedSessionId: null,
     })
+  })
+
+  it('übernimmt Trainer-Termine mit Uhrzeit ohne Sekunden', () => {
+    expect(
+      toPlannedWorkout({
+        ...row,
+        source: 'trainer',
+        title: 'HYROX Class',
+        coach: 'Max',
+        start_time: '18:30:00',
+      }),
+    ).toMatchObject({ source: 'trainer', title: 'HYROX Class', coach: 'Max', startTime: '18:30' })
   })
 
   it('prüft das gespeicherte Workout und verwirft ungültige', () => {

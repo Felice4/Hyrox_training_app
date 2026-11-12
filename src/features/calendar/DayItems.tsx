@@ -31,7 +31,8 @@ export function DayContent({ day, nameOf }: { day: CalendarDay; nameOf: NameOf }
 
 /**
  * „+ Eintragen" an jedem Tag: Training mit Trainer oder eigenes Workout nachtragen
- * (heute und Vergangenheit), Einheit planen (heute und Zukunft) – docs/MANUAL_ENTRY.md §1.
+ * (heute und Vergangenheit), Trainer-Termin oder Einheit planen (heute und Zukunft) –
+ * docs/MANUAL_ENTRY.md §1.
  */
 export function AddEntryMenu({ day }: { day: CalendarDay }) {
   const [open, setOpen] = useState(false)
@@ -46,7 +47,12 @@ export function AddEntryMenu({ day }: { day: CalendarDay }) {
           { to: `/calendar/log/${day.date}?type=manual`, label: 'Eigenes Workout nachtragen' },
         ]
       : []),
-    ...(canPlan ? [{ to: `/calendar/new/${day.date}`, label: 'Einheit planen (Generator)' }] : []),
+    ...(canPlan
+      ? [
+          { to: `/calendar/appointment/${day.date}`, label: 'Trainer-Termin planen' },
+          { to: `/calendar/new/${day.date}`, label: 'Einheit planen (Generator)' },
+        ]
+      : []),
   ]
   return (
     <div className="relative">
@@ -180,9 +186,10 @@ export function PlannedItem({ planned, isPast }: { planned: PlannedWorkout; isPa
     >
       <div className="min-w-0 flex-1">
         <p className={cn('font-semibold', skipped && 'line-through')}>
-          {FOCUS_LABELS[planned.focus]}
+          {planned.title ?? FOCUS_LABELS[planned.focus]}
         </p>
         <p className="text-xs text-fg-muted">
+          {planned.startTime && `${planned.startTime} Uhr · `}
           {planned.durationMin} min · {INTENSITY_LABELS[planned.intensity]}
           {planned.originalDate && ` · verschoben von ${formatShortDay(planned.originalDate)}`}
         </p>
@@ -190,7 +197,9 @@ export function PlannedItem({ planned, isPast }: { planned: PlannedWorkout; isPa
       {skipped ? (
         <Badge>Ausgefallen</Badge>
       ) : missed ? (
-        <Badge>Nicht absolviert</Badge>
+        <Badge>{planned.source === 'trainer' ? 'Noch eintragen' : 'Nicht absolviert'}</Badge>
+      ) : planned.source === 'trainer' ? (
+        <Badge tone="hyrox">Trainer-Termin</Badge>
       ) : planned.source === 'manual' ? (
         <Badge tone="hyrox">Spontan</Badge>
       ) : (

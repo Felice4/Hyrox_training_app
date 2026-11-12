@@ -22,6 +22,9 @@ const planned = (date: string, status: PlannedWorkout['status'] = 'planned'): Pl
   durationMin: 60,
   workout: null,
   source: 'week_plan',
+  title: null,
+  coach: null,
+  startTime: null,
   completedSessionId: null,
 })
 

@@ -14,7 +14,7 @@
 |---|---|
 | **Aktuelle Phase** | Phase 6 – Erweiterungen (6.2 Trainer-Sessions und nachgetragene Trainings) |
 | **Letzter verifizierter Meilenstein** | 6.1 HYROX-Simulation und Redesign „Premium Dark“ (vom Nutzer freigegeben) |
-| **Nächster Schritt** | 6.2c Trainer-Termine planen |
+| **Nächster Schritt** | 6.2d Nachgetragene Trainings bearbeiten und löschen |
 | **Blocker** | keine |
 | **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: Redesign „Premium Dark“. |
 
@@ -245,6 +245,7 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
    - **6.2 Trainer-Sessions und nachgetragene Trainings** (Wunsch des Nutzers vom 12.11.2026, Konzept `docs/MANUAL_ENTRY.md`, freigegeben): im Kalender an jedem Tag „+ Eintragen“ – Training mit Trainer oder eigenes Workout (immer mit Übungen und Sätzen), Trainer-Termine im Voraus mit Rücksicht in der Wochenplanung, nachgetragene Trainings bearbeiten/löschen mit Neuberechnung der Bestleistungen.
      - **6.2a** ✅ Migration 0010 (`workout_sessions.source/title/coach`, Trainer-Termine in `planned_workouts`, `release_session_records`, `delete_logged_session`, `offer_records`, Delete-Policy für Bestleistungen aus nachgetragenen Trainings; am 12.11.2026 in zurückgerollter Transaktion getestet und eingespielt, Typen neu erzeugt). Logik `src/domain/manualEntry/entry.ts` (Formular-Bearbeitung, Prüfung, Intensität aus RPE, Umwandlung in die Speicher-Nutzlast) und `src/domain/records/recompute.ts` (Bestleistungen über alle Trainings), API `src/api/manualSessions.ts`.
      - **6.2b** ✅ Kalender (Woche und Monat): „+ Eintragen“ an jedem Tag mit Menü – „Training mit Trainer“ und „Eigenes Workout nachtragen“ (heute/Vergangenheit), „Einheit planen (Generator)“ (heute/Zukunft, wie bisher „+ Einheit“). Formular `/calendar/log/:date?type=trainer|manual` (`src/features/manualEntry/`): Art, Titel und Trainer/Studio, Datum, Beginn, Dauer, Schwerpunkt; Übungen aus der Bibliothek mit Suche, Sätze mit den passenden Feldern (kg, Wdh., m, Zeit, kcal), „+ Satz“ übernimmt den letzten Satz, Block, verschieben, entfernen; RPE und Notiz; lokaler Entwurf bis zum Speichern. Danach Bestätigung mit neuen Bestleistungen und „Stufe geschafft!“. Im Kalender: Titel der Trainer-Session, Badges „Trainer“ / „Nachgetragen“.
+     - **6.2c** ✅ Trainer-Termine: „+ Eintragen“ → „Trainer-Termin planen“ (heute/Zukunft, `/calendar/appointment/:date`) mit Titel, Trainer/Studio, Uhrzeit, Dauer, Schwerpunkt, Intensität (Vorauswahl HYROX · 60 min · hart). Im Kalender mit Uhrzeit und Badge „Trainer-Termin“ (vergangen: „Noch eintragen“), auf dem Dashboard als „Nächstes Training“. Detailseite: verschieben, „Fällt aus“, bearbeiten, entfernen, **„Als absolviert eintragen“** (Formular vorausgefüllt, Termin wird erledigt, Link zum eingetragenen Training). „Woche neu planen“ behält Trainer-Termine; der Tag gilt als belegt und sein Schwerpunkt fließt in die Verteilung ein (`keptForReplan`). `PlanActions` in eigene Datei verschoben (unverändert).
 1. Mögliche Erweiterungen (optional, Reihenfolge nach Nutzen):
    1. Tempo-Vorgaben für Laufen/Rudern/SkiErg aus dem Verlauf (Pace-Progression im Generator)
    2. ~~HYROX-Simulation~~ → Schritt 6.1

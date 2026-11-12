@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   addPlannedWorkout,
+  addTrainerAppointment,
   deletePlannedWorkout,
   fetchPlannedWorkout,
   fetchPlannedWorkouts,
@@ -9,6 +10,7 @@ import {
   updatePlannedWorkout,
   type PlannedWorkoutChange,
   type ReplaceWeekPlanPayload,
+  type TrainerAppointmentInput,
 } from '@/api/weekPlans'
 import { useSupabase } from '@/app/supabaseContext'
 import type { GeneratedWorkout } from '@/domain/generator'
@@ -93,6 +95,15 @@ export function useAddPlannedWorkout() {
   return useMutation({
     mutationFn: ({ date, workout }: { date: string; workout: GeneratedWorkout }) =>
       addPlannedWorkout(supabase, date, workout),
+    onSuccess: invalidate,
+  })
+}
+
+export function useAddTrainerAppointment() {
+  const supabase = useSupabase()
+  const invalidate = useInvalidatePlanned()
+  return useMutation({
+    mutationFn: (input: TrainerAppointmentInput) => addTrainerAppointment(supabase, input),
     onSuccess: invalidate,
   })
 }
