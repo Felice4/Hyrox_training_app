@@ -12,11 +12,11 @@
 
 | | |
 |---|---|
-| **Aktuelle Phase** | Phase 6 – Erweiterungen (6.1 HYROX-Simulation) |
-| **Letzter verifizierter Meilenstein** | 5.4 Fortschritt & Abzeichen – Phase 5 fertig (vom Nutzer freigegeben) |
-| **Nächster Schritt** | Test von 6.1 HYROX-Simulation durch den Nutzer |
+| **Aktuelle Phase** | Phase 6 – Erweiterungen (nach Wahl des Nutzers) |
+| **Letzter verifizierter Meilenstein** | 6.1 HYROX-Simulation und Redesign „Premium Dark“ (vom Nutzer freigegeben) |
+| **Nächster Schritt** | Nächste Erweiterung nach Wahl des Nutzers (siehe §9 „Mögliche Erweiterungen“) |
 | **Blocker** | keine |
-| **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: 5.4 Fortschritt & Abzeichen. |
+| **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: Redesign „Premium Dark“. |
 
 ---
 
@@ -100,7 +100,8 @@ Jeder Schritt endet mit: Typprüfung, Tests und Build grün → Testanleitung �
 | Phase 2 | Funktionsfähige Basisversion | ✅ abgeschlossen |
 | Phase 3 | Erweiterung | ✅ abgeschlossen |
 | Phase 4 | Fertigstellung | ✅ abgeschlossen |
-| Phase 5 | Skill-Ziele und Meilensteine | 🔄 in Arbeit |
+| Phase 5 | Skill-Ziele und Meilensteine | ✅ abgeschlossen |
+| Phase 6 | Erweiterungen nach Wahl | 🔄 in Arbeit |
 
 ### Phase 2 – Funktionsfähige Basisversion
 
@@ -152,7 +153,7 @@ Gezielt auf Muscle-Up, Handstand, Spagat & Co. hinarbeiten – das HYROX-, Kraft
 
 | Schritt | Inhalt |
 |---|---|
-| **6.1 HYROX-Simulation** 🔄 | Konzept `docs/SIMULATION.md`: Formate (Komplett, Hälfte 1/2, Kurz), Division beim Start, Rennuhr mit Zwischenzeit je Lauf (inkl. Roxzone) und Station, Vergleich mit der letzten Simulation, größte Zeitverluste, Statistik-Reiter „HYROX"; Migration 0009 `hyrox_simulations` |
+| **6.1 HYROX-Simulation** ✅ | Konzept `docs/SIMULATION.md`: Formate (Komplett, Hälfte 1/2, Kurz), Division beim Start, Rennuhr mit Zwischenzeit je Lauf (inkl. Roxzone) und Station, Vergleich mit der letzten Simulation, größte Zeitverluste, Statistik-Reiter „HYROX"; Migration 0009 `hyrox_simulations` |
 
 ---
 
@@ -238,8 +239,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
    - **5.3** ✅ umgesetzt: Skill-Block im Generator (`src/domain/generator/skillBlock.ts`, Details `docs/GENERATOR.md` §5c): Budget normal 15 % / klein 8 % (max. 15 min), nur die tatsächliche Skill-Zeit geht vom Haupttraining ab; höchstens ein Kraft-/Balance-/Sprung-Skill am Ende des Warm-ups und ein Beweglichkeits-Skill im Cool-down; Abwechslung nach „zuletzt geübt“; Ausschlüsse bei Regeneration, niedriger Tagesform, stark ermüdeten Muskeln, Sprünge nie vor Bein-/HYROX-Tagen; keine doppelten Übungen. Wochenplan verteilt die aktiven Ziele. Generator-Version `rules-1.1.0`. Vorschau (Training und Kalender): Karte **„Skill üben“** zwischen Begründung und Warm-up – aktive Ziele oder jeden anderen Skill mit der aktuellen Stufe einbauen bzw. entfernen. Ziele-Seite: „Skill-Block im Training: Aus · Klein · Normal“ (`profiles.skill_block`). **Austausch:** zuerst 5 Vorschläge, dann „Alle ähnlichen Übungen durchsuchen“ mit Suche (auch eigene Übungen; neue Stufen „gleiche Kategorie“ und „ähnliche Muskeln“; Skill-Übungen nur gegen Skill-Übungen) – in Vorschau, Kalender und laufendem Training (`SwapPicker`). 403 Tests. Commit `0c056e0`, vom Nutzer getestet und gepusht.
    - **5.4** ✅ umgesetzt: Automatische Stufenprüfung `src/domain/skills/detect.ts` (getestet): bester einzelner Satz je Kriterium (Wiederholungen, Haltezeit, Strecke) seit Beginn der Stufe (Aktivierung bzw. letzte geschaffte Stufe), in allen Blöcken inkl. Skill-Block, ohne Aufwärm- und offene Sätze; mehrere Kriterien dürfen aus verschiedenen Trainings stammen; „von Hand“-Stufen nie automatisch. Nach dem Speichern eines Trainings: Karte **„Stufe geschafft!“** mit Bestwerten, „Stufe bestätigen“ (Quelle `session`, Training im Stufenverlauf vermerkt) oder „Noch nicht“. Skill-Detailseite: Bestwert je Kriterium seit Stufenbeginn und dieselbe Bestätigung, falls erfüllt. **Abzeichen** in Statistik → Rekorde: erreichte Skills, geschaffte Meilensteine, geschaffte Skill-Stufen mit Datum (ohne Einstufung). 409 Tests. Commit `5c3a473`, vom Nutzer getestet und gepusht. **Phase 5 abgeschlossen.**
 1. Phase 6 – Erweiterungen:
-   - **6.1** 🔄 umgesetzt (Konzept `docs/SIMULATION.md`): Logik `src/domain/simulation/` (Formate und Wettkampfgewichte je Division, Abschnitte, Rennuhr mit Zwischenzeiten über Zeitstempel, Rückgängig, vorzeitiges Ende, Vergleich mit der letzten Simulation, größte Zeitverluste, beste Zeit je Abschnitt, Lauf vs. Stationen; 9 Tests). Seite `/training/simulation` (Einstieg auf der Training-Seite), Rennansicht im Trainingsmodus, Ergebnis nach dem Speichern, Statistik-Reiter „HYROX". Gespeichert als normales Training plus `hyrox_simulations` (Migration 0009; am 06.11.2026 in zurückgerollter Transaktion getestet – eigene Simulation erlaubt, fremdes Training, Zwischenzeit 0 und unbekanntes Format abgelehnt, `anon` ohne Zugriff – und eingespielt, Typen neu erzeugt). Export enthält die Simulationen. 418 Tests.
-   - **Redesign** 🔄 umgesetzt (Wunsch des Nutzers, `docs/DESIGN.md`): neue Design-Tokens (Flächen in drei Höhen, feinere Linien, Rundungen, Schatten, Leuchten, Animationen), dezentes Hintergrundlicht; Buttons, Karten, Badges, Chips, Felder, Auswahlkarten, Stepper, Leerzustände, Seitentitel mit Akzentstrich; schwebende Bottom-Navigation und neue Seitenleiste mit Logo; sanfter Seitenübergang; Hero-Karten auf Dashboard und in der Workout-Vorschau; Blöcke mit Farbmarkierung; Trainingsmodus, Pause, Login, „Mehr“, Statistik-Kacheln, Fortschrittsbalken und Reiter einheitlich. Nur Klassen und Markup – Logik, Daten und Abläufe unverändert (418 Tests grün).
+   - **6.1** ✅ umgesetzt (Konzept `docs/SIMULATION.md`): Logik `src/domain/simulation/` (Formate und Wettkampfgewichte je Division, Abschnitte, Rennuhr mit Zwischenzeiten über Zeitstempel, Rückgängig, vorzeitiges Ende, Vergleich mit der letzten Simulation, größte Zeitverluste, beste Zeit je Abschnitt, Lauf vs. Stationen; 9 Tests). Seite `/training/simulation` (Einstieg auf der Training-Seite), Rennansicht im Trainingsmodus, Ergebnis nach dem Speichern, Statistik-Reiter „HYROX". Gespeichert als normales Training plus `hyrox_simulations` (Migration 0009; am 06.11.2026 in zurückgerollter Transaktion getestet – eigene Simulation erlaubt, fremdes Training, Zwischenzeit 0 und unbekanntes Format abgelehnt, `anon` ohne Zugriff – und eingespielt, Typen neu erzeugt). Export enthält die Simulationen. 418 Tests. Commits `f047107`, `3a19af2`, vom Nutzer getestet und gepusht.
+   - **Redesign** ✅ umgesetzt (Wunsch des Nutzers, `docs/DESIGN.md`): neue Design-Tokens (Flächen in drei Höhen, feinere Linien, Rundungen, Schatten, Leuchten, Animationen), dezentes Hintergrundlicht; Buttons, Karten, Badges, Chips, Felder, Auswahlkarten, Stepper, Leerzustände, Seitentitel mit Akzentstrich; schwebende Bottom-Navigation und neue Seitenleiste mit Logo; sanfter Seitenübergang; Hero-Karten auf Dashboard und in der Workout-Vorschau; Blöcke mit Farbmarkierung; Trainingsmodus, Pause, Login, „Mehr“, Statistik-Kacheln, Fortschrittsbalken und Reiter einheitlich. Nur Klassen und Markup – Logik, Daten und Abläufe unverändert (418 Tests grün). Commit `eeeeee3`, vom Nutzer getestet und gepusht.
 1. Mögliche Erweiterungen (optional, Reihenfolge nach Nutzen):
    1. Tempo-Vorgaben für Laufen/Rudern/SkiErg aus dem Verlauf (Pace-Progression im Generator)
    2. ~~HYROX-Simulation~~ → Schritt 6.1
