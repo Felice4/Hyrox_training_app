@@ -12,9 +12,9 @@
 
 | | |
 |---|---|
-| **Aktuelle Phase** | Phase 6 – Erweiterungen (nach Wahl des Nutzers) |
+| **Aktuelle Phase** | Phase 6 – Erweiterungen (6.2 Trainer-Sessions und nachgetragene Trainings) |
 | **Letzter verifizierter Meilenstein** | 6.1 HYROX-Simulation und Redesign „Premium Dark“ (vom Nutzer freigegeben) |
-| **Nächster Schritt** | Nächste Erweiterung nach Wahl des Nutzers (siehe §9 „Mögliche Erweiterungen“) |
+| **Nächster Schritt** | 6.2b Formular „Training eintragen“ und „+ Eintragen“ im Kalender |
 | **Blocker** | keine |
 | **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: Redesign „Premium Dark“. |
 
@@ -154,6 +154,7 @@ Gezielt auf Muscle-Up, Handstand, Spagat & Co. hinarbeiten – das HYROX-, Kraft
 | Schritt | Inhalt |
 |---|---|
 | **6.1 HYROX-Simulation** ✅ | Konzept `docs/SIMULATION.md`: Formate (Komplett, Hälfte 1/2, Kurz), Division beim Start, Rennuhr mit Zwischenzeit je Lauf (inkl. Roxzone) und Station, Vergleich mit der letzten Simulation, größte Zeitverluste, Statistik-Reiter „HYROX"; Migration 0009 `hyrox_simulations` |
+| **6.2 Trainer-Sessions und nachgetragene Trainings** 🔄 | Konzept `docs/MANUAL_ENTRY.md`: „+ Eintragen“ an jedem Kalendertag (Trainer-Session oder eigenes Workout mit Übungen und Sätzen), Trainer-Termine im Voraus, Bearbeiten/Löschen mit Neuberechnung der Bestleistungen; Migration 0010 |
 
 ---
 
@@ -241,6 +242,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
 1. Phase 6 – Erweiterungen:
    - **6.1** ✅ umgesetzt (Konzept `docs/SIMULATION.md`): Logik `src/domain/simulation/` (Formate und Wettkampfgewichte je Division, Abschnitte, Rennuhr mit Zwischenzeiten über Zeitstempel, Rückgängig, vorzeitiges Ende, Vergleich mit der letzten Simulation, größte Zeitverluste, beste Zeit je Abschnitt, Lauf vs. Stationen; 9 Tests). Seite `/training/simulation` (Einstieg auf der Training-Seite), Rennansicht im Trainingsmodus, Ergebnis nach dem Speichern, Statistik-Reiter „HYROX". Gespeichert als normales Training plus `hyrox_simulations` (Migration 0009; am 06.11.2026 in zurückgerollter Transaktion getestet – eigene Simulation erlaubt, fremdes Training, Zwischenzeit 0 und unbekanntes Format abgelehnt, `anon` ohne Zugriff – und eingespielt, Typen neu erzeugt). Export enthält die Simulationen. 418 Tests. Commits `f047107`, `3a19af2`, vom Nutzer getestet und gepusht.
    - **Redesign** ✅ umgesetzt (Wunsch des Nutzers, `docs/DESIGN.md`): neue Design-Tokens (Flächen in drei Höhen, feinere Linien, Rundungen, Schatten, Leuchten, Animationen), dezentes Hintergrundlicht; Buttons, Karten, Badges, Chips, Felder, Auswahlkarten, Stepper, Leerzustände, Seitentitel mit Akzentstrich; schwebende Bottom-Navigation und neue Seitenleiste mit Logo; sanfter Seitenübergang; Hero-Karten auf Dashboard und in der Workout-Vorschau; Blöcke mit Farbmarkierung; Trainingsmodus, Pause, Login, „Mehr“, Statistik-Kacheln, Fortschrittsbalken und Reiter einheitlich. Nur Klassen und Markup – Logik, Daten und Abläufe unverändert (418 Tests grün). Commit `eeeeee3`, vom Nutzer getestet und gepusht.
+   - **6.2 Trainer-Sessions und nachgetragene Trainings** (Wunsch des Nutzers vom 12.11.2026, Konzept `docs/MANUAL_ENTRY.md`, freigegeben): im Kalender an jedem Tag „+ Eintragen“ – Training mit Trainer oder eigenes Workout (immer mit Übungen und Sätzen), Trainer-Termine im Voraus mit Rücksicht in der Wochenplanung, nachgetragene Trainings bearbeiten/löschen mit Neuberechnung der Bestleistungen.
+     - **6.2a** ✅ Migration 0010 (`workout_sessions.source/title/coach`, Trainer-Termine in `planned_workouts`, `release_session_records`, `delete_logged_session`, `offer_records`, Delete-Policy für Bestleistungen aus nachgetragenen Trainings; am 12.11.2026 in zurückgerollter Transaktion getestet und eingespielt, Typen neu erzeugt). Logik `src/domain/manualEntry/entry.ts` (Formular-Bearbeitung, Prüfung, Intensität aus RPE, Umwandlung in die Speicher-Nutzlast) und `src/domain/records/recompute.ts` (Bestleistungen über alle Trainings), API `src/api/manualSessions.ts`.
 1. Mögliche Erweiterungen (optional, Reihenfolge nach Nutzen):
    1. Tempo-Vorgaben für Laufen/Rudern/SkiErg aus dem Verlauf (Pace-Progression im Generator)
    2. ~~HYROX-Simulation~~ → Schritt 6.1

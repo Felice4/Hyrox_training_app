@@ -249,6 +249,7 @@ export type Database = {
       }
       planned_workouts: {
         Row: {
+          coach: string | null
           completed_session_id: string | null
           created_at: string
           explanation: string[]
@@ -258,14 +259,17 @@ export type Database = {
           original_date: string | null
           scheduled_date: string
           source: string
+          start_time: string | null
           status: string
           target_duration_min: number
+          title: string | null
           updated_at: string
           user_id: string
           week_plan_id: string | null
           workout: Json | null
         }
         Insert: {
+          coach?: string | null
           completed_session_id?: string | null
           created_at?: string
           explanation?: string[]
@@ -275,14 +279,17 @@ export type Database = {
           original_date?: string | null
           scheduled_date: string
           source?: string
+          start_time?: string | null
           status?: string
           target_duration_min: number
+          title?: string | null
           updated_at?: string
           user_id?: string
           week_plan_id?: string | null
           workout?: Json | null
         }
         Update: {
+          coach?: string | null
           completed_session_id?: string | null
           created_at?: string
           explanation?: string[]
@@ -292,8 +299,10 @@ export type Database = {
           original_date?: string | null
           scheduled_date?: string
           source?: string
+          start_time?: string | null
           status?: string
           target_duration_min?: number
+          title?: string | null
           updated_at?: string
           user_id?: string
           week_plan_id?: string | null
@@ -760,6 +769,7 @@ export type Database = {
       workout_sessions: {
         Row: {
           active_duration_sec: number
+          coach: string | null
           created_at: string
           ended_at: string
           focus: string
@@ -770,8 +780,10 @@ export type Database = {
           planned_workout_id: string | null
           readiness_checkin_id: string | null
           session_rpe: number | null
+          source: string
           started_at: string
           status: string
+          title: string | null
           training_load: number
           updated_at: string
           user_id: string
@@ -779,6 +791,7 @@ export type Database = {
         }
         Insert: {
           active_duration_sec: number
+          coach?: string | null
           created_at?: string
           ended_at: string
           focus: string
@@ -789,8 +802,10 @@ export type Database = {
           planned_workout_id?: string | null
           readiness_checkin_id?: string | null
           session_rpe?: number | null
+          source?: string
           started_at: string
           status: string
+          title?: string | null
           training_load?: number
           updated_at?: string
           user_id?: string
@@ -798,6 +813,7 @@ export type Database = {
         }
         Update: {
           active_duration_sec?: number
+          coach?: string | null
           created_at?: string
           ended_at?: string
           focus?: string
@@ -808,8 +824,10 @@ export type Database = {
           planned_workout_id?: string | null
           readiness_checkin_id?: string | null
           session_rpe?: number | null
+          source?: string
           started_at?: string
           status?: string
+          title?: string | null
           training_load?: number
           updated_at?: string
           user_id?: string
@@ -837,6 +855,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_logged_session: { Args: { p_session_id: string }; Returns: Json }
+      offer_records: { Args: { p: Json }; Returns: number }
+      release_session_records: { Args: { p_session_id: string }; Returns: Json }
       replace_week_plan: { Args: { p: Json }; Returns: Json }
       save_profile: { Args: { p: Json }; Returns: Json }
       save_workout_session: { Args: { p: Json }; Returns: Json }

@@ -276,6 +276,12 @@ Ein Zurücksetzen löscht keine Bestleistung – es wirkt nur auf den Meilenstei
 
 RLS: eigene Zeilen; Anlegen/Ändern nur, wenn das Training dem Nutzer gehört (Fremdschlüssel prüfen kein RLS). Gespeichert nach `save_workout_session` per Upsert über `session_id` (idempotent). Konzept: `docs/SIMULATION.md`. Am 06.11.2026 in zurückgerollter Transaktion getestet (eigene Simulation erlaubt; fremdes/unbekanntes Training, Zwischenzeit 0 und unbekanntes Format abgelehnt; `anon` ohne Zugriff) und eingespielt.
 
+### 3.16 Herkunft von Trainings und Trainer-Termine (Migration 0010)
+
+`workout_sessions`: neue Spalten `source` (`app` = Trainingsmodus, Standard für alle bisherigen · `manual` = nachgetragen · `trainer` = Session mit Trainer), `title` und `coach` (optional, je 1–120 Zeichen). `planned_workouts`: `source` zusätzlich `trainer`, neue Spalten `title`, `coach`, `start_time` (Uhrzeit des Termins).
+
+Nur `manual`/`trainer`-Trainings dürfen bearbeitet und gelöscht werden. Neue Delete-Policy auf `personal_records`: Bestleistungen aus Trainings bleiben geschützt, außer sie stammen aus einem `manual`/`trainer`-Training. Konzept: `docs/MANUAL_ENTRY.md`. Am 12.11.2026 in zurückgerollter Transaktion getestet (Trainer-Termin anlegen, Trainer-Session erledigt den Termin, Titel getrimmt/leerer Trainer → null, Freigeben und erneutes Anbieten von Bestleistungen inkl. schlechterem Wert und fremdem Training, Löschen setzt den Termin zurück und entfernt Session und Bestleistung, App-Training: Standard `app` und nicht löschbar, unbekannte Herkunft abgelehnt, `anon` ohne Ausführungsrechte) und eingespielt.
+
 ---
 
 ## 4. Synchronisierung der Übungsbibliothek
@@ -306,6 +312,9 @@ Die Datenbank prüft bei `exercises` nur die Grundstruktur (Slug-Format, Pflicht
 | `sync_exercise_library(p_version int, p_exercises jsonb)` | siehe §4 |
 | `replace_week_plan(p jsonb)` | `p = { week_start, today, generator_version, notes, workouts[] }`. Legt den Wochenplan an (Upsert je Woche), löscht nur Einheiten mit `status = 'planned'` und `scheduled_date >= today` und fügt die neuen ein. Neue Termine müssen in der Woche und ab heute liegen. Liefert `{ status, week_plan_id, removed, inserted }`. |
 | `set_skill_progress(p_skill_slug, p_status, p_completed_stages, p_source, p_session_id?)` | Setzt Status und geschaffte Stufen eines Skill-Ziels (legt es bei Bedarf an), trägt fehlende Stufen in `skill_stage_log` ein (vorhandene behalten ihr Datum) und entfernt Einträge über der neuen Stufe. Am 05.11.2026 in zurückgerollter Transaktion getestet: Doppelaufruf ohne Dubletten, Stufe hoch/runter, Grenze von 3 aktiven Zielen, `later`/`achieved`, Löschen kaskadiert. |
+| `release_session_records(p_session_id)` | Nur `manual`/`trainer`: entfernt die Bestleistungen, die aus diesem Training stammen, und liefert die Übungs-Slugs (vor dem erneuten Speichern beim Bearbeiten). Ab Migration 0010 speichert `save_workout_session` zusätzlich `source`, `title`, `coach` (ohne `source` → `app`). |
+| `delete_logged_session(p_session_id)` | Nur `manual`/`trainer`: gibt die Bestleistungen frei, setzt eine damit erledigte geplante Einheit wieder auf `planned` und löscht das Training (Übungen, Sätze kaskadierend). Liefert die Übungs-Slugs. |
+| `offer_records(p jsonb)` | Bestleistungen aus bestehenden Trainings anbieten (`[{ exercise_slug, record_type, context, context_key, value, unit, achieved_at, session_id }]`); übernommen nur, wenn besser. Die App berechnet die Werte mit `bestRecordsAcross` (`src/domain/records/recompute.ts`) aus allen Trainings der betroffenen Übungen. |
 | `save_profile(p jsonb)` | Speichert Profil, Ziele, Körperwert des Tages, Übungspräferenzen und manuelle Bestleistungen in einer Transaktion; für Onboarding und Profilseite. Setzt `onboarding_completed_at` beim ersten Mal. |
 
 Die fachliche Berechnung (z. B. welche Werte ein neuer Rekord sind) erfolgt in `src/domain/` und ist dort getestet. Die SQL-Funktionen speichern nur und sichern die Konsistenz.
@@ -339,5 +348,6 @@ Dateinamen folgen der Supabase-CLI: `supabase/migrations/<Zeitstempel>_<name>.sq
 | 0007 | `skill_goals`, `skill_stage_log`, `profiles.skill_block`, `set_skill_progress()` | 5.2 |
 | 0008 | `user_milestones` | 5.2b |
 | 0009 | `hyrox_simulations` | 6.1 |
+| 0010 | `workout_sessions.source/title/coach`, Trainer-Termine, `release_session_records()`, `delete_logged_session()`, `offer_records()` | 6.2 |
 
 Die Übungsbibliothek (2.4) kommt vor dem Onboarding (2.5), weil das Onboarding bevorzugte/unbeliebte Übungen und manuelle Bestleistungen auf Übungen bezieht.
