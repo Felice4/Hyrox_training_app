@@ -5,6 +5,7 @@ import {
   CalendarIcon,
   ChevronRightIcon,
   DownloadIcon,
+  FlagIcon,
   TargetIcon,
   UserIcon,
 } from '@/components/icons'
@@ -15,6 +16,7 @@ import { useAuth } from '@/features/auth/authContext'
 import { useSignOut } from '@/features/auth/useSignOut'
 
 const SECTIONS: { to: string; label: string; icon: ComponentType<SVGProps<SVGSVGElement>> }[] = [
+  { to: '/race', label: 'Wettkampfvorbereitung', icon: FlagIcon },
   { to: '/goals', label: 'Skill-Ziele & Meilensteine', icon: TargetIcon },
   { to: '/profile', label: 'Profil & Trainingsziele', icon: UserIcon },
   { to: '/history', label: 'Trainingshistorie', icon: CalendarIcon },

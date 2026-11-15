@@ -17,6 +17,8 @@ import { formatShortDay } from '@/features/calendar/format'
 import { useUpcomingPlanned } from '@/features/calendar/usePlannedWorkouts'
 import { nextPlanned } from '@/features/calendar/week'
 import { GoalsCard } from '@/features/goals/GoalsCard'
+import { RaceCountdownCard } from '@/features/race/RaceCountdown'
+import { useActiveRace } from '@/features/race/useRace'
 import { CheckinCard } from '@/features/readiness/CheckinCard'
 import { useExerciseCatalog } from '@/features/exercises/useExerciseCatalog'
 import { restoreStoredWorkout } from '@/features/generator/inputs'
@@ -60,6 +62,7 @@ export function DashboardPage() {
   const startTraining = useStartTraining(catalog.data?.exercises ?? [])
   const today = toLocalIsoDate(now)
   const upcoming = useUpcomingPlanned(today)
+  const race = useActiveRace()
   const next = nextPlanned(upcoming.data ?? [], today)
   // Heute geplante Einheit hat Vorrang vor dem zuletzt erzeugten Workout
   const plannedToday = next?.date === today && next.workout ? next : undefined
@@ -94,6 +97,8 @@ export function DashboardPage() {
         )}
 
         <CheckinCard today={today} />
+
+        {race.data && <RaceCountdownCard race={race.data} today={today} />}
 
         <Card className="relative flex flex-col gap-4 overflow-hidden border-accent/20 shadow-raised">
           {/* Dekoratives Licht – Hauptkarte des Tages */}

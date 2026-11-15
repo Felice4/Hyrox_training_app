@@ -90,6 +90,10 @@ export const router = createBrowserRouter([
               },
               { path: 'more', element: <MorePage /> },
               {
+                path: 'race',
+                lazy: page(() => import('@/features/race/RacePage'), 'RacePage'),
+              },
+              {
                 path: 'goals',
                 lazy: page(() => import('@/features/goals/GoalsPage'), 'GoalsPage'),
               },

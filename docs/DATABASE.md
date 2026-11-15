@@ -39,7 +39,8 @@ auth.users (Supabase)
    ├── skill_goals            1:n  Gewählte Skill-Ziele (Inhalte im Code)
    │     └── skill_stage_log  1:n  Geschaffte Stufen mit Datum
    ├── user_milestones        1:n  Eigene Meilensteine und Änderungen an Standard-Meilensteinen
-   └── hyrox_simulations      1:n  HYROX-Simulationen (je eine zu einem Training) mit Zwischenzeiten
+   ├── hyrox_simulations      1:n  HYROX-Simulationen (je eine zu einem Training) mit Zwischenzeiten
+   └── races                  1:n  Wettkämpfe (höchstens einer aktiv) für die Wettkampfvorbereitung
 ```
 
 ---
@@ -282,6 +283,26 @@ RLS: eigene Zeilen; Anlegen/Ändern nur, wenn das Training dem Nutzer gehört (F
 
 Nur `manual`/`trainer`-Trainings dürfen bearbeitet und gelöscht werden. Neue Delete-Policy auf `personal_records`: Bestleistungen aus Trainings bleiben geschützt, außer sie stammen aus einem `manual`/`trainer`-Training. Konzept: `docs/MANUAL_ENTRY.md`. Am 12.11.2026 in zurückgerollter Transaktion getestet (Trainer-Termin anlegen, Trainer-Session erledigt den Termin, Titel getrimmt/leerer Trainer → null, Freigeben und erneutes Anbieten von Bestleistungen inkl. schlechterem Wert und fremdem Training, Löschen setzt den Termin zurück und entfernt Session und Bestleistung, App-Training: Standard `app` und nicht löschbar, unbekannte Herkunft abgelehnt, `anon` ohne Ausführungsrechte) und eingespielt.
 
+### 3.17 `races` (Migration 0011)
+
+| Spalte | Typ | Hinweis |
+|---|---|---|
+| `id` | uuid | PK |
+| `user_id` | uuid | FK auth.users, Standard `auth.uid()` |
+| `name` | text | 1–120 Zeichen (ohne Leerzeichen am Rand) |
+| `race_date` | date | Wettkampftag |
+| `plan_start` | date | Montag, ab dem der Phasenplan zählt (beim Anlegen: laufende Woche bis Do, sonst nächste) |
+| `format` | text | `single` · `double` · `relay` |
+| `category` | text | `open` · `pro` (keine Pro-Staffel) |
+| `gender` | text | `men` · `women` · `mixed` (Mixed nur Doubles Open und Staffel) |
+| `days_per_week` | smallint | 3–5 |
+| `weekdays` | smallint[] | mögliche Trainingstage 1–7, leer = alle |
+| `target_time_sec` | integer | optional, 20 min–5 h |
+| `status` | text | `active` · `completed` · `cancelled` |
+| `result_time_sec`, `result_session_id`, `completed_at` | | Ergebnis (Schritt 6.3d) |
+
+Partieller Unique-Index: höchstens ein `active` je Nutzer. Die Phasen werden nicht gespeichert, sondern im Code berechnet (`src/domain/race/phases.ts`). RLS: nur eigene Zeilen; `result_session_id` nur auf eigene Trainings. `planned_workouts` bekommt `race_session_type` (`compromised_run`, `run_intervals`, `easy_run`, `station_strength`, `simulation`, `activation`; null = normale Einheit, ab Schritt 6.3b). Konzept: `docs/RACE_PREP.md`. Am 15.11.2026 in zurückgerollter Transaktion getestet (Anlegen, zweiter aktiver Wettkampf abgelehnt, Pro-Staffel und Planstart ohne Montag abgelehnt, nach Absage neuer Wettkampf möglich, fremder Nutzer sieht nichts, `anon` ohne Rechte) und eingespielt.
+
 ---
 
 ## 4. Synchronisierung der Übungsbibliothek
@@ -349,5 +370,6 @@ Dateinamen folgen der Supabase-CLI: `supabase/migrations/<Zeitstempel>_<name>.sq
 | 0008 | `user_milestones` | 5.2b |
 | 0009 | `hyrox_simulations` | 6.1 |
 | 0010 | `workout_sessions.source/title/coach`, Trainer-Termine, `release_session_records()`, `delete_logged_session()`, `offer_records()` | 6.2 |
+| 0011 | `races`, `planned_workouts.race_session_type` | 6.3a |
 
 Die Übungsbibliothek (2.4) kommt vor dem Onboarding (2.5), weil das Onboarding bevorzugte/unbeliebte Übungen und manuelle Bestleistungen auf Übungen bezieht.

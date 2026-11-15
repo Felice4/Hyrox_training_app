@@ -20,6 +20,7 @@ const row: Tables<'planned_workouts'> = {
   title: null,
   coach: null,
   start_time: null,
+  race_session_type: null,
   completed_session_id: null,
   created_at: '',
   updated_at: '',

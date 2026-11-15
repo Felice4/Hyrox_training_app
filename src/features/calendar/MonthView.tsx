@@ -6,6 +6,8 @@ import { Spinner } from '@/components/ui/Spinner'
 import { FOCUSES } from '@/domain/generator/types'
 import { WEEKDAY_SHORT_LABELS, WEEKDAYS } from '@/domain/profile/vocabulary'
 import { FOCUS_LABELS } from '@/features/generator/labels'
+import { RaceDayNote } from '@/features/race/CalendarRace'
+import { useRaceDate } from '@/features/race/useRace'
 import { cn } from '@/lib/cn'
 import { AddEntryMenu, DayContent, type NameOf } from './DayItems'
 import { FOCUS_COLORS } from './focusColors'
@@ -46,6 +48,7 @@ export function MonthView({
   const to = weeks.at(-1)?.[6] ?? `${month}-28`
   const planned = usePlannedRange(from, to)
   const sessions = useSessionsInRange(from, to)
+  const raceDate = useRaceDate()
 
   const nav = (
     <PeriodNav
@@ -133,6 +136,7 @@ export function MonthView({
                     day={day}
                     inMonth={monthOf(day.date) === month}
                     selected={day.date === selectedDay}
+                    isRaceDay={day.date === raceDate}
                     onSelect={() => onSelectDay(day.date)}
                   />
                 ))}
@@ -164,6 +168,7 @@ export function MonthView({
             </h2>
             <AddEntryMenu day={selected} />
           </div>
+          <RaceDayNote date={selected.date} />
           <DayContent day={selected} nameOf={nameOf} />
           <Button
             variant="ghost"
@@ -186,11 +191,13 @@ function DayCell({
   day,
   inMonth,
   selected,
+  isRaceDay,
   onSelect,
 }: {
   day: CalendarDay
   inMonth: boolean
   selected: boolean
+  isRaceDay: boolean
   onSelect: () => void
 }) {
   const marks = [
@@ -205,6 +212,7 @@ function DayCell({
     day.sessions.length > 0 && `${day.sessions.length} absolviert`,
     day.planned.some((p) => p.status === 'planned') && 'geplant',
     day.planned.some((p) => p.status === 'skipped') && 'ausgefallen',
+    isRaceDay && 'Wettkampf',
   ]
     .filter(Boolean)
     .join(', ')
@@ -220,6 +228,7 @@ function DayCell({
         'flex min-h-14 flex-col items-center gap-1 rounded-lg border pt-1.5 pb-1 transition',
         selected ? 'border-accent bg-surface-raised' : 'border-transparent hover:bg-surface-raised',
         day.sessions.length > 0 && !selected && 'bg-accent/10',
+        isRaceDay && !selected && 'border-hyrox/60 bg-hyrox/10',
       )}
     >
       <span

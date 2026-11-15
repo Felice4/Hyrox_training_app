@@ -165,3 +165,12 @@ export function TargetIcon(props: IconProps) {
     </Icon>
   )
 }
+
+export function FlagIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M5 21V4" />
+      <path d="M5 4h12l-2.5 4L17 12H5" />
+    </Icon>
+  )
+}

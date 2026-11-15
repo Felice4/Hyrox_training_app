@@ -12,9 +12,9 @@
 
 | | |
 |---|---|
-| **Aktuelle Phase** | Phase 6 – Erweiterungen (6.2 Trainer-Sessions und nachgetragene Trainings) |
+| **Aktuelle Phase** | Phase 6 – Erweiterungen (6.3 Wettkampfvorbereitung) |
 | **Letzter verifizierter Meilenstein** | 6.1 HYROX-Simulation und Redesign „Premium Dark“ (vom Nutzer freigegeben) |
-| **Nächster Schritt** | Test von 6.2 Trainer-Sessions und nachgetragene Trainings durch den Nutzer |
+| **Nächster Schritt** | Test von 6.2 und 6.3a durch den Nutzer; danach 6.3b Wochenplan im Wettkampfmodus |
 | **Blocker** | keine |
 | **Git** | Commit nach jedem Teilschritt mit grünen Prüfungen; Push, sobald der Nutzer den Test bestätigt hat. Stand auf GitHub: Redesign „Premium Dark“. |
 
@@ -155,6 +155,7 @@ Gezielt auf Muscle-Up, Handstand, Spagat & Co. hinarbeiten – das HYROX-, Kraft
 |---|---|
 | **6.1 HYROX-Simulation** ✅ | Konzept `docs/SIMULATION.md`: Formate (Komplett, Hälfte 1/2, Kurz), Division beim Start, Rennuhr mit Zwischenzeit je Lauf (inkl. Roxzone) und Station, Vergleich mit der letzten Simulation, größte Zeitverluste, Statistik-Reiter „HYROX"; Migration 0009 `hyrox_simulations` |
 | **6.2 Trainer-Sessions und nachgetragene Trainings** 🔄 | Konzept `docs/MANUAL_ENTRY.md`: „+ Eintragen“ an jedem Kalendertag (Trainer-Session oder eigenes Workout mit Übungen und Sätzen), Trainer-Termine im Voraus, Bearbeiten/Löschen mit Neuberechnung der Bestleistungen; Migration 0010 |
+| **6.3 Wettkampfvorbereitung** 🔄 | Konzept `docs/RACE_PREP.md` (freigegeben 15.11.2026): ein aktiver Wettkampf mit Datum und Variante (Singles/Doubles/Staffel, Open/Pro, Männer/Frauen/Mixed), Phasen bis zum Wettkampf (Aufbau, Spezifisch, Entlastung, Tapering, Wettkampfwoche, Erholung), neue Einheiten (Kompromiss-Lauf, Laufintervalle, Dauerlauf, Stationskraft, Aktivierung), Einstiegstest und Zielzeit-Vorschlag, Lernkarten, Countdown, Ergebnis; Migration 0011 `races` |
 
 ---
 
@@ -247,6 +248,8 @@ Rahmenbedingungen (keine Bugs, siehe `docs/ARCHITECTURE.md` §9):
      - **6.2b** ✅ Kalender (Woche und Monat): „+ Eintragen“ an jedem Tag mit Menü – „Training mit Trainer“ und „Eigenes Workout nachtragen“ (heute/Vergangenheit), „Einheit planen (Generator)“ (heute/Zukunft, wie bisher „+ Einheit“). Formular `/calendar/log/:date?type=trainer|manual` (`src/features/manualEntry/`): Art, Titel und Trainer/Studio, Datum, Beginn, Dauer, Schwerpunkt; Übungen aus der Bibliothek mit Suche, Sätze mit den passenden Feldern (kg, Wdh., m, Zeit, kcal), „+ Satz“ übernimmt den letzten Satz, Block, verschieben, entfernen; RPE und Notiz; lokaler Entwurf bis zum Speichern. Danach Bestätigung mit neuen Bestleistungen und „Stufe geschafft!“. Im Kalender: Titel der Trainer-Session, Badges „Trainer“ / „Nachgetragen“.
      - **6.2c** ✅ Trainer-Termine: „+ Eintragen“ → „Trainer-Termin planen“ (heute/Zukunft, `/calendar/appointment/:date`) mit Titel, Trainer/Studio, Uhrzeit, Dauer, Schwerpunkt, Intensität (Vorauswahl HYROX · 60 min · hart). Im Kalender mit Uhrzeit und Badge „Trainer-Termin“ (vergangen: „Noch eintragen“), auf dem Dashboard als „Nächstes Training“. Detailseite: verschieben, „Fällt aus“, bearbeiten, entfernen, **„Als absolviert eintragen“** (Formular vorausgefüllt, Termin wird erledigt, Link zum eingetragenen Training). „Woche neu planen“ behält Trainer-Termine; der Tag gilt als belegt und sein Schwerpunkt fließt in die Verteilung ein (`keptForReplan`). `PlanActions` in eigene Datei verschoben (unverändert).
      - **6.2d** ✅ Trainingsdetails (`/history/:id`): bei nachgetragenen Trainings und Trainer-Sessions „Bearbeiten“ (`/history/:id/edit`, gleiches Formular, gleiche IDs → kein Doppeleintrag) und „Löschen“ (mit Rückfrage). Beim Bearbeiten/Löschen werden die Bestleistungen der betroffenen Übungen aus allen Trainings neu berechnet; ein damit erledigter Trainer-Termin wird beim Löschen wieder offen. Trainings aus dem Trainingsmodus und Simulationen bleiben wie bisher (nur Notiz). Titel, Trainer und Badges „Trainer“ / „Nachgetragen“ auch in Historie und Details. 441 Tests.
+   - **6.3 Wettkampfvorbereitung** 🔄 in Arbeit (Wunsch des Nutzers vom 15.11.2026, Konzept `docs/RACE_PREP.md`, freigegeben): eigener Wettkampf Singles Open Männer im Jänner 2027, 3–4 Tage (nicht Mo/Mi), noch ohne Zielzeit.
+     - **6.3a** ✅ umgesetzt, Test durch den Nutzer offen: Migration 0011 `races` (+ `planned_workouts.race_session_type`; am 15.11.2026 in zurückgerollter Transaktion getestet und eingespielt, Typen neu erzeugt). Logik `src/domain/race/` – Varianten mit gültigen Kombinationen und Gewichten (`variant.ts`), Eingabeprüfung (`race.ts`), Phasen Aufbau/Spezifisch/Entlastung (3 : 1)/Tapering/Wettkampfwoche/Erholung, höchstens 16 Wochen (`phases.ts`). Seite **„Wettkampf“** (`/race`, über „Mehr“ und Dashboard): anlegen (Name, Datum, Format, Kategorie, Wertung, Trainingstage, mögliche Wochentage, optionale Zielzeit), Übersicht mit Countdown, Phase der Woche mit Ziel, Wochenplan der Phasen, Stationen und Gewichte, bearbeiten, absagen. Dashboard: Countdown-Karte. Kalender: Phase über der Woche, Wettkampftag markiert (Woche und Monat). 469 Tests.
 1. Mögliche Erweiterungen (optional, Reihenfolge nach Nutzen):
    1. Tempo-Vorgaben für Laufen/Rudern/SkiErg aus dem Verlauf (Pace-Progression im Generator)
    2. ~~HYROX-Simulation~~ → Schritt 6.1

@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { Spinner } from '@/components/ui/Spinner'
 import { GENERATOR_VERSION } from '@/domain/generator/config'
 import { newSeed } from '@/features/generator/inputs'
+import { RaceDayNote, RaceWeekBanner } from '@/features/race/CalendarRace'
 import { cn } from '@/lib/cn'
 import { AddEntryMenu, DayContent, type NameOf } from './DayItems'
 import { formatShortDay, formatWeek } from './format'
@@ -46,6 +47,7 @@ export function WeekView({
         onNext={() => onWeekChange(addDays(weekStart, 7))}
         onCurrent={() => onWeekChange(currentWeek)}
       />
+      <RaceWeekBanner weekStart={weekStart} />
       {week.isPending || sessions.isPending ? (
         <div role="status" className="flex justify-center py-12">
           <Spinner className="text-accent" />
@@ -129,6 +131,7 @@ function WeekContent({
                 </p>
                 <AddEntryMenu day={day} />
               </div>
+              <RaceDayNote date={day.date} />
               <DayContent day={day} nameOf={nameOf} />
             </Card>
           </li>

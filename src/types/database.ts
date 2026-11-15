@@ -257,6 +257,7 @@ export type Database = {
           id: string
           intensity: string
           original_date: string | null
+          race_session_type: string | null
           scheduled_date: string
           source: string
           start_time: string | null
@@ -277,6 +278,7 @@ export type Database = {
           id?: string
           intensity: string
           original_date?: string | null
+          race_session_type?: string | null
           scheduled_date: string
           source?: string
           start_time?: string | null
@@ -297,6 +299,7 @@ export type Database = {
           id?: string
           intensity?: string
           original_date?: string | null
+          race_session_type?: string | null
           scheduled_date?: string
           source?: string
           start_time?: string | null
@@ -396,6 +399,74 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      races: {
+        Row: {
+          category: string
+          completed_at: string | null
+          created_at: string
+          days_per_week: number
+          format: string
+          gender: string
+          id: string
+          name: string
+          plan_start: string
+          race_date: string
+          result_session_id: string | null
+          result_time_sec: number | null
+          status: string
+          target_time_sec: number | null
+          updated_at: string
+          user_id: string
+          weekdays: number[]
+        }
+        Insert: {
+          category: string
+          completed_at?: string | null
+          created_at?: string
+          days_per_week: number
+          format: string
+          gender: string
+          id?: string
+          name: string
+          plan_start: string
+          race_date: string
+          result_session_id?: string | null
+          result_time_sec?: number | null
+          status?: string
+          target_time_sec?: number | null
+          updated_at?: string
+          user_id?: string
+          weekdays?: number[]
+        }
+        Update: {
+          category?: string
+          completed_at?: string | null
+          created_at?: string
+          days_per_week?: number
+          format?: string
+          gender?: string
+          id?: string
+          name?: string
+          plan_start?: string
+          race_date?: string
+          result_session_id?: string | null
+          result_time_sec?: number | null
+          status?: string
+          target_time_sec?: number | null
+          updated_at?: string
+          user_id?: string
+          weekdays?: number[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "races_result_session_id_fkey"
+            columns: ["result_session_id"]
+            isOneToOne: false
+            referencedRelation: "workout_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       readiness_checkins: {
         Row: {
