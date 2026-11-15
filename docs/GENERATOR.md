@@ -49,7 +49,7 @@ interface WorkoutGenerator {
 
 ```ts
 {
-  generatorVersion: "rules-1.1.0",
+  generatorVersion: "rules-1.2.0",
   seed: 12345,
   focus: "strength",
   intensity: "moderate",          // nach Tagesform-Anpassung
@@ -281,6 +281,17 @@ Code: `src/domain/generator/skillBlock.ts`, eingebunden in `generateWorkout` und
 | **Dosierung** | Rolle `skill`, Sätze aus der Übung (Presets `skillReps`/`skillHold`/`skillStretch`); Hauptübung der Stufe immer, weitere nur im Budget (notfalls weniger Sätze). Hinweis „Skill … · Stufe n: …" an der ersten Übung, `skillSlug` am Eintrag. |
 | **Von Hand** | Vorschau „Skill üben": `addSkill` baut einen Skill ein (ersetzt den an derselben Stelle, Budget wie Einstellung, bei „aus" wie normal, mindestens 5 min – die Zeit kommt dazu), `removeSkill` entfernt ihn. |
 | **Wochenplan** | Was an einem Tag eingeplant ist, gilt für die folgenden Tage als „zuletzt geübt" → aktive Ziele wechseln sich ab. |
+
+## 5d. Wettkampfmodus (Schritt 6.3b, Konzept `docs/RACE_PREP.md` §3–5)
+
+| Thema | Umsetzung |
+|---|---|
+| **Anfrage** | `WorkoutRequest.raceSession = { type, team, stationWeights, loadShare }` ersetzt die Vorlage des Schwerpunkts durch eine Wettkampf-Vorlage (`raceTemplates.ts`). Ohne `raceSession` bleibt der Generator unverändert. |
+| **Vorlagen** | **Kompromiss-Lauf:** Zirkel aus Lauf, Station mit Gerät und Station Kraftausdauer; jeder Lauf 1 km; Rundenpause Singles 90 s, Doubles 60 s, Staffel 180 s (Staffel höchstens 3 Runden). **Laufintervalle:** Lauf-Intervall-Übung als ganze Einheit (darf bis 150 % der Zeit „vorschlagen“, die Zeitanpassung kürzt die Wiederholungen); hart und ≥ 45 min → 1 km, sonst 400 m–1 km, Staffel 200–400 m. **Lockerer Dauerlauf:** Lauf (draußen/Laufband) über die Zeit eingestellt. **Stationskraft:** Kniebeuge/Hüftstreckung schwer, dann Sled Push, Sled Pull, Sandbag Lunges, Wall Balls, optional Farmers Carry – nur die offiziellen Stationen (`hyrox-…`), keine schweren/leichten Varianten. **Aktivierung:** Einlaufen, Steigerungsläufe, ein paar Wall Balls (höchstens 2 × 10). |
+| **Gewichte** | Stationen mit Gewicht bekommen `Wettkampfgewicht × loadShare`, gerundet (Wall Balls 1 kg, Kettlebell 2 kg, sonst 2,5 kg), mit Hinweis „80 % vom Wettkampfgewicht (152 kg)“. |
+| **Wochenplan** | `WeekPlanInput.race` (aus `domain/race/sessions.ts`) ersetzt die Grundverteilung: Einheiten in Reihenfolge ihrer Wichtigkeit, nur auf die möglichen Wochentage, in der Wettkampfwoche bis zwei Tage vor dem Rennen. Erledigtes und feststehende Einheiten ab heute (Trainer-Termin, spontan) ersetzen die Einheit mit gleichem Schwerpunkt. Zuordnung `assignRaceSessions`: keine zwei beinlastigen (+3) oder zwei harten (+2) Einheiten an Folgetagen, nicht zweimal derselbe Typ (+1). Fertige Workouts (Simulation) werden unverändert übernommen. |
+
+Generator-Version `rules-1.2.0`.
 
 ---
 

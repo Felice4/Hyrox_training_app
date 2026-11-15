@@ -1,4 +1,16 @@
+import type { PlannedWorkout } from '@/api/weekPlans'
+import { RACE_SESSION_LABELS } from '@/domain/race/sessions'
+import { FOCUS_LABELS } from '@/features/generator/labels'
 import { addDays, weekdayOf } from './week'
+
+/** Name einer geplanten Einheit: Titel (Trainer), Wettkampf-Einheit oder Schwerpunkt. */
+export function plannedTitle(
+  planned: Pick<PlannedWorkout, 'title' | 'raceSessionType' | 'focus'>,
+): string {
+  if (planned.title) return planned.title
+  if (planned.raceSessionType) return RACE_SESSION_LABELS[planned.raceSessionType]
+  return FOCUS_LABELS[planned.focus]
+}
 
 // Lokale Daten „JJJJ-MM-TT" mittags als Uhrzeit formatieren – in UTC, damit es keine
 // Verschiebung durch die Zeitzone gibt

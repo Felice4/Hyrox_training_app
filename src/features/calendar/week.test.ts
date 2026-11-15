@@ -28,6 +28,7 @@ const planned = (partial: Partial<PlannedWorkout>): PlannedWorkout => ({
   coach: null,
   startTime: null,
   completedSessionId: null,
+  raceSessionType: null,
   ...partial,
 })
 

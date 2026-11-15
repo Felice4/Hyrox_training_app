@@ -14,6 +14,8 @@ export interface SlotSpec {
   match: (exercise: GeneratorExercise, ctx: SlotContext) => boolean
   /** Darf gestrichen werden, wenn die Zeit knapp ist */
   optional: boolean
+  /** Höchster Anteil an der Trainingszeit (Standard 60 %), z. B. für Intervall-Einheiten */
+  maxShare?: number | undefined
 }
 
 export interface Template {
@@ -23,7 +25,13 @@ export interface Template {
   /** Zusätzliche Slots, falls die Zeit für die Grundvorlage zu kurz ist */
   extraSlots: SlotSpec[]
   /** Block, der als Zirkel (Runden) absolviert wird */
-  circuit?: { block: BlockType; rounds: number; maxRounds: number }
+  circuit?: {
+    block: BlockType
+    rounds: number
+    maxRounds: number
+    /** Pause nach jeder Runde; ohne Angabe je nach Intensität */
+    roundRestSec?: number | undefined
+  }
 }
 
 // -----------------------------------------------------------------------------

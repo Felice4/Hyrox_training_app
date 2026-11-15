@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router'
 import { FlagIcon } from '@/components/icons'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -18,9 +19,11 @@ import {
   type RacePhase,
 } from '@/domain/race/phases'
 import { defaultRaceInput, type Race, type RaceInput } from '@/domain/race/race'
+import { RACE_SESSION_LABELS, raceWeekContext, raceWeekSessions } from '@/domain/race/sessions'
 import { RACE_FORMAT_HINTS, variantLabel, weightSets } from '@/domain/race/variant'
 import { STATIONS } from '@/domain/simulation/formats'
 import { formatLongDay, formatShortDay, formatWeek } from '@/features/calendar/format'
+import { INTENSITY_LABELS } from '@/features/generator/labels'
 import { useProfileDetails } from '@/features/profile/useProfile'
 import { cn } from '@/lib/cn'
 import { toLocalIsoDate } from '@/lib/date'
@@ -148,6 +151,8 @@ function RaceOverview({ race, today }: { race: Race; today: string }) {
   const timeline = raceTimeline(race)
   const current = raceWeekOf(timeline, today)
   const days = daysUntil(race.raceDate, today)
+  const context = raceWeekContext(timeline, today)
+  const sessions = context ? raceWeekSessions(context, race, 60) : []
 
   return (
     <div className="flex flex-col gap-4">
@@ -190,6 +195,16 @@ function RaceOverview({ race, today }: { race: Race; today: string }) {
               )}
             </div>
             <p className="text-sm">{PHASE_GOALS[current.phase]}</p>
+            {sessions.length > 0 && (
+              <ul className="flex flex-col gap-1 text-sm">
+                {sessions.map((session, index) => (
+                  <li key={`${session.type}-${index}`} className="flex justify-between gap-3">
+                    <span>{RACE_SESSION_LABELS[session.type]}</span>
+                    <span className="text-fg-muted">{INTENSITY_LABELS[session.intensity]}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </>
         ) : timeline[0] && today < timeline[0].weekStart ? (
           <p className="text-sm text-fg-muted">
@@ -202,10 +217,12 @@ function RaceOverview({ race, today }: { race: Race; today: string }) {
             – das Eintragen des Ergebnisses folgt in einem späteren Schritt.
           </p>
         )}
-        <p className="text-xs text-fg-muted/80">
-          Der Kalender plant deine Wochen in einem der nächsten Schritte automatisch passend zur
-          Phase.
-        </p>
+        <Link
+          to="/calendar"
+          className="inline-flex min-h-11 items-center self-start text-sm font-medium text-accent"
+        >
+          Im Kalender „Woche planen“ bzw. „neu planen“ →
+        </Link>
       </Card>
 
       <Card className="flex flex-col gap-3">

@@ -7,7 +7,7 @@ import type { HistorySession } from '@/domain/generator/types'
 import { FOCUS_LABELS, INTENSITY_LABELS } from '@/features/generator/labels'
 import { summarizeSets } from '@/features/training/lastTime'
 import { cn } from '@/lib/cn'
-import { formatShortDay } from './format'
+import { formatShortDay, plannedTitle } from './format'
 import type { CalendarDay } from './week'
 
 /** Übungsname zum Slug (aus dem Katalog; Slug als Ersatz). */
@@ -185,9 +185,7 @@ export function PlannedItem({ planned, isPast }: { planned: PlannedWorkout; isPa
       )}
     >
       <div className="min-w-0 flex-1">
-        <p className={cn('font-semibold', skipped && 'line-through')}>
-          {planned.title ?? FOCUS_LABELS[planned.focus]}
-        </p>
+        <p className={cn('font-semibold', skipped && 'line-through')}>{plannedTitle(planned)}</p>
         <p className="text-xs text-fg-muted">
           {planned.startTime && `${planned.startTime} Uhr · `}
           {planned.durationMin} min · {INTENSITY_LABELS[planned.intensity]}

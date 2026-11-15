@@ -62,6 +62,7 @@ export function toReplacePayload(
       intensity: day.intensity,
       workout: day.workout,
       explanation: day.workout.explanation,
+      race_session_type: day.raceSessionType,
     })),
   }
 }

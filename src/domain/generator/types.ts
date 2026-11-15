@@ -30,6 +30,34 @@ export type ReadinessInput =
       recovery: number
     }
 
+/**
+ * Einheiten der Wettkampfvorbereitung (docs/RACE_PREP.md §3). Die Simulation baut
+ * `domain/race` aus dem Simulationsformat; alle anderen erzeugt der Generator.
+ */
+export const RACE_SESSION_TYPES = [
+  'compromised_run',
+  'run_intervals',
+  'easy_run',
+  'station_strength',
+  'simulation',
+  'activation',
+] as const
+export type RaceSessionType = (typeof RACE_SESSION_TYPES)[number]
+export type GeneratedRaceSessionType = Exclude<RaceSessionType, 'simulation'>
+
+/** Wettkampfart, soweit sie den Aufbau einer Einheit ändert. */
+export type RaceTeamFormat = 'single' | 'double' | 'relay'
+
+/** Wettkampf-Einheit: Vorlage, Wettkampfart und Zielgewichte. */
+export interface RaceSessionRequest {
+  type: GeneratedRaceSessionType
+  team: RaceTeamFormat
+  /** Wettkampfgewicht je Station in kg (Farmers Carry je Hand) */
+  stationWeights: Partial<Record<HyroxStation, number>>
+  /** Anteil des Wettkampfgewichts, mit dem trainiert wird (z. B. 0,8 im Aufbau) */
+  loadShare: number
+}
+
 export interface WorkoutRequest {
   durationMin: number
   focus: Focus
@@ -38,6 +66,8 @@ export interface WorkoutRequest {
   targetMuscles?: readonly MuscleGroup[] | undefined
   hyroxStations?: readonly HyroxStation[] | undefined
   unavailableEquipment?: readonly Equipment[] | undefined
+  /** Einheit der Wettkampfvorbereitung – ersetzt die Vorlage des Schwerpunkts */
+  raceSession?: RaceSessionRequest | undefined
 }
 
 export interface GeneratorProfile {

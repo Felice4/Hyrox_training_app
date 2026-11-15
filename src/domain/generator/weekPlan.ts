@@ -10,6 +10,8 @@ import type {
   GoalWeights,
   HistorySession,
   Intensity,
+  RaceSessionRequest,
+  RaceSessionType,
   SkillRequest,
 } from './types'
 
@@ -49,6 +51,31 @@ export interface WeekPlanInput {
   /** Bestehen bleibende Einheiten (ausgefallen/vergangen) – nur ihr Tag ist belegt */
   kept: readonly KeptPlanned[]
   seed: number
+  /** Wettkampfmodus: ersetzt die Grundverteilung (docs/RACE_PREP.md §4) */
+  race?: RaceWeekInput | undefined
+}
+
+/** Eine Einheit des Wettkampfplans (siehe `domain/race/sessions.ts`). */
+export interface RaceSessionPlanInput {
+  type: RaceSessionType
+  focus: Focus
+  intensity: Intensity
+  durationMin: number
+  /** Anfrage an den Generator … */
+  raceSession?: RaceSessionRequest | undefined
+  /** … oder ein fertiges Workout (Simulation) */
+  workout?: GeneratedWorkout | undefined
+}
+
+export interface RaceWeekInput {
+  /** Einheiten der Woche, wichtigste zuerst */
+  sessions: readonly RaceSessionPlanInput[]
+  /** Mögliche Wochentage (1 = Mo … 7 = So); leer = alle */
+  weekdays: readonly number[]
+  /** Spätester Tag, an dem geplant wird (Wettkampfwoche: zwei Tage vor dem Rennen) */
+  latestDate?: string | undefined
+  /** Erklärung der Woche (Phase, Ziel, Schlüsseleinheit) */
+  explanation: readonly string[]
 }
 
 export interface PlannedDay {
@@ -57,6 +84,8 @@ export interface PlannedDay {
   intensity: Intensity
   durationMin: number
   workout: GeneratedWorkout
+  /** Einheit des Wettkampfplans */
+  raceSessionType?: RaceSessionType | undefined
 }
 
 export interface GeneratedWeekPlan {
@@ -183,6 +212,7 @@ function intensityFor(focus: Focus, index: number): Intensity {
  * zählt bereits Erledigtes mit, plant nur freie Tage ab heute und erzeugt je Tag ein Workout.
  */
 export function generateWeekPlan(input: WeekPlanInput): GeneratedWeekPlan {
+  if (input.race) return generateRaceWeekPlan(input, input.race)
   const explanation: string[] = []
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(input.weekStart, i))
   const startFrom = input.today > input.weekStart ? input.today : input.weekStart
@@ -257,5 +287,127 @@ export function generateWeekPlan(input: WeekPlanInput): GeneratedWeekPlan {
     }
   }
 
+  return { weekStart: input.weekStart, days: planned, explanation }
+}
+
+// -----------------------------------------------------------------------------
+// Wettkampfmodus (docs/RACE_PREP.md §4)
+// -----------------------------------------------------------------------------
+
+/**
+ * Ordnet die Wettkampf-Einheiten den Tagen zu: keine zwei beinlastigen oder zwei harten
+ * Einheiten an Folgetagen (auch nicht neben bereits feststehenden).
+ */
+export function assignRaceSessions(
+  days: readonly string[],
+  sessions: readonly RaceSessionPlanInput[],
+  fixedDays: readonly DoneTraining[],
+  seed: number,
+): RaceSessionPlanInput[] {
+  const random = createRandom(seed)
+  const penalty = (order: readonly RaceSessionPlanInput[]) => {
+    const byDate = new Map<string, { focus: Focus; hard: boolean; type?: RaceSessionType }>(
+      fixedDays.map((d) => [d.date, { focus: d.focus, hard: false }]),
+    )
+    days.forEach((d, i) => {
+      const s = order[i] as RaceSessionPlanInput
+      byDate.set(d, { focus: s.focus, hard: s.intensity === 'hard', type: s.type })
+    })
+    let score = 0
+    for (const [date, a] of byDate) {
+      const b = byDate.get(addDays(date, 1))
+      if (!b) continue
+      if (LEG_HEAVY.includes(a.focus) && LEG_HEAVY.includes(b.focus)) score += 3
+      if (a.hard && b.hard) score += 2
+      if (a.type !== undefined && a.type === b.type) score += 1
+    }
+    return score
+  }
+  const orders = permutations(sessions)
+  const best = Math.min(...orders.map(penalty))
+  const optimal = orders.filter((o) => penalty(o) === best)
+  return optimal[Math.floor(random() * optimal.length)] ?? [...sessions]
+}
+
+function generateRaceWeekPlan(input: WeekPlanInput, race: RaceWeekInput): GeneratedWeekPlan {
+  const explanation = [...race.explanation]
+  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(input.weekStart, i))
+  const startFrom = input.today > input.weekStart ? input.today : input.weekStart
+
+  // Erledigtes und feststehende Einheiten ab heute (z. B. Trainer-Termine) ersetzen
+  // die Einheit mit demselben Schwerpunkt – ein HYROX-Termin also den Kompromiss-Lauf.
+  const fixedAhead = input.kept.filter((k) => k.status === 'planned' && k.date >= startFrom)
+  const remaining = [...race.sessions]
+  let covered = 0
+  for (const entry of [...input.done, ...fixedAhead]) {
+    const index = remaining.findIndex((s) => s.focus === entry.focus)
+    if (index < 0) continue
+    remaining.splice(index, 1)
+    covered += 1
+  }
+  if (covered > 0) {
+    explanation.push(
+      `${covered} Einheit(en) dieser Woche sind schon absolviert oder eingetragen und ersetzen eine Einheit des Plans.`,
+    )
+  }
+
+  const occupied = new Set([...input.done.map((d) => d.date), ...input.kept.map((k) => k.date)])
+  const free = weekDays.filter(
+    (d) =>
+      d >= startFrom &&
+      !occupied.has(d) &&
+      (race.latestDate === undefined || d <= race.latestDate) &&
+      (race.weekdays.length === 0 || race.weekdays.includes(weekdayOf(d))),
+  )
+  const days = chooseDays(free, remaining.length, race.weekdays, [...occupied])
+  const chosen = remaining.slice(0, days.length)
+  if (chosen.length < remaining.length) {
+    explanation.push(
+      `Nicht genug freie Trainingstage – ${remaining.length - chosen.length} Einheit(en) mit geringerer Priorität entfallen diese Woche.`,
+    )
+  }
+  const fixedDays = [
+    ...input.done,
+    ...input.kept.filter((k) => k.status === 'planned').map(({ date, focus }) => ({ date, focus })),
+  ]
+  const order = assignRaceSessions(days, chosen, fixedDays, input.seed)
+
+  const lastPracticed: Record<string, string> = { ...input.skills?.lastPracticed }
+  const planned: PlannedDay[] = days.map((date, index) => {
+    const session = order[index] as RaceSessionPlanInput
+    const now = `${date}T12:00:00.000Z`
+    const workout =
+      session.workout ??
+      generateWorkout({
+        request: {
+          durationMin: session.durationMin,
+          focus: session.focus,
+          intensity: session.intensity,
+          raceSession: session.raceSession,
+        },
+        skills: input.skills && { ...input.skills, lastPracticed: { ...lastPracticed } },
+        profile: input.profile,
+        goals: input.goals,
+        exercises: input.exercises,
+        history: input.history,
+        now,
+        seed: input.seed + index * 7919,
+      })
+    for (const slug of skillsInWorkout(workout)) lastPracticed[slug] = now
+    return {
+      date,
+      focus: session.focus,
+      intensity: session.intensity,
+      durationMin: session.durationMin,
+      workout,
+      raceSessionType: session.type,
+    }
+  })
+
+  if (planned.length > 0) {
+    explanation.push(
+      'Beinlastige oder harte Einheiten liegen möglichst nicht an aufeinanderfolgenden Tagen.',
+    )
+  }
   return { weekStart: input.weekStart, days: planned, explanation }
 }

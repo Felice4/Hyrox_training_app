@@ -19,6 +19,7 @@ import {
   niceDuration,
 } from './dosing'
 import { buildHistoryIndex, filterPool } from './pool'
+import { applyRaceDosing, buildRaceTemplate } from './raceTemplates'
 import { excludesFatiguedMuscles, scoreCandidate, SCORING, type ScoringContext } from './scoring'
 import {
   buildSkillItems,
@@ -118,13 +119,17 @@ function dose(
   spec: SlotSpec,
   inCircuit: boolean,
 ) {
-  return doseExercise(exercise, spec.role, {
+  const dosed = doseExercise(exercise, spec.role, {
     intensity: state.intensity,
     volumeFactor: state.volumeFactor,
     loadFactor: state.loadFactor,
     history: state.input.history,
     fixedSets: inCircuit ? state.rounds : undefined,
   })
+  const race = state.input.request.raceSession
+  if (!race) return dosed
+  const adjusted = applyRaceDosing(exercise, spec.role, dosed.sets, race)
+  return { sets: adjusted.sets, note: adjusted.note ?? dosed.note }
 }
 
 function isHighlyFatigued(exercise: GeneratorExercise, state: GenerationState): boolean {
@@ -138,7 +143,7 @@ function isHighlyFatigued(exercise: GeneratorExercise, state: GenerationState): 
 function selectExercise(
   state: GenerationState,
   spec: SlotSpec,
-  maxSec = state.targetSec * MAX_SHARE_PER_ITEM,
+  maxSec = state.targetSec * (spec.maxShare ?? MAX_SHARE_PER_ITEM),
 ): GeneratorExercise | undefined {
   const chosen = state.items.map((i) => i.exercise)
   const chosenSlugs = new Set(chosen.map((e) => e.slug))
@@ -197,7 +202,9 @@ function applyCircuitRests(state: GenerationState) {
     const isLast = index === circuitItems.length - 1
     item.sets = item.sets.map((set) => ({
       ...set,
-      restSec: isLast ? CIRCUIT_ROUND_REST[state.intensity] : 0,
+      restSec: isLast
+        ? (state.template.circuit?.roundRestSec ?? CIRCUIT_ROUND_REST[state.intensity])
+        : 0,
     }))
   })
 }
@@ -517,7 +524,10 @@ export function generateWorkout(input: WorkoutRequestInput): GeneratedWorkout {
   )
 
   // 5. Vorlage
-  const template = buildTemplate(request.focus, request.durationMin, intensity)
+  const race = request.raceSession
+  const template = race
+    ? buildRaceTemplate(race.type, request.durationMin, intensity, race.team)
+    : buildTemplate(request.focus, request.durationMin, intensity)
   explanation.unshift(template.description)
   const state: GenerationState = {
     input,

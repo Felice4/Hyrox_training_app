@@ -20,7 +20,7 @@ import { filterPool } from '@/domain/generator/pool'
 import { GeneratorForm } from '@/features/generator/GeneratorForm'
 import { newSeed, toGeneratorProfile, toSkillBlockSetting } from '@/features/generator/inputs'
 import { skillOptions } from '@/features/generator/skillOptions'
-import { FOCUS_LABELS, INTENSITY_LABELS } from '@/features/generator/labels'
+import { INTENSITY_LABELS } from '@/features/generator/labels'
 import { WorkoutPreview } from '@/features/generator/WorkoutPreview'
 import { TrainerAppointmentDetail } from '@/features/manualEntry/TrainerAppointmentDetail'
 import { readActiveSession, useActiveSessionKey } from '@/features/training/useActiveSession'
@@ -29,8 +29,8 @@ import { READINESS } from '@/domain/generator/config'
 import { readinessStatus } from '@/domain/readiness/readiness'
 import { useTodayCheckin } from '@/features/readiness/useCheckin'
 import { toLocalIsoDate } from '@/lib/date'
-import { formatLongDay, formatShortDay } from './format'
-import { generateForDay, requestFor, type PlanningData } from './planning'
+import { formatLongDay, formatShortDay, plannedTitle } from './format'
+import { regeneratePlanned, requestFor, type PlanningData } from './planning'
 import {
   useDeletePlannedWorkout,
   usePlannedWorkout,
@@ -152,14 +152,15 @@ function PlannedDetail({ planned, data }: { planned: PlannedWorkout; data: Plann
   }
 
   function regenerate(request: WorkoutRequest) {
-    const next = generateForDay(data, request, planned.date, today, newSeed())
-    setLocalWorkout(next)
+    const next = regeneratePlanned(data, planned, request, today, newSeed())
+    setLocalWorkout(next.workout)
     setEditing(false)
     save({
-      workout: next,
+      workout: next.workout,
       focus: request.focus,
       intensity: request.intensity,
-      durationMin: request.durationMin,
+      durationMin: next.workout.targetDurationMin,
+      raceSessionType: next.raceSessionType,
     })
     window.scrollTo({ top: 0 })
   }
@@ -194,9 +195,10 @@ function PlannedDetail({ planned, data }: { planned: PlannedWorkout; data: Plann
             <Badge tone="accent">Geplant</Badge>
           )}
           {planned.source === 'manual' && <Badge tone="hyrox">Spontan</Badge>}
+          {planned.raceSessionType && <Badge tone="hyrox">Wettkampfplan</Badge>}
         </div>
         <h1 className="mt-2 font-display text-4xl font-bold tracking-wide uppercase">
-          {FOCUS_LABELS[planned.focus]}
+          {plannedTitle(planned)}
         </h1>
         <p className="text-fg-muted">
           {formatLongDay(planned.date)} · {planned.durationMin} min ·{' '}
@@ -216,6 +218,21 @@ function PlannedDetail({ planned, data }: { planned: PlannedWorkout; data: Plann
         >
           Die Änderung konnte nicht gespeichert werden. Bitte versuche es erneut.
         </p>
+      )}
+
+      {planned.raceSessionType === 'simulation' && editable && !skipped && (
+        <Link
+          to="/training/simulation"
+          className="flex min-h-14 items-center justify-between gap-3 rounded-xl border border-hyrox/40 bg-hyrox/10 px-4 py-3 text-sm"
+        >
+          <span>
+            <span className="block font-semibold">Mit Rennuhr absolvieren</span>
+            <span className="block text-fg-muted">
+              Zwischenzeiten je Lauf und Station unter Training → HYROX-Simulation
+            </span>
+          </span>
+          <span aria-hidden="true">→</span>
+        </Link>
       )}
 
       {completed && (

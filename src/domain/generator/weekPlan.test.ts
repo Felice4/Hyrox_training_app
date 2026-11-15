@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { LIBRARY, makeInput } from './testFixtures'
-import { chooseDays, generateWeekPlan, type WeekPlanInput } from './weekPlan'
+import {
+  chooseDays,
+  generateWeekPlan,
+  type RaceSessionPlanInput,
+  type RaceWeekInput,
+  type WeekPlanInput,
+} from './weekPlan'
 
 // Woche ab Montag, 26.10.2026
 const MONDAY = '2026-10-26'
@@ -128,5 +134,128 @@ describe('generateWeekPlan', () => {
     expect(plan.days).toHaveLength(2)
     expect(plan.explanation.join(' ')).toContain('nur noch 2 freie Tage')
     expect(dayDiff(plan.days[0]!.date, plan.days[1]!.date)).toBe(1)
+  })
+})
+
+describe('generateWeekPlan im Wettkampfmodus', () => {
+  const weights = { sled_push: 152, sled_pull: 103, wall_balls: 6 }
+  const session = (
+    type: RaceSessionPlanInput['type'],
+    focus: RaceSessionPlanInput['focus'],
+    intensity: RaceSessionPlanInput['intensity'],
+  ): RaceSessionPlanInput => ({
+    type,
+    focus,
+    intensity,
+    durationMin: 45,
+    raceSession:
+      type === 'simulation'
+        ? undefined
+        : { type, team: 'single', stationWeights: weights, loadShare: 0.8 },
+  })
+  // Aufbau mit 4 Tagen, wichtigste Einheit zuerst
+  const race: RaceWeekInput = {
+    sessions: [
+      session('compromised_run', 'hyrox', 'moderate'),
+      session('station_strength', 'strength', 'moderate'),
+      session('run_intervals', 'endurance', 'moderate'),
+      session('easy_run', 'endurance', 'easy'),
+    ],
+    // Montag und Mittwoch gesperrt
+    weekdays: [2, 4, 6, 7],
+    explanation: ['Wettkampfmodus · Aufbau · Woche 1 von 9.'],
+  }
+
+  it('plant die Einheiten nur auf die möglichen Wochentage', () => {
+    const plan = generateWeekPlan(input({ race, trainingDaysPerWeek: 2 }))
+    expect(plan.days.map((d) => d.date)).toEqual([
+      '2026-10-27',
+      '2026-10-29',
+      '2026-10-31',
+      '2026-11-01',
+    ])
+    expect(plan.days.map((d) => d.raceSessionType).sort()).toEqual([
+      'compromised_run',
+      'easy_run',
+      'run_intervals',
+      'station_strength',
+    ])
+    expect(plan.explanation[0]).toBe('Wettkampfmodus · Aufbau · Woche 1 von 9.')
+  })
+
+  it('legt keine beinlastigen Einheiten an Folgetage', () => {
+    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
+      const plan = generateWeekPlan(input({ race, seed }))
+      for (let i = 1; i < plan.days.length; i++) {
+        const [a, b] = [plan.days[i - 1]!, plan.days[i]!]
+        if (dayDiff(a.date, b.date) === 1) {
+          expect(LEG_HEAVY.includes(a.focus) && LEG_HEAVY.includes(b.focus)).toBe(false)
+        }
+      }
+    }
+  })
+
+  it('erzeugt Wettkampf-Workouts mit Zielgewichten', () => {
+    const plan = generateWeekPlan(input({ race }))
+    const strength = plan.days.find((d) => d.raceSessionType === 'station_strength')
+    const sled = strength?.workout.blocks
+      .flatMap((b) => b.items)
+      .find((i) => i.exerciseSlug === 'hyrox-sled-push')
+    expect(sled?.sets[0]?.weightKg).toBe(122.5)
+  })
+
+  it('ein Trainer-Termin (HYROX) ersetzt den Kompromiss-Lauf', () => {
+    const plan = generateWeekPlan(
+      input({ race, kept: [{ date: '2026-10-29', focus: 'hyrox', status: 'planned' }] }),
+    )
+    expect(plan.days.map((d) => d.raceSessionType)).not.toContain('compromised_run')
+    expect(plan.days.map((d) => d.date)).not.toContain('2026-10-29')
+    expect(plan.days).toHaveLength(3)
+  })
+
+  it('zählt Erledigtes mit und lässt bei zu wenig Tagen die unwichtigsten weg', () => {
+    const plan = generateWeekPlan(
+      input({
+        race,
+        today: '2026-10-30',
+        done: [{ date: '2026-10-27', focus: 'strength' }],
+      }),
+    )
+    // Frei: Sa, So → Kompromiss-Lauf und Laufintervalle; der Dauerlauf entfällt
+    expect(plan.days.map((d) => d.raceSessionType).sort()).toEqual([
+      'compromised_run',
+      'run_intervals',
+    ])
+    expect(plan.explanation.join(' ')).toContain('1 Einheit(en) mit geringerer Priorität')
+  })
+
+  it('plant nicht nach dem spätesten Tag (Wettkampfwoche)', () => {
+    const plan = generateWeekPlan(
+      input({
+        race: {
+          ...race,
+          sessions: [
+            session('activation', 'recovery', 'easy'),
+            session('activation', 'recovery', 'easy'),
+          ],
+          latestDate: '2026-10-30',
+        },
+      }),
+    )
+    expect(plan.days.map((d) => d.date)).toEqual(['2026-10-27', '2026-10-29'])
+  })
+
+  it('übernimmt fertige Workouts (Simulation) unverändert', () => {
+    const simulation = generateWeekPlan(input()).days[0]!.workout
+    const plan = generateWeekPlan(
+      input({
+        race: {
+          ...race,
+          sessions: [{ ...session('simulation', 'hyrox', 'hard'), workout: simulation }],
+        },
+      }),
+    )
+    expect(plan.days[0]?.workout).toBe(simulation)
+    expect(plan.days[0]?.raceSessionType).toBe('simulation')
   })
 })

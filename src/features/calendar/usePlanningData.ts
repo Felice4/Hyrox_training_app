@@ -1,6 +1,7 @@
 import { useExerciseCatalog } from '@/features/exercises/useExerciseCatalog'
 import { useSkillGoals } from '@/features/goals/useSkillGoals'
 import { useProfileDetails } from '@/features/profile/useProfile'
+import { useActiveRace } from '@/features/race/useRace'
 import { useTrainingHistory } from '@/features/training/useTrainingHistory'
 import type { PlanningData } from './planning'
 
@@ -18,8 +19,16 @@ export function usePlanningData(): PlanningState {
   const { catalog } = useExerciseCatalog()
   const history = useTrainingHistory()
   const skillGoals = useSkillGoals()
+  // Fehlt der Wettkampf (Ladefehler), wird normal geplant
+  const race = useActiveRace()
 
-  if (details.isPending || catalog.isPending || history.isPending || skillGoals.isPending) {
+  if (
+    details.isPending ||
+    catalog.isPending ||
+    history.isPending ||
+    skillGoals.isPending ||
+    race.isPending
+  ) {
     return { status: 'loading' }
   }
   if (details.isError || catalog.isError) {
@@ -38,6 +47,7 @@ export function usePlanningData(): PlanningState {
       exercises: catalog.data.exercises,
       history: history.data ?? [],
       skillGoals: skillGoals.data?.goals,
+      race: race.data ?? null,
     },
     historyFailed: history.isError,
   }

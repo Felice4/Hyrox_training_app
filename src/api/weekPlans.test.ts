@@ -43,6 +43,7 @@ describe('toPlannedWorkout', () => {
       coach: null,
       startTime: null,
       completedSessionId: null,
+      raceSessionType: null,
     })
   })
 
@@ -73,5 +74,13 @@ describe('toPlannedWorkout', () => {
       intensity: 'moderate',
       source: 'week_plan',
     })
+  })
+
+  it('übernimmt die Art der Wettkampf-Einheit und verwirft unbekannte', () => {
+    expect(toPlannedWorkout(row).raceSessionType).toBeNull()
+    expect(toPlannedWorkout({ ...row, race_session_type: 'compromised_run' }).raceSessionType).toBe(
+      'compromised_run',
+    )
+    expect(toPlannedWorkout({ ...row, race_session_type: 'yoga' }).raceSessionType).toBeNull()
   })
 })

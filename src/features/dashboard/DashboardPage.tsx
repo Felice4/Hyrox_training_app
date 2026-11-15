@@ -13,7 +13,7 @@ import type { HistorySession } from '@/domain/generator/types'
 import { summarizeTrainingLoad } from '@/domain/load/trainingLoad'
 import { WEEKDAY_SHORT_LABELS } from '@/domain/profile/vocabulary'
 import { useAuth } from '@/features/auth/authContext'
-import { formatShortDay } from '@/features/calendar/format'
+import { formatShortDay, plannedTitle } from '@/features/calendar/format'
 import { useUpcomingPlanned } from '@/features/calendar/usePlannedWorkouts'
 import { nextPlanned } from '@/features/calendar/week'
 import { GoalsCard } from '@/features/goals/GoalsCard'
@@ -250,7 +250,7 @@ function NextPlanned({ planned, today }: { planned: PlannedWorkout; today: strin
           Nächstes Training · {planned.date === today ? 'Heute' : formatShortDay(planned.date)}
         </p>
         <p className="font-display text-3xl leading-tight font-bold uppercase">
-          {planned.title ?? FOCUS_LABELS[planned.focus]}
+          {plannedTitle(planned)}
         </p>
         <p className="text-xs text-fg-muted">
           {planned.source === 'trainer'

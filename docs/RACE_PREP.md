@@ -66,7 +66,7 @@ Neue Vorlagen im Generator (`templates.ts`). Für Kalender, Belastung und Statis
 | **Simulation** | bestehende Simulation (Hälfte, Kurz oder Komplett) | HYROX |
 | **Aktivierung** | 20–30 min: lockerer Lauf, 3–4 kurze Steigerungen, je Station ein paar Wiederholungen | Regeneration |
 
-Das Laufen zwischen den Übungen steckt im Kompromiss-Lauf und in der Simulation. Der wöchentliche **Laufumfang** wird aus dem Verlauf geschätzt und steigt höchstens um 10 % pro Woche (Entlastung −40 %, Tapering −30 bis −50 %).
+Das Laufen zwischen den Übungen steckt im Kompromiss-Lauf und in der Simulation. Der **Laufumfang** steigt über den lockeren Dauerlauf: 30 min, je Belastungswoche rund +10 % bis 60 min (Entlastung −30 %, Tapering −40 %). Umsetzung 6.3b: zunächst ohne Schätzung aus dem Verlauf; die Anpassung an echte Laufdaten folgt mit dem Einstiegstest (6.3c).
 
 ## 4. Wochenplan im Wettkampfmodus
 
@@ -131,7 +131,7 @@ Neue Tabelle `races`:
 | Schritt | Inhalt |
 |---|---|
 | **6.3a** | Migration 0011; Logik `domain/race` (Phasen, Varianten, Gewichte) mit Tests; Seite „Wettkampf“ (anlegen, bearbeiten, absagen); Countdown auf dem Dashboard; Phase im Kalender |
-| **6.3b** | Neue Vorlagen (Kompromiss-Lauf, Laufintervalle, Dauerlauf, Stationskraft, Aktivierung); Wochenplan im Wettkampfmodus mit Laufumfang, Entlastung, Tapering und Anpassung je Variante |
+| **6.3b** | Neue Vorlagen (Kompromiss-Lauf, Laufintervalle, Dauerlauf, Stationskraft, Aktivierung); Wochenplan im Wettkampfmodus mit Laufumfang, Entlastung, Tapering und Anpassung je Variante – umgesetzt 16.11.2026 (Code: `src/domain/race/sessions.ts`, `src/domain/generator/raceTemplates.ts`, Migration 0012) |
 | **6.3c** | Einstiegstest und Zielzeit-Schätzung, Zieltempo in den Einheiten, Zwischencheck, „Warum diese Woche?“, Lernkarten |
 | **6.3d** | Ergebnis eintragen, Bestzeit, Erholungswoche, Abschluss des Wettkampfs |
 

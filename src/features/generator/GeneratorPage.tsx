@@ -26,6 +26,7 @@ import { storageKeys } from '@/features/training/storage'
 import { readActiveSession, useActiveSessionKey } from '@/features/training/useActiveSession'
 import { useStartTraining } from '@/features/training/useStartTraining'
 import { useProfileDetails } from '@/features/profile/useProfile'
+import { RaceGeneratorHint } from '@/features/race/RaceGeneratorHint'
 import { CheckinCard } from '@/features/readiness/CheckinCard'
 import { useTodayCheckin } from '@/features/readiness/useCheckin'
 import { toLocalIsoDate } from '@/lib/date'
@@ -173,6 +174,7 @@ function Generator({
         <div className="mb-4">
           <CheckinCard today={today} />
         </div>
+        <RaceGeneratorHint today={today} />
         <Link
           to="/training/simulation"
           className="mb-4 flex min-h-14 items-center justify-between gap-3 rounded-xl border border-hyrox/40 bg-hyrox/10 px-4 py-3"

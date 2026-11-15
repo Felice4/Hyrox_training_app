@@ -13,7 +13,7 @@ import { AddEntryMenu, DayContent, type NameOf } from './DayItems'
 import { formatShortDay, formatWeek } from './format'
 import { periodStats } from './month'
 import { PeriodNav } from './PeriodNav'
-import { planWeek, type PlanningData } from './planning'
+import { planWeek, raceWeekFor, weekTarget, type PlanningData } from './planning'
 import { usePlannedWeek, useReplaceWeekPlan } from './usePlannedWorkouts'
 import { useSessionsInRange } from './useSessionsInRange'
 import { addDays, calendarWeek, canPlanWeek, toReplacePayload, type CalendarDay } from './week'
@@ -101,13 +101,12 @@ function WeekContent({
   notes: string | null
 }) {
   const stats = periodStats(days)
-  const target = data.details.profile?.training_days_per_week
+  const target = weekTarget(data, weekStart)
   return (
     <>
       <p className="text-center text-sm text-fg-muted">
         <span className="font-semibold text-fg">{stats.trainingDays}</span>
-        {target !== null && target !== undefined && ` von ${target}`} Trainingstagen ·{' '}
-        {stats.minutes} min
+        {target !== undefined && ` von ${target}`} Trainingstagen · {stats.minutes} min
         {stats.open > 0 && ` · ${stats.open} offen`}
       </p>
       {canPlanWeek(weekStart, today) && (
@@ -177,7 +176,8 @@ function PlanCard({
   }
 
   const lines = notes ? notes.split('\n') : []
-  const days = data.details.profile?.training_days_per_week
+  const days = weekTarget(data, weekStart)
+  const raceMode = raceWeekFor(data, weekStart) !== undefined
 
   return (
     <Card className="flex flex-col gap-3">
@@ -186,7 +186,9 @@ function PlanCard({
         <p className="text-sm text-fg-muted">
           {hasPlan
             ? 'Tippe auf eine Einheit, um sie anzusehen, zu verschieben oder zu ersetzen.'
-            : `Plant ${days ?? 4} Trainingstage passend zu deinen Zielen, bevorzugten Tagen und dem, was du diese Woche schon trainiert hast.`}
+            : raceMode
+              ? 'Wettkampfmodus: plant die Einheiten dieser Phase (Kompromiss-Lauf, Laufintervalle, Stationskraft …) auf deine möglichen Trainingstage.'
+              : `Plant ${days ?? 4} Trainingstage passend zu deinen Zielen, bevorzugten Tagen und dem, was du diese Woche schon trainiert hast.`}
         </p>
       </div>
       <Button

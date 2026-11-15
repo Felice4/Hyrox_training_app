@@ -1,10 +1,12 @@
 import {
   FOCUSES,
   INTENSITIES,
+  RACE_SESSION_TYPES,
   generatedWorkoutSchema,
   type Focus,
   type GeneratedWorkout,
   type Intensity,
+  type RaceSessionType,
 } from '@/domain/generator'
 import type { AppSupabaseClient } from '@/lib/supabase'
 import type { Json, Tables } from '@/types/database'
@@ -31,6 +33,8 @@ export interface PlannedWorkout {
   coach: string | null
   startTime: string | null
   completedSessionId: string | null
+  /** Einheit des Wettkampfplans (docs/RACE_PREP.md §3), sonst `null` */
+  raceSessionType: RaceSessionType | null
 }
 
 export interface WeekPlan {
@@ -64,6 +68,9 @@ export function toPlannedWorkout(row: Tables<'planned_workouts'>): PlannedWorkou
     // Postgres liefert „18:00:00"
     startTime: row.start_time ? row.start_time.slice(0, 5) : null,
     completedSessionId: row.completed_session_id,
+    raceSessionType: RACE_SESSION_TYPES.includes(row.race_session_type as RaceSessionType)
+      ? (row.race_session_type as RaceSessionType)
+      : null,
   }
 }
 
@@ -123,6 +130,7 @@ export interface ReplaceWeekPlanPayload {
     intensity: Intensity
     workout: GeneratedWorkout
     explanation: string[]
+    race_session_type?: RaceSessionType | undefined
   }[]
 }
 
@@ -158,6 +166,8 @@ export interface PlannedWorkoutChange {
   title?: string
   coach?: string | null
   startTime?: string
+  /** `null`, wenn eine Wettkampf-Einheit durch ein anderes Workout ersetzt wird */
+  raceSessionType?: RaceSessionType | null
 }
 
 export async function updatePlannedWorkout(
@@ -178,6 +188,7 @@ export async function updatePlannedWorkout(
       title: change.title,
       coach: change.coach,
       start_time: change.startTime,
+      race_session_type: change.raceSessionType,
     })
     .eq('id', id)
     // Erledigte Einheiten sind Teil der Historie und bleiben unverändert

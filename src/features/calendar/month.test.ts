@@ -26,6 +26,7 @@ const planned = (date: string, status: PlannedWorkout['status'] = 'planned'): Pl
   coach: null,
   startTime: null,
   completedSessionId: null,
+  raceSessionType: null,
 })
 
 describe('Monatsraster', () => {
