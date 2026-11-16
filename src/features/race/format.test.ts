@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Race } from '@/domain/race/race'
-import { countdownLabel, phaseLine } from './format'
+import { countdownLabel, formatTimeRange, phaseLine } from './format'
 
 const race: Race = {
   id: 'r1',
@@ -32,5 +32,13 @@ describe('phaseLine', () => {
     expect(phaseLine(race, '2026-12-16')).toBe('Spezifisch · Woche 5 von 9')
     expect(phaseLine(race, '2027-01-19')).toBe('Erholung')
     expect(phaseLine(race, '2026-11-15')).toBeNull()
+  })
+})
+
+describe('formatTimeRange', () => {
+  it('Stunden mit „h“, unter einer Stunde in Minuten', () => {
+    expect(formatTimeRange(85 * 60, 95 * 60)).toBe('1:25–1:35 h')
+    expect(formatTimeRange(58 * 60, 64 * 60)).toBe('58–64 min')
+    expect(formatTimeRange(40 * 60, 45 * 60)).toBe('40–45 min')
   })
 })

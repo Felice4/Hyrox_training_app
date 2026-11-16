@@ -30,6 +30,7 @@ import { toLocalIsoDate } from '@/lib/date'
 import { formatDurationClock } from '@/lib/time'
 import { countdownLabel } from './format'
 import { RaceForm } from './RaceForm'
+import { RaceTargetCard } from './RaceTargetCard'
 import { useActiveRace, useCancelRace, useCreateRace, useUpdateRace } from './useRace'
 
 /** Farbe je Phase – harte Phasen im HYROX-Gelb, ruhige gedämpft. */
@@ -253,6 +254,8 @@ function RaceOverview({ race, today }: { race: Race; today: string }) {
           })}
         </ol>
       </Card>
+
+      <RaceTargetCard race={race} today={today} />
 
       <WeightsCard race={race} />
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import { ChevronLeftIcon } from '@/components/icons'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -57,18 +57,22 @@ export function SimulationSetupPage() {
   const auth = useAuth()
   const userId = auth.status === 'signedIn' ? auth.session.user.id : 'unbekannt'
   const navigate = useNavigate()
+  const [params] = useSearchParams()
   const details = useProfileDetails()
   const { catalog } = useExerciseCatalog()
   const simulations = useSimulations()
   const activeKey = useActiveSessionKey()
   const checkin = useTodayCheckin(toLocalIsoDate())
 
-  // Letzte Wahl merken; sonst Division aus dem Profil
+  // Letzte Wahl merken; sonst Division aus dem Profil. `?format=short` (Einstiegstest) gibt das Format vor.
   const [choice, setChoice] = useState<Choice>(() => {
+    const requested = params.get('format')
+    const format = SIMULATION_FORMATS.find((f) => f === requested)
     const stored = loadDraft(choiceKey(userId), null, restoreChoice)
-    if (stored) return stored
     const female = details.data?.profile?.sex === 'female'
-    return { format: 'full', division: female ? 'open_women' : 'open_men' }
+    const fallback: Choice = { format: 'full', division: female ? 'open_women' : 'open_men' }
+    const choice = stored ?? fallback
+    return format ? { ...choice, format } : choice
   })
   const [openedAt] = useState(() => new Date().toISOString())
   const segments = buildSegments(choice.format, choice.division)

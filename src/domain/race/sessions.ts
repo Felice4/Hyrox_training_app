@@ -17,6 +17,7 @@ import {
   type RacePhase,
   type RaceWeek,
 } from './phases'
+import { targetPlan } from './estimate'
 import type { Race } from './race'
 import { weightSets, type RaceVariant } from './variant'
 
@@ -72,6 +73,10 @@ export interface RaceWeekContext {
 
 const isSimulationWeek = (phase: RacePhase, phaseWeek: number) =>
   phase === 'build' && phaseWeek % 2 === 0
+
+/** Erste Woche des Plans – Einstiegstest (nur wenn danach noch Zeit zum Trainieren bleibt). */
+const isEntryTestWeek = (ctx: { week: RaceWeek }) =>
+  ctx.week.number === 1 && (ctx.week.phase === 'base' || ctx.week.phase === 'build')
 
 export function raceWeekContext(
   timeline: readonly RaceWeek[],
@@ -149,9 +154,11 @@ export function raceWeekSessions(
       const hard = phase === 'build'
       // Doubles und Staffel laufen schneller → Intervalle schon im Aufbau hart
       const intervalIntensity: Intensity = hard || race.format !== 'single' ? 'hard' : 'moderate'
-      const simulation = isSimulationWeek(phase, ctx.phaseWeek)
+      // Woche 1: Einstiegstest mit der Simulation „Kurz“ (docs/RACE_PREP.md §6)
+      const entryTest = isEntryTestWeek(ctx)
+      const simulation = entryTest || isSimulationWeek(phase, ctx.phaseWeek)
       const simulationFormat =
-        race.format === 'relay'
+        race.format === 'relay' || entryTest
           ? 'short'
           : (SIMULATION_ORDER[Math.min(ctx.simulationsBefore, SIMULATION_ORDER.length - 1)] ??
             'short')
@@ -224,11 +231,19 @@ export function stationWeights(division: Division): RaceSessionRequest['stationW
   )
 }
 
+/** Renntempo je km aus der Zielzeit – `undefined` ohne Zielzeit. */
+export function racePace(race: Pick<Race, 'targetTimeSec' | 'format'>): number | undefined {
+  return race.targetTimeSec === null
+    ? undefined
+    : targetPlan(race.targetTimeSec, race.format).paceSecPerKm
+}
+
 /** Anfrage an den Generator für eine Einheit (nicht für die Simulation). */
 export function raceSessionRequest(
   plan: RaceSessionPlan,
   variant: RaceVariant,
   division: Division,
+  racePaceSecPerKm?: number,
 ): RaceSessionRequest | undefined {
   if (plan.type === 'simulation') return undefined
   return {
@@ -236,6 +251,7 @@ export function raceSessionRequest(
     team: variant.format,
     stationWeights: stationWeights(division),
     loadShare: plan.loadShare,
+    racePaceSecPerKm,
   }
 }
 
@@ -244,6 +260,7 @@ export function raceSimulationWorkout(
   format: SimulationFormat,
   division: Division,
   seed: number,
+  racePaceSecPerKm?: number,
 ): GeneratedWorkout {
   const workout = buildSimulationWorkout(format, division, seed)
   return {
@@ -251,8 +268,18 @@ export function raceSimulationWorkout(
     explanation: [
       ...workout.explanation,
       'Schlüsseleinheit der Woche: Wie läuft es mit Renntempo und Wettkampfgewichten? Für die Rennuhr mit Zwischenzeiten starte sie unter Training → HYROX-Simulation.',
+      ...(racePaceSecPerKm === undefined
+        ? []
+        : [
+            `Renntempo laut Zielzeit: ${clock(racePaceSecPerKm)} min/km (inkl. Roxzone etwas langsamer).`,
+          ]),
     ],
   }
+}
+
+const clock = (sec: number) => {
+  const s = Math.round(sec)
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 }
 
 /** Ein Satz zur Woche („Warum diese Woche?“). */
@@ -267,7 +294,11 @@ function weekExplanation(ctx: RaceWeekContext, sessions: readonly RaceSessionPla
   if (key && week.phase !== 'race' && week.phase !== 'recovery') {
     lines.push(`Schlüsseleinheit: ${RACE_SESSION_LABELS[key.type]}.`)
   }
-  if (sessions.some((s) => s.type === 'simulation')) {
+  if (isEntryTestWeek(ctx)) {
+    lines.push(
+      'Einstiegstest: Die Simulation „Kurz“ und an einem anderen Tag ein 1-km-Lauftest (Wettkampf-Seite). Daraus schätzt die App deine Zielzeit.',
+    )
+  } else if (sessions.some((s) => s.type === 'simulation')) {
     lines.push('Diese Woche ersetzt eine Simulation den Kompromiss-Lauf.')
   }
   const share = sessions.find((s) => s.type === 'station_strength')?.loadShare
@@ -289,18 +320,19 @@ export function raceWeekPlanInput(
   const ctx = raceWeekContext(raceTimeline(race), weekStart)
   if (!ctx) return undefined
   const division = trainingDivision(race, options.sex)
+  const pace = racePace(race)
   const plans = raceWeekSessions(ctx, race, options.baseDurationMin)
   const sessions = plans.map((plan): RaceSessionPlanInput => {
     const workout =
       plan.type === 'simulation'
-        ? raceSimulationWorkout(plan.simulationFormat ?? 'short', division, options.seed)
+        ? raceSimulationWorkout(plan.simulationFormat ?? 'short', division, options.seed, pace)
         : undefined
     return {
       type: plan.type,
       focus: RACE_SESSION_FOCUS[plan.type],
       intensity: plan.intensity,
       durationMin: workout?.targetDurationMin ?? plan.durationMin,
-      raceSession: raceSessionRequest(plan, race, division),
+      raceSession: raceSessionRequest(plan, race, division, pace),
       workout,
     }
   })
@@ -326,16 +358,23 @@ export function raceSessionForDate(
   const ctx = raceWeekContext(raceTimeline(race), date)
   if (!ctx) return undefined
   const division = trainingDivision(race, options.sex)
+  const pace = racePace(race)
   const plan = raceWeekSessions(ctx, race, 60).find((p) => p.type === type)
   if (type === 'simulation') {
     return {
-      workout: raceSimulationWorkout(plan?.simulationFormat ?? 'short', division, options.seed),
+      workout: raceSimulationWorkout(
+        plan?.simulationFormat ?? 'short',
+        division,
+        options.seed,
+        pace,
+      ),
     }
   }
   const raceSession = raceSessionRequest(
     plan ?? { type, intensity: 'moderate', durationMin: 60, loadShare: LOAD_SHARE[ctx.week.phase] },
     race,
     division,
+    pace,
   )
   return { raceSession }
 }

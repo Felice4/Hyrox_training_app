@@ -56,6 +56,8 @@ export interface RaceSessionRequest {
   stationWeights: Partial<Record<HyroxStation, number>>
   /** Anteil des Wettkampfgewichts, mit dem trainiert wird (z. B. 0,8 im Aufbau) */
   loadShare: number
+  /** Renntempo aus der Zielzeit (Sekunden je km) – für Tempo-Hinweise in den Läufen */
+  racePaceSecPerKm?: number | undefined
 }
 
 export interface WorkoutRequest {

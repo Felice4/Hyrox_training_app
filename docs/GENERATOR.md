@@ -49,7 +49,7 @@ interface WorkoutGenerator {
 
 ```ts
 {
-  generatorVersion: "rules-1.2.0",
+  generatorVersion: "rules-1.2.1",
   seed: 12345,
   focus: "strength",
   intensity: "moderate",          // nach Tagesform-Anpassung
@@ -288,10 +288,11 @@ Code: `src/domain/generator/skillBlock.ts`, eingebunden in `generateWorkout` und
 |---|---|
 | **Anfrage** | `WorkoutRequest.raceSession = { type, team, stationWeights, loadShare }` ersetzt die Vorlage des Schwerpunkts durch eine Wettkampf-Vorlage (`raceTemplates.ts`). Ohne `raceSession` bleibt der Generator unverändert. |
 | **Vorlagen** | **Kompromiss-Lauf:** Zirkel aus Lauf, Station mit Gerät und Station Kraftausdauer; jeder Lauf 1 km; Rundenpause Singles 90 s, Doubles 60 s, Staffel 180 s (Staffel höchstens 3 Runden). **Laufintervalle:** Lauf-Intervall-Übung als ganze Einheit (darf bis 150 % der Zeit „vorschlagen“, die Zeitanpassung kürzt die Wiederholungen); hart und ≥ 45 min → 1 km, sonst 400 m–1 km, Staffel 200–400 m. **Lockerer Dauerlauf:** Lauf (draußen/Laufband) über die Zeit eingestellt. **Stationskraft:** Kniebeuge/Hüftstreckung schwer, dann Sled Push, Sled Pull, Sandbag Lunges, Wall Balls, optional Farmers Carry – nur die offiziellen Stationen (`hyrox-…`), keine schweren/leichten Varianten. **Aktivierung:** Einlaufen, Steigerungsläufe, ein paar Wall Balls (höchstens 2 × 10). |
+| **Zieltempo** (6.3c) | `raceSession.racePaceSecPerKm` (aus der Zielzeit, `domain/race/estimate.ts`) ergänzt Hinweise: Kompromiss-Lauf „Renntempo 5:15 min/km · 1.000 m in 5:15“, Laufintervalle 5 % schneller („Zieltempo …“ mit Zeit je Abschnitt), Dauerlauf 30 % langsamer („Locker, etwa … min/km“). Ohne Zielzeit keine Tempo-Hinweise. |
 | **Gewichte** | Stationen mit Gewicht bekommen `Wettkampfgewicht × loadShare`, gerundet (Wall Balls 1 kg, Kettlebell 2 kg, sonst 2,5 kg), mit Hinweis „80 % vom Wettkampfgewicht (152 kg)“. |
 | **Wochenplan** | `WeekPlanInput.race` (aus `domain/race/sessions.ts`) ersetzt die Grundverteilung: Einheiten in Reihenfolge ihrer Wichtigkeit, nur auf die möglichen Wochentage, in der Wettkampfwoche bis zwei Tage vor dem Rennen. Erledigtes und feststehende Einheiten ab heute (Trainer-Termin, spontan) ersetzen die Einheit mit gleichem Schwerpunkt. Zuordnung `assignRaceSessions`: keine zwei beinlastigen (+3) oder zwei harten (+2) Einheiten an Folgetagen, nicht zweimal derselbe Typ (+1). Fertige Workouts (Simulation) werden unverändert übernommen. |
 
-Generator-Version `rules-1.2.0`.
+Generator-Version `rules-1.2.1` (1.2.0 → 1.2.1: Tempo-Hinweise).
 
 ---
 

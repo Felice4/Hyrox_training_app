@@ -67,7 +67,7 @@ describe('raceWeekContext', () => {
 
 describe('raceWeekSessions', () => {
   it('Aufbau mit 4 Tagen: Kompromiss-Lauf, Stationskraft, Laufintervalle, Dauerlauf', () => {
-    const sessions = sessionsOf('2026-11-16')
+    const sessions = sessionsOf('2026-11-23')
     expect(sessions.map((s) => [s.type, s.intensity])).toEqual([
       ['compromised_run', 'moderate'],
       ['station_strength', 'moderate'],
@@ -78,12 +78,12 @@ describe('raceWeekSessions', () => {
   })
 
   it('richtet sich nach der Zahl der Trainingstage', () => {
-    expect(typesOf('2026-11-16', { daysPerWeek: 3 })).toEqual([
+    expect(typesOf('2026-11-23', { daysPerWeek: 3 })).toEqual([
       'compromised_run',
       'station_strength',
       'run_intervals',
     ])
-    expect(typesOf('2026-11-16', { daysPerWeek: 5 })).toHaveLength(5)
+    expect(typesOf('2026-11-23', { daysPerWeek: 5 })).toHaveLength(5)
   })
 
   it('Spezifisch: hart, Wettkampfgewicht und jede 2. Woche eine Simulation statt Kompromiss-Lauf', () => {
@@ -101,7 +101,7 @@ describe('raceWeekSessions', () => {
 
   it('Entlastung: drei Einheiten, kürzer und höchstens mittel', () => {
     const deload = sessionsOf('2026-12-07')
-    const base = sessionsOf('2026-11-16')
+    const base = sessionsOf('2026-11-23')
     expect(deload).toHaveLength(3)
     expect(deload.every((s) => s.intensity === 'moderate')).toBe(true)
     for (const s of deload) {
@@ -134,9 +134,19 @@ describe('raceWeekSessions', () => {
   })
 
   it('Staffel: Tempo zuerst, Intervalle schon im Aufbau hart, kürzerer Kompromiss-Lauf', () => {
-    const relay = sessionsOf('2026-11-16', { format: 'relay' })
+    const relay = sessionsOf('2026-11-23', { format: 'relay' })
     expect(relay[0]).toMatchObject({ type: 'run_intervals', intensity: 'hard' })
     expect(relay.find((s) => s.type === 'compromised_run')?.durationMin).toBe(50)
+  })
+
+  it('Woche 1: Einstiegstest mit der Simulation „Kurz“ statt Kompromiss-Lauf', () => {
+    const first = sessionsOf('2026-11-16')
+    expect(first[0]).toMatchObject({ type: 'simulation', simulationFormat: 'short' })
+    expect(first.map((s) => s.type)).not.toContain('compromised_run')
+    // Auch Pro (Kraft zuerst) macht den Test
+    expect(typesOf('2026-11-16', { category: 'pro' })).toContain('simulation')
+    // Die erste Simulation der spezifischen Phase bleibt „Kurz“
+    expect(sessionsOf('2026-12-21')[0]).toMatchObject({ simulationFormat: 'short' })
   })
 
   it('Doubles: Intervalle schon im Aufbau hart', () => {
@@ -182,10 +192,10 @@ describe('raceWeekPlanInput', () => {
   const options = { baseDurationMin: 60, seed: 1 }
 
   it('baut die Einheiten mit Schwerpunkt, Gewichten und Erklärung', () => {
-    const input = raceWeekPlanInput(race, '2026-11-16', options)
+    const input = raceWeekPlanInput(race, '2026-11-23', options)
     expect(input?.weekdays).toEqual([2, 4, 6, 7])
     expect(input?.latestDate).toBeUndefined()
-    expect(input?.explanation[0]).toBe('Wettkampfmodus · Aufbau · Woche 1 von 9.')
+    expect(input?.explanation[0]).toBe('Wettkampfmodus · Aufbau · Woche 2 von 9.')
     const first = input?.sessions[0]
     expect(first).toMatchObject({ type: 'compromised_run', focus: 'hyrox' })
     expect(first?.raceSession).toMatchObject({
@@ -195,6 +205,25 @@ describe('raceWeekPlanInput', () => {
       stationWeights: { sled_push: 152 },
     })
     for (const s of input?.sessions ?? []) expect(s.focus).toBe(RACE_SESSION_FOCUS[s.type])
+  })
+
+  it('Woche 1 erklärt den Einstiegstest', () => {
+    const input = raceWeekPlanInput(race, '2026-11-16', options)
+    expect(input?.explanation.some((l) => l.startsWith('Einstiegstest'))).toBe(true)
+  })
+
+  it('mit Zielzeit: Renntempo in den Einheiten', () => {
+    const timed = { ...race, targetTimeSec: 90 * 60 }
+    const input = raceWeekPlanInput(timed, '2026-11-23', options)
+    // 90 min × 50 % Laufen / 8 km = 337,5 s ≈ 5:38 min/km
+    expect(input?.sessions[0]?.raceSession?.racePaceSecPerKm).toBe(338)
+    expect(raceWeekPlanInput(race, '2026-11-23', options)?.sessions[0]?.raceSession).toMatchObject({
+      racePaceSecPerKm: undefined,
+    })
+    const simulation = raceWeekPlanInput(timed, '2026-11-16', options)?.sessions[0]?.workout
+    expect(simulation?.explanation.at(-1)).toBe(
+      'Renntempo laut Zielzeit: 5:38 min/km (inkl. Roxzone etwas langsamer).',
+    )
   })
 
   it('Simulation als fertiges Workout mit Wettkampfgewichten', () => {

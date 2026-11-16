@@ -219,7 +219,16 @@ export function applyRaceDosing(
   race: RaceSessionRequest,
 ): { sets: PlannedSet[]; note?: string | undefined } {
   if (role === 'run' && race.type === 'compromised_run') {
-    return { sets: sets.map((set) => ({ ...set, distanceM: RACE_RUN_M })) }
+    return {
+      sets: sets.map((set) => ({ ...set, distanceM: RACE_RUN_M })),
+      note: paceNote(race, 'race', RACE_RUN_M),
+    }
+  }
+  if (role === 'interval' && race.type === 'run_intervals') {
+    return { sets, note: paceNote(race, 'interval', sets[0]?.distanceM) }
+  }
+  if (role === 'steady' && race.type === 'easy_run') {
+    return { sets, note: paceNote(race, 'easy') }
   }
   // Aktivierung: nur ein paar Wiederholungen bzw. Meter, damit nichts ermüdet
   if (race.type === 'activation' && role === 'station') {
@@ -246,3 +255,29 @@ export function applyRaceDosing(
 }
 
 const formatKg = (kg: number) => `${kg.toLocaleString('de-DE')} kg`
+
+/** Tempo je Art des Laufs relativ zum Renntempo: Intervalle etwas schneller, locker deutlich langsamer. */
+const PACE_FACTOR = { race: 1, interval: 0.95, easy: 1.3 } as const
+
+const clock = (sec: number) => {
+  const s = Math.round(sec)
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+}
+
+/** „Renntempo 5:15 min/km · 1 km in 5:15“ – `undefined` ohne Zielzeit. */
+export function paceNote(
+  race: RaceSessionRequest,
+  kind: keyof typeof PACE_FACTOR,
+  distanceM?: number,
+): string | undefined {
+  const base = race.racePaceSecPerKm
+  if (base === undefined || base <= 0) return undefined
+  const pace = base * PACE_FACTOR[kind]
+  if (kind === 'easy') return `Locker, etwa ${clock(pace)} min/km – du kannst dich noch unterhalten`
+  const label = kind === 'race' ? 'Renntempo' : 'Zieltempo'
+  const split =
+    distanceM !== undefined && distanceM > 0
+      ? ` · ${distanceM.toLocaleString('de-DE')} m in ${clock((pace * distanceM) / 1000)}`
+      : ''
+  return `${label} ${clock(pace)} min/km${split}`
+}

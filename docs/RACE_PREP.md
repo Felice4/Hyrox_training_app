@@ -110,6 +110,24 @@ Der Nutzer startet ohne Erfahrung, deshalb führt die App Schritt für Schritt:
    - Wettkampftag: Ablauf, Aufwärmen, Essen und Trinken (allgemein, keine Ernährungsberatung), Ausrüstung
    - Nach dem Rennen
 
+## 6a. Umsetzung Einstiegstest und Zielzeit (6.3c Teil 1)
+
+- **Einstiegstest:** In Woche 1 des Plans (Aufbau oder Spezifisch) ersetzt die Simulation „Kurz“ den Kompromiss-Lauf. Den **1-km-Lauftest** startet die Wettkampf-Seite als eigenes Training (`src/domain/race/runTest.ts`): 10 min einlaufen, 4 Steigerungen, 1 km auf Zeit (`hyrox-run`), 10 min auslaufen. Die Zeit wird wie jede Leistung zur Bestleistung „Lauf · 1000 m“; eine im Profil eingetragene 1-km-Zeit zählt auch.
+- **Schätzung** (`src/domain/race/estimate.ts`), Grundlage ist die aussagekräftigste Quelle der letzten 12 Wochen:
+
+  | Grundlage | Rechnung | Bereich |
+  |---|---|---|
+  | Simulation Komplett | Läufe + Stationen + 4 min mehr Roxzone als zu Hause | ± 3 % |
+  | Beide Hälften | Hälfte 1 + Hälfte 2 × 1,08 (Vorermüdung) + 4 min | ± 4 % |
+  | Eine Hälfte | × 2 × 1,06 + 4 min | ± 6 % |
+  | Simulation Kurz | Läufe × 2 × 1,08, Stationen × 2 × 1,15, + 4 min | ± 7 % |
+  | Nur 1-km-Zeit | 8 × 1-km-Zeit × 1,22 + Richtwert Stationen (Open M 36, Open W 40, Pro M 40, Pro W 42 min) + 6 min Roxzone | ± 10 % |
+
+  Doubles: Stationen × 0,6 (geteilt). Staffel: nur die eigenen 2 Runden (2/8, etwas ausgeruhter). Alle Faktoren sind Richtwerte.
+- **Zielzeit übernehmen:** Die Mitte der Schätzung lässt sich mit einem Tipp als Zielzeit speichern; weicht eine gespeicherte Zielzeit um mehr als 3 % ab, weist die Seite darauf hin.
+- **Zieltempo:** Die Zielzeit wird mit den Anteilen der Schätzung (sonst 50 % Laufen, 7 % Roxzone, 43 % Stationen) in Renntempo pro km, Roxzone und Stationszeit geteilt; Richtzeiten je Station nach typischer Verteilung (SkiErg 13 %, Sled Push 10 %, Sled Pull 12 %, Burpee Broad Jumps 14 %, Rudern 13 %, Farmers Carry 6 %, Lunges 13 %, Wall Balls 19 %). Das Renntempo steht in Kompromiss-Läufen, Laufintervallen (5 % schneller), Dauerläufen (30 % langsamer) und Simulationen – im Plan berechnet aus der gespeicherten Zielzeit.
+- **Zwischencheck:** Die Simulationen der spezifischen Phase (Kurz → Hälfte 1 → Hälfte 2 → Komplett) aktualisieren die Schätzung automatisch.
+
 ## 7. Dashboard, Kalender, Ergebnis
 
 - **Dashboard:** Countdown-Karte „Noch 58 Tage · Spezifisch · Woche 5 von 9“, Schlüsseleinheiten der Woche, aktuelle Zielzeit-Schätzung, Link zu `/race`.
@@ -132,7 +150,7 @@ Neue Tabelle `races`:
 |---|---|
 | **6.3a** | Migration 0011; Logik `domain/race` (Phasen, Varianten, Gewichte) mit Tests; Seite „Wettkampf“ (anlegen, bearbeiten, absagen); Countdown auf dem Dashboard; Phase im Kalender |
 | **6.3b** | Neue Vorlagen (Kompromiss-Lauf, Laufintervalle, Dauerlauf, Stationskraft, Aktivierung); Wochenplan im Wettkampfmodus mit Laufumfang, Entlastung, Tapering und Anpassung je Variante – umgesetzt 16.11.2026 (Code: `src/domain/race/sessions.ts`, `src/domain/generator/raceTemplates.ts`, Migration 0012) |
-| **6.3c** | Einstiegstest und Zielzeit-Schätzung, Zieltempo in den Einheiten, Zwischencheck, „Warum diese Woche?“, Lernkarten |
+| **6.3c** | Teil 1 – umgesetzt 16.11.2026: Einstiegstest, Zielzeit-Schätzung, Zieltempo in den Einheiten, Zwischencheck (siehe §6a). Teil 2: „Warum diese Woche?“ und Lernkarten |
 | **6.3d** | Ergebnis eintragen, Bestzeit, Erholungswoche, Abschluss des Wettkampfs |
 
 Nach 6.3a und 6.3b lässt sich schon nach dem Plan trainieren. 6.3c und 6.3d folgen rechtzeitig vor dem Wettkampf.

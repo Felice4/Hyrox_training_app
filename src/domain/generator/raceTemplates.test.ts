@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateWorkout } from './generateWorkout'
-import { RACE_RUN_M } from './raceTemplates'
+import { paceNote, RACE_RUN_M } from './raceTemplates'
 import { LIBRARY, makeInput } from './testFixtures'
 import type {
   GeneratedRaceSessionType,
@@ -26,6 +26,7 @@ function race(
     team?: RaceTeamFormat
     loadShare?: number
     seed?: number
+    pace?: number
   } = {},
 ): GeneratedWorkout {
   return generateWorkout(
@@ -39,6 +40,7 @@ function race(
           team: options.team ?? 'single',
           stationWeights: WEIGHTS,
           loadShare: options.loadShare ?? 1,
+          racePaceSecPerKm: options.pace,
         },
       },
       { seed: options.seed ?? 1 },
@@ -151,6 +153,38 @@ describe('Lockerer Dauerlauf und Aktivierung', () => {
       expect(station.sets.every((s) => (s.reps ?? 0) <= 10)).toBe(true)
     }
     expect(items(workout).some((i) => i.exerciseSlug === 'strides')).toBe(true)
+  })
+})
+
+describe('Zieltempo', () => {
+  const request: RaceSessionRequest = {
+    type: 'run_intervals',
+    team: 'single',
+    stationWeights: WEIGHTS,
+    loadShare: 1,
+    racePaceSecPerKm: 300,
+  }
+
+  it('Hinweise je Art des Laufs', () => {
+    expect(paceNote(request, 'race', 1000)).toBe('Renntempo 5:00 min/km · 1.000 m in 5:00')
+    expect(paceNote(request, 'interval', 400)).toBe('Zieltempo 4:45 min/km · 400 m in 1:54')
+    expect(paceNote(request, 'easy')).toBe(
+      'Locker, etwa 6:30 min/km – du kannst dich noch unterhalten',
+    )
+    expect(paceNote({ ...request, racePaceSecPerKm: undefined }, 'race')).toBeUndefined()
+  })
+
+  it('steht bei den Läufen der Einheiten', () => {
+    const run = items(race('compromised_run', { pace: 300 })).find((i) => i.role === 'run')
+    expect(run?.note).toBe('Renntempo 5:00 min/km · 1.000 m in 5:00')
+    const interval = items(race('run_intervals', { pace: 300, intensity: 'hard' })).find(
+      (i) => i.role === 'interval',
+    )
+    expect(interval?.note).toMatch(/^Zieltempo 4:45 min\/km/)
+    const steady = items(race('easy_run', { pace: 300, intensity: 'easy' })).find(
+      (i) => i.role === 'steady',
+    )
+    expect(steady?.note).toMatch(/^Locker, etwa 6:30/)
   })
 })
 
