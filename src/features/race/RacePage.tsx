@@ -11,7 +11,6 @@ import { HYROX_STATION_LABELS } from '@/data/exercises/vocabulary'
 import {
   adjustPlanStart,
   daysUntil,
-  PHASE_GOALS,
   PHASE_LABELS,
   planStartFor,
   raceTimeline,
@@ -19,7 +18,12 @@ import {
   type RacePhase,
 } from '@/domain/race/phases'
 import { defaultRaceInput, type Race, type RaceInput } from '@/domain/race/race'
-import { RACE_SESSION_LABELS, raceWeekContext, raceWeekSessions } from '@/domain/race/sessions'
+import {
+  RACE_SESSION_LABELS,
+  raceWeekContext,
+  raceWeekSessions,
+  raceWeekWhy,
+} from '@/domain/race/sessions'
 import { RACE_FORMAT_HINTS, variantLabel, weightSets } from '@/domain/race/variant'
 import { STATIONS } from '@/domain/simulation/formats'
 import { formatLongDay, formatShortDay, formatWeek } from '@/features/calendar/format'
@@ -29,6 +33,7 @@ import { cn } from '@/lib/cn'
 import { toLocalIsoDate } from '@/lib/date'
 import { formatDurationClock } from '@/lib/time'
 import { countdownLabel } from './format'
+import { LearnCards } from './LearnCards'
 import { RaceForm } from './RaceForm'
 import { RaceTargetCard } from './RaceTargetCard'
 import { useActiveRace, useCancelRace, useCreateRace, useUpdateRace } from './useRace'
@@ -154,6 +159,7 @@ function RaceOverview({ race, today }: { race: Race; today: string }) {
   const days = daysUntil(race.raceDate, today)
   const context = raceWeekContext(timeline, today)
   const sessions = context ? raceWeekSessions(context, race, 60) : []
+  const why = raceWeekWhy(race, today) ?? []
 
   return (
     <div className="flex flex-col gap-4">
@@ -195,7 +201,14 @@ function RaceOverview({ race, today }: { race: Race; today: string }) {
                 </span>
               )}
             </div>
-            <p className="text-sm">{PHASE_GOALS[current.phase]}</p>
+            <div className="flex flex-col gap-1 text-sm">
+              <p className="font-semibold">Warum diese Woche?</p>
+              {why.map((line) => (
+                <p key={line} className="text-fg-muted">
+                  {line}
+                </p>
+              ))}
+            </div>
             {sessions.length > 0 && (
               <ul className="flex flex-col gap-1 text-sm">
                 {sessions.map((session, index) => (
@@ -256,6 +269,8 @@ function RaceOverview({ race, today }: { race: Race; today: string }) {
       </Card>
 
       <RaceTargetCard race={race} today={today} />
+
+      <LearnCards race={race} today={today} />
 
       <WeightsCard race={race} />
 

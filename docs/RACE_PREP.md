@@ -128,6 +128,11 @@ Der Nutzer startet ohne Erfahrung, deshalb führt die App Schritt für Schritt:
 - **Zieltempo:** Die Zielzeit wird mit den Anteilen der Schätzung (sonst 50 % Laufen, 7 % Roxzone, 43 % Stationen) in Renntempo pro km, Roxzone und Stationszeit geteilt; Richtzeiten je Station nach typischer Verteilung (SkiErg 13 %, Sled Push 10 %, Sled Pull 12 %, Burpee Broad Jumps 14 %, Rudern 13 %, Farmers Carry 6 %, Lunges 13 %, Wall Balls 19 %). Das Renntempo steht in Kompromiss-Läufen, Laufintervallen (5 % schneller), Dauerläufen (30 % langsamer) und Simulationen – im Plan berechnet aus der gespeicherten Zielzeit.
 - **Zwischencheck:** Die Simulationen der spezifischen Phase (Kurz → Hälfte 1 → Hälfte 2 → Komplett) aktualisieren die Schätzung automatisch.
 
+## 6b. Umsetzung „Warum diese Woche?“ und Lernkarten (6.3c Teil 2)
+
+- **„Warum diese Woche?“** (`raceWeekWhy` in `src/domain/race/sessions.ts`): Ziel der Phase, Schlüsseleinheit mit Begründung und eine Besonderheit (Einstiegstest, Simulation, Entlastung, Tapering, Wettkampfwoche, Erholung). Steht auf der Wettkampf-Seite unter „Diese Woche“ und in „Warum dieser Plan?“ im Kalender.
+- **Lernkarten** (`src/domain/race/learn.ts`, zentral im Code): Ablauf/Stationen/Roxzone und Divisionen/Gewichte ab Planbeginn, Pacing und Stationstechnik (mit Links zur Übungsbibliothek) ab der spezifischen Phase, Wettkampftag ab dem Tapering, Nach dem Rennen ab der Wettkampfwoche. Die Entlastungswoche behält die Stufe davor; nach dem Plan sind alle Karten offen. Gesperrte Karten zeigen, ab wann sie kommen.
+
 ## 7. Dashboard, Kalender, Ergebnis
 
 - **Dashboard:** Countdown-Karte „Noch 58 Tage · Spezifisch · Woche 5 von 9“, Schlüsseleinheiten der Woche, aktuelle Zielzeit-Schätzung, Link zu `/race`.
@@ -150,7 +155,7 @@ Neue Tabelle `races`:
 |---|---|
 | **6.3a** | Migration 0011; Logik `domain/race` (Phasen, Varianten, Gewichte) mit Tests; Seite „Wettkampf“ (anlegen, bearbeiten, absagen); Countdown auf dem Dashboard; Phase im Kalender |
 | **6.3b** | Neue Vorlagen (Kompromiss-Lauf, Laufintervalle, Dauerlauf, Stationskraft, Aktivierung); Wochenplan im Wettkampfmodus mit Laufumfang, Entlastung, Tapering und Anpassung je Variante – umgesetzt 16.11.2026 (Code: `src/domain/race/sessions.ts`, `src/domain/generator/raceTemplates.ts`, Migration 0012) |
-| **6.3c** | Teil 1 – umgesetzt 16.11.2026: Einstiegstest, Zielzeit-Schätzung, Zieltempo in den Einheiten, Zwischencheck (siehe §6a). Teil 2: „Warum diese Woche?“ und Lernkarten |
+| **6.3c** | Teil 1 – umgesetzt 16.11.2026: Einstiegstest, Zielzeit-Schätzung, Zieltempo in den Einheiten, Zwischencheck (siehe §6a). Teil 2 – umgesetzt 16.11.2026: „Warum diese Woche?“ und Lernkarten (siehe §6b) |
 | **6.3d** | Ergebnis eintragen, Bestzeit, Erholungswoche, Abschluss des Wettkampfs |
 
 Nach 6.3a und 6.3b lässt sich schon nach dem Plan trainieren. 6.3c und 6.3d folgen rechtzeitig vor dem Wettkampf.

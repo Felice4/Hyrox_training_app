@@ -282,17 +282,34 @@ const clock = (sec: number) => {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 }
 
-/** Ein Satz zur Woche („Warum diese Woche?“). */
-function weekExplanation(ctx: RaceWeekContext, sessions: readonly RaceSessionPlan[]): string[] {
-  const { week } = ctx
-  const head =
-    week.number === null
-      ? `Wettkampfmodus · ${PHASE_LABELS[week.phase]} nach dem Wettkampf.`
-      : `Wettkampfmodus · ${PHASE_LABELS[week.phase]} · Woche ${week.number} von ${week.total}.`
-  const lines = [head, PHASE_GOALS[week.phase]]
+/** Warum die Schlüsseleinheit wichtig ist. */
+const KEY_SESSION_WHY: Record<RaceSessionType, string> = {
+  compromised_run:
+    'trainiert das Laufen mit müden Beinen direkt nach einer Station – genau das entscheidet im Rennen.',
+  run_intervals: 'macht das Renntempo vertraut und verbessert deine Laufökonomie.',
+  easy_run: 'baut die Ausdauergrundlage für 8 km auf, ohne zu ermüden.',
+  station_strength: 'macht dich stark für Sled Push, Sled Pull und Lunges mit Wettkampfgewicht.',
+  simulation: 'zeigt, wo du stehst, und aktualisiert die Zielzeit-Schätzung.',
+  activation: 'hält die Beine wach, ohne zu ermüden.',
+}
+
+/** Zusatz je Phase – warum gerade jetzt so trainiert wird. */
+const PHASE_WHY: Partial<Record<RacePhase, string>> = {
+  deload:
+    'Nach drei Belastungswochen holt sich der Körper die Anpassungen – Erholung gehört zum Training.',
+  taper: 'Die Form ist aufgebaut; jetzt zählen frische Beine. Weniger ist diese Woche mehr.',
+  race: 'Am Tag vor dem Rennen ist frei. Vertrau deinem Training.',
+  recovery:
+    'Locker bleiben – die Erholung entscheidet, wie schnell du wieder voll trainieren kannst.',
+}
+
+/** „Warum diese Woche?“ – 2–3 Sätze zu Phase, Schlüsseleinheit und Besonderheit. */
+function whyLines(ctx: RaceWeekContext, sessions: readonly RaceSessionPlan[]): string[] {
+  const { phase } = ctx.week
+  const lines = [PHASE_GOALS[phase]]
   const key = sessions[0]
-  if (key && week.phase !== 'race' && week.phase !== 'recovery') {
-    lines.push(`Schlüsseleinheit: ${RACE_SESSION_LABELS[key.type]}.`)
+  if (key && phase !== 'race' && phase !== 'recovery') {
+    lines.push(`Schlüsseleinheit: ${RACE_SESSION_LABELS[key.type]} – ${KEY_SESSION_WHY[key.type]}`)
   }
   if (isEntryTestWeek(ctx)) {
     lines.push(
@@ -300,7 +317,26 @@ function weekExplanation(ctx: RaceWeekContext, sessions: readonly RaceSessionPla
     )
   } else if (sessions.some((s) => s.type === 'simulation')) {
     lines.push('Diese Woche ersetzt eine Simulation den Kompromiss-Lauf.')
+  } else if (PHASE_WHY[phase]) {
+    lines.push(PHASE_WHY[phase])
   }
+  return lines
+}
+
+/** „Warum diese Woche?“ für ein Datum – `undefined` außerhalb des Plans. */
+export function raceWeekWhy(race: Race, date: string): string[] | undefined {
+  const ctx = raceWeekContext(raceTimeline(race), date)
+  return ctx ? whyLines(ctx, raceWeekSessions(ctx, race, 60)) : undefined
+}
+
+/** Erklärung zum Wochenplan: Kopfzeile, „Warum diese Woche?“ und Gewichte. */
+function weekExplanation(ctx: RaceWeekContext, sessions: readonly RaceSessionPlan[]): string[] {
+  const { week } = ctx
+  const head =
+    week.number === null
+      ? `Wettkampfmodus · ${PHASE_LABELS[week.phase]} nach dem Wettkampf.`
+      : `Wettkampfmodus · ${PHASE_LABELS[week.phase]} · Woche ${week.number} von ${week.total}.`
+  const lines = [head, ...whyLines(ctx, sessions)]
   const share = sessions.find((s) => s.type === 'station_strength')?.loadShare
   if (share !== undefined) {
     lines.push(`Stationen mit ${Math.round(share * 100)} % des Wettkampfgewichts.`)

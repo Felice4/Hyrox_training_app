@@ -8,6 +8,7 @@ import {
   raceWeekContext,
   raceWeekPlanInput,
   raceWeekSessions,
+  raceWeekWhy,
   stationWeights,
   trainingDivision,
 } from './sessions'
@@ -252,5 +253,18 @@ describe('raceSessionForDate', () => {
       'hyrox',
     )
     expect(raceSessionForDate(race, 'easy_run', '2027-03-01', { seed: 1 })).toBeUndefined()
+  })
+})
+
+describe('raceWeekWhy', () => {
+  it('Phase, Schlüsseleinheit mit Begründung und Besonderheit der Woche', () => {
+    expect(raceWeekWhy(race, '2026-11-25')).toEqual([
+      expect.stringMatching(/^Laufumfang und Grundkraft/),
+      'Schlüsseleinheit: Kompromiss-Lauf – trainiert das Laufen mit müden Beinen direkt nach einer Station – genau das entscheidet im Rennen.',
+    ])
+    expect(raceWeekWhy(race, '2026-11-18')?.at(-1)).toMatch(/^Einstiegstest/)
+    expect(raceWeekWhy(race, '2026-12-09')?.at(-1)).toMatch(/Erholung gehört zum Training/)
+    expect(raceWeekWhy(race, '2027-01-13')).toHaveLength(2)
+    expect(raceWeekWhy(race, '2026-11-09')).toBeUndefined()
   })
 })
