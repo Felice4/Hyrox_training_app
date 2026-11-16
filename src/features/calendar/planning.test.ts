@@ -122,6 +122,7 @@ const race: Race = {
   targetTimeSec: null,
   status: 'active',
   resultTimeSec: null,
+  resultSplits: null,
   resultSessionId: null,
 }
 // Mit allen Geräten, damit die Stationen (Sled, Wall Ball …) möglich sind

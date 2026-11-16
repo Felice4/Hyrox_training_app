@@ -17,7 +17,7 @@ import {
   raceWeekOf,
   type RacePhase,
 } from '@/domain/race/phases'
-import { defaultRaceInput, type Race, type RaceInput } from '@/domain/race/race'
+import { canEnterResult, defaultRaceInput, type Race, type RaceInput } from '@/domain/race/race'
 import {
   RACE_SESSION_LABELS,
   raceWeekContext,
@@ -35,6 +35,7 @@ import { formatDurationClock } from '@/lib/time'
 import { countdownLabel } from './format'
 import { LearnCards } from './LearnCards'
 import { RaceForm } from './RaceForm'
+import { CompletedRace, RaceResultForm } from './RaceResult'
 import { RaceTargetCard } from './RaceTargetCard'
 import { useActiveRace, useCancelRace, useCreateRace, useUpdateRace } from './useRace'
 
@@ -52,6 +53,8 @@ const PHASE_TONE: Record<RacePhase, 'neutral' | 'accent' | 'hyrox'> = {
 export function RacePage() {
   const [today] = useState(() => toLocalIsoDate())
   const race = useActiveRace()
+  // Nach einem abgeschlossenen Wettkampf: „Neuen Wettkampf anlegen“
+  const [newRace, setNewRace] = useState(false)
 
   return (
     <>
@@ -66,7 +69,9 @@ export function RacePage() {
             Erneut versuchen
           </Button>
         </EmptyState>
-      ) : race.data ? (
+      ) : race.data?.status === 'completed' && !newRace ? (
+        <CompletedRace race={race.data} onNewRace={() => setNewRace(true)} />
+      ) : race.data?.status === 'active' ? (
         <RaceOverview race={race.data} today={today} />
       ) : (
         <NewRace today={today} />
@@ -180,6 +185,8 @@ function RaceOverview({ race, today }: { race: Race; today: string }) {
         </p>
       </Card>
 
+      {canEnterResult(race, today) && <RaceResultForm race={race} today={today} />}
+
       {cancel.isError && (
         <p
           role="alert"
@@ -227,8 +234,8 @@ function RaceOverview({ race, today }: { race: Race; today: string }) {
           </p>
         ) : (
           <p className="text-sm text-fg-muted">
-            Der Wettkampf liegt hinter dir. Sag ihn ab bzw. entferne ihn, um wieder normal zu planen
-            – das Eintragen des Ergebnisses folgt in einem späteren Schritt.
+            Der Wettkampf liegt hinter dir. Trag oben dein Ergebnis ein – danach plant die App
+            wieder normal.
           </p>
         )}
         <Link

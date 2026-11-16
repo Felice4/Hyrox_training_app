@@ -139,6 +139,13 @@ Der Nutzer startet ohne Erfahrung, deshalb führt die App Schritt für Schritt:
 - **Kalender:** Wettkampftag mit Zielflagge; die Phase steht über jeder Woche.
 - **Ergebnis:** Ab dem Wettkampftag gibt es „Ergebnis eintragen“: Gesamtzeit, optional Zwischenzeiten wie bei der Simulation. Eine bessere Zeit wird zur neuen HYROX-Bestzeit im Profil (`hyrox_best_time_sec`). Der Wettkampf wird `completed`, danach folgt eine Erholungswoche, dann geht es mit dem normalen Plan weiter.
 
+## 7a. Umsetzung Ergebnis und Abschluss (6.3d)
+
+- **Ergebnis eintragen:** ab dem Wettkampftag auf der Wettkampf-Seite. Gesamtzeit Pflicht; optional alle 16 Zwischenzeiten (Lauf inkl. Roxzone, Station), deren Summe höchstens 1 min von der Gesamtzeit abweichen darf (`validateResult` in `src/domain/race/race.ts`).
+- **Speichern** über `complete_race` (eine Transaktion): Wettkampf `completed`, bei **Singles** wird eine schnellere Zeit zur HYROX-Bestzeit im Profil. Doubles- und Staffelzeiten sind nicht vergleichbar und ändern die Bestzeit nicht. Ein abgeschlossenes Ergebnis lässt sich nicht mehr ändern.
+- **Erholung:** Ein abgeschlossener Wettkampf bleibt bis zum Sonntag der Woche nach dem Rennen „aktuell“ (`isCurrentRace`); der Kalender plant so die Erholungswoche (2 × lockerer Dauerlauf), danach wieder normal.
+- **Ansicht danach:** Zeit, Variante, Badge „Neue Bestzeit“, Abstand zur Zielzeit; mit Zwischenzeiten Laufen vs. Stationen, Ø je km und längste Station (`src/domain/race/result.ts`). „Neuen Wettkampf anlegen“ ist jederzeit möglich.
+
 ## 8. Datenmodell (Migration 0011)
 
 Neue Tabelle `races`:
@@ -156,7 +163,7 @@ Neue Tabelle `races`:
 | **6.3a** | Migration 0011; Logik `domain/race` (Phasen, Varianten, Gewichte) mit Tests; Seite „Wettkampf“ (anlegen, bearbeiten, absagen); Countdown auf dem Dashboard; Phase im Kalender |
 | **6.3b** | Neue Vorlagen (Kompromiss-Lauf, Laufintervalle, Dauerlauf, Stationskraft, Aktivierung); Wochenplan im Wettkampfmodus mit Laufumfang, Entlastung, Tapering und Anpassung je Variante – umgesetzt 16.11.2026 (Code: `src/domain/race/sessions.ts`, `src/domain/generator/raceTemplates.ts`, Migration 0012) |
 | **6.3c** | Teil 1 – umgesetzt 16.11.2026: Einstiegstest, Zielzeit-Schätzung, Zieltempo in den Einheiten, Zwischencheck (siehe §6a). Teil 2 – umgesetzt 16.11.2026: „Warum diese Woche?“ und Lernkarten (siehe §6b) |
-| **6.3d** | Ergebnis eintragen, Bestzeit, Erholungswoche, Abschluss des Wettkampfs |
+| **6.3d** | Ergebnis eintragen, Bestzeit, Erholungswoche, Abschluss des Wettkampfs – umgesetzt 16.11.2026 (siehe §7a, Migration 0013) |
 
 Nach 6.3a und 6.3b lässt sich schon nach dem Plan trainieren. 6.3c und 6.3d folgen rechtzeitig vor dem Wettkampf.
 

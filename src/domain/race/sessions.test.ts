@@ -28,6 +28,7 @@ const race: Race = {
   targetTimeSec: null,
   status: 'active',
   resultTimeSec: null,
+  resultSplits: null,
   resultSessionId: null,
 }
 const timeline = raceTimeline(race)

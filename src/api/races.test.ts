@@ -14,6 +14,7 @@ const row = {
   target_time_sec: null,
   status: 'active',
   result_time_sec: null,
+  result_splits: null,
   result_session_id: null,
 }
 
@@ -32,6 +33,7 @@ describe('toRace', () => {
       targetTimeSec: null,
       status: 'active',
       resultTimeSec: null,
+      resultSplits: null,
       resultSessionId: null,
     })
   })

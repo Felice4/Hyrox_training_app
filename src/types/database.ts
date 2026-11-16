@@ -413,6 +413,7 @@ export type Database = {
           plan_start: string
           race_date: string
           result_session_id: string | null
+          result_splits: number[] | null
           result_time_sec: number | null
           status: string
           target_time_sec: number | null
@@ -432,6 +433,7 @@ export type Database = {
           plan_start: string
           race_date: string
           result_session_id?: string | null
+          result_splits?: number[] | null
           result_time_sec?: number | null
           status?: string
           target_time_sec?: number | null
@@ -451,6 +453,7 @@ export type Database = {
           plan_start?: string
           race_date?: string
           result_session_id?: string | null
+          result_splits?: number[] | null
           result_time_sec?: number | null
           status?: string
           target_time_sec?: number | null
@@ -926,6 +929,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      complete_race: { Args: { p: Json }; Returns: Json }
       delete_logged_session: { Args: { p_session_id: string }; Returns: Json }
       offer_records: { Args: { p: Json }; Returns: number }
       release_session_records: { Args: { p_session_id: string }; Returns: Json }

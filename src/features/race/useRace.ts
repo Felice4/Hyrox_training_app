@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { cancelRace, createRace, fetchActiveRace, updateRace } from '@/api/races'
+import { cancelRace, completeRace, createRace, fetchCurrentRace, updateRace } from '@/api/races'
 import { useSupabase } from '@/app/supabaseContext'
 import type { RaceInput } from '@/domain/race/race'
 import { useAuth } from '@/features/auth/authContext'
+import { profileDetailsQueryKey } from '@/features/profile/useProfile'
+import { toLocalIsoDate } from '@/lib/date'
 
 export const activeRaceQueryKey = (userId: string | undefined) => ['active-race', userId] as const
 
@@ -11,13 +13,16 @@ function useUserId() {
   return auth.status === 'signedIn' ? auth.session.user.id : undefined
 }
 
-/** Der aktive Wettkampf oder `null` (docs/RACE_PREP.md). */
+/**
+ * Der aktuelle Wettkampf oder `null` (docs/RACE_PREP.md): der aktive, sonst ein
+ * abgeschlossener bis zum Ende seiner Erholungswoche.
+ */
 export function useActiveRace() {
   const supabase = useSupabase()
   const userId = useUserId()
   return useQuery({
     queryKey: activeRaceQueryKey(userId),
-    queryFn: () => fetchActiveRace(supabase),
+    queryFn: () => fetchCurrentRace(supabase, toLocalIsoDate()),
     enabled: userId !== undefined,
   })
 }
@@ -45,6 +50,21 @@ export function useUpdateRace() {
     mutationFn: ({ id, input, planStart }: { id: string; input: RaceInput; planStart: string }) =>
       updateRace(supabase, id, input, planStart),
     onSuccess: invalidate,
+  })
+}
+
+/** Ergebnis eintragen; lädt danach Wettkampf und Profil (Bestzeit) neu. */
+export function useCompleteRace() {
+  const supabase = useSupabase()
+  const queryClient = useQueryClient()
+  const userId = useUserId()
+  return useMutation({
+    mutationFn: (input: Parameters<typeof completeRace>[1]) => completeRace(supabase, input),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: activeRaceQueryKey(userId) }),
+        queryClient.invalidateQueries({ queryKey: profileDetailsQueryKey(userId) }),
+      ]),
   })
 }
 

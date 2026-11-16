@@ -1,4 +1,4 @@
-import { RACE_STATUSES, type Race, type RaceInput } from '@/domain/race/race'
+import { isCurrentRace, RACE_STATUSES, type Race, type RaceInput } from '@/domain/race/race'
 import {
   RACE_CATEGORIES,
   RACE_FORMATS,
@@ -14,7 +14,7 @@ const oneOf = <T extends string>(values: readonly T[], value: string): value is 
   (values as readonly string[]).includes(value)
 
 const COLUMNS =
-  'id, name, race_date, plan_start, format, category, gender, days_per_week, weekdays, target_time_sec, status, result_time_sec, result_session_id'
+  'id, name, race_date, plan_start, format, category, gender, days_per_week, weekdays, target_time_sec, status, result_time_sec, result_splits, result_session_id'
 
 type RaceRow = Pick<
   Tables<'races'>,
@@ -30,6 +30,7 @@ type RaceRow = Pick<
   | 'target_time_sec'
   | 'status'
   | 'result_time_sec'
+  | 'result_splits'
   | 'result_session_id'
 >
 
@@ -56,6 +57,7 @@ export function toRace(row: RaceRow): Race | null {
     targetTimeSec: row.target_time_sec,
     status: row.status,
     resultTimeSec: row.result_time_sec,
+    resultSplits: row.result_splits,
     resultSessionId: row.result_session_id,
   }
 }
@@ -73,15 +75,52 @@ function toColumns(input: RaceInput) {
   }
 }
 
-/** Der aktive Wettkampf (höchstens einer) oder `null`. */
-export async function fetchActiveRace(supabase: AppSupabaseClient): Promise<Race | null> {
+/**
+ * Der aktuelle Wettkampf: der aktive (höchstens einer), sonst der zuletzt abgeschlossene
+ * bis zum Ende seiner Erholungswoche – oder `null`.
+ */
+export async function fetchCurrentRace(
+  supabase: AppSupabaseClient,
+  today: string,
+): Promise<Race | null> {
   const { data, error } = await supabase
     .from('races')
     .select(COLUMNS)
-    .eq('status', 'active')
+    .in('status', ['active', 'completed'])
+    // „active“ vor „completed“, dann der neueste
+    .order('status', { ascending: true })
+    .order('race_date', { ascending: false })
+    .limit(1)
     .maybeSingle()
   if (error) throw error
-  return data ? toRace(data) : null
+  const race = data ? toRace(data) : null
+  return race && isCurrentRace(race, today) ? race : null
+}
+
+export interface CompleteRaceResult {
+  newBest: boolean
+  previousBestSec: number | null
+}
+
+/** Ergebnis speichern und abschließen (Datenbankfunktion complete_race, Migration 0013). */
+export async function completeRace(
+  supabase: AppSupabaseClient,
+  input: { raceId: string; today: string; resultTimeSec: number; splits: number[] },
+): Promise<CompleteRaceResult> {
+  const { data, error } = await supabase.rpc('complete_race', {
+    p: {
+      race_id: input.raceId,
+      today: input.today,
+      result_time_sec: input.resultTimeSec,
+      splits: input.splits,
+    },
+  })
+  if (error) throw error
+  const result = (data ?? {}) as { new_best?: unknown; previous_best_sec?: unknown }
+  return {
+    newBest: result.new_best === true,
+    previousBestSec: typeof result.previous_best_sec === 'number' ? result.previous_best_sec : null,
+  }
 }
 
 /** Legt den Wettkampf an; `planStart` ist der Montag, ab dem der Plan zählt. */

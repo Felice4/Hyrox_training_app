@@ -1,4 +1,4 @@
-import { addDays } from '@/lib/date'
+import { addDays, weekStartOf } from '@/lib/date'
 import { isValidVariant, type RaceVariant } from './variant'
 
 /** Wettkampf (docs/RACE_PREP.md §1, Tabelle `races`). */
@@ -29,6 +29,8 @@ export interface Race extends RaceInput {
   planStart: string
   status: RaceStatus
   resultTimeSec: number | null
+  /** Optionale Zwischenzeiten in Rennreihenfolge (Lauf 1, Station 1, …) */
+  resultSplits: number[] | null
   resultSessionId: string | null
 }
 
@@ -102,6 +104,57 @@ export function validateRaceInput(
     (input.targetTimeSec < TARGET_TIME_MIN_SEC || input.targetTimeSec > TARGET_TIME_MAX_SEC)
   ) {
     errors.push('Die Zielzeit muss zwischen 20 Minuten und 5 Stunden liegen.')
+  }
+  return errors
+}
+
+/** Letzter Tag der Erholungswoche nach dem Wettkampf (Sonntag der Folgewoche). */
+export function recoveryEnd(raceDate: string): string {
+  return addDays(weekStartOf(raceDate), 13)
+}
+
+/**
+ * Gilt der Wettkampf heute noch? Aktiv immer; abgeschlossen bis zum Ende der
+ * Erholungswoche (so plant der Kalender die Erholung, danach wieder normal).
+ */
+export function isCurrentRace(race: Pick<Race, 'status' | 'raceDate'>, today: string): boolean {
+  if (race.status === 'active') return true
+  return race.status === 'completed' && today <= recoveryEnd(race.raceDate)
+}
+
+/** Ab dem Wettkampftag kann das Ergebnis eingetragen werden. */
+export function canEnterResult(race: Pick<Race, 'status' | 'raceDate'>, today: string): boolean {
+  return race.status === 'active' && today >= race.raceDate
+}
+
+export const RESULT_MIN_SEC = 10 * 60
+export const RESULT_MAX_SEC = 10 * 3600
+/** 8 Läufe + 8 Stationen */
+export const RESULT_SPLIT_COUNT = 16
+/** Erlaubte Abweichung zwischen Gesamtzeit und Summe der Zwischenzeiten */
+const SPLIT_TOLERANCE_SEC = 60
+
+/** Prüft das Ergebnis; `splits` leer = ohne Zwischenzeiten. Liefert Fehlermeldungen. */
+export function validateResult(
+  timeSec: number | null,
+  splits: readonly (number | null)[],
+): string[] {
+  const errors: string[] = []
+  if (timeSec === null) {
+    errors.push('Trag deine Gesamtzeit ein, z. B. 1:28:45.')
+  } else if (timeSec < RESULT_MIN_SEC || timeSec > RESULT_MAX_SEC) {
+    errors.push('Die Gesamtzeit muss zwischen 10 Minuten und 10 Stunden liegen.')
+  }
+  const filled = splits.filter((s) => s !== null)
+  if (filled.length > 0) {
+    if (filled.length < RESULT_SPLIT_COUNT || splits.length !== RESULT_SPLIT_COUNT) {
+      errors.push('Trag alle 16 Zwischenzeiten ein oder lass sie ganz leer.')
+    } else if (timeSec !== null) {
+      const sum = filled.reduce((a, b) => a + b, 0)
+      if (Math.abs(sum - timeSec) > SPLIT_TOLERANCE_SEC) {
+        errors.push('Die Zwischenzeiten ergeben zusammen nicht die Gesamtzeit (± 1 min).')
+      }
+    }
   }
   return errors
 }

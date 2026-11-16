@@ -298,6 +298,7 @@ Nur `manual`/`trainer`-Trainings dürfen bearbeitet und gelöscht werden. Neue D
 | `days_per_week` | smallint | 3–5 |
 | `weekdays` | smallint[] | mögliche Trainingstage 1–7, leer = alle |
 | `target_time_sec` | integer | optional, 20 min–5 h |
+| `result_splits` | integer[] | optional (Migration 0013): 1–16 Zwischenzeiten > 0 in Rennreihenfolge (Lauf 1, Station 1, …) |
 | `status` | text | `active` · `completed` · `cancelled` |
 | `result_time_sec`, `result_session_id`, `completed_at` | | Ergebnis (Schritt 6.3d) |
 
@@ -331,6 +332,7 @@ Die Datenbank prüft bei `exercises` nur die Grundstruktur (Slug-Format, Pflicht
 |---|---|
 | `save_workout_session(p jsonb)` | Speichert Session, Übungen, Sätze und Rekorde atomar. Idempotent über Client-IDs: Upsert; Kind-Datensätze, die im Payload fehlen, werden entfernt. Rekorde nur, wenn besser (Zeiten niedriger, sonst höher); liefert die neuen Rekorde zurück. Ab Migration 0005 zusätzlich: `session.planned_workout_id` speichern und die geplante Einheit auf `completed` setzen (am 23.10.2026 getestet). Am 21.10.2026 in zurückgerollter Transaktion getestet (Erstspeichern, Doppelspeichern ohne Dubletten, Entfernen, bessere/schlechtere Rekorde). |
 | `sync_exercise_library(p_version int, p_exercises jsonb)` | siehe §4 |
+| `complete_race(p jsonb)` | `p = { race_id, today, result_time_sec, splits? }`. Nur für einen eigenen, aktiven Wettkampf ab dem Wettkampftag: speichert Ergebnis und Zwischenzeiten, setzt `status = 'completed'` und `completed_at`; bei Singles wird eine schnellere Zeit (30 min–4 h) zur `profiles.hyrox_best_time_sec`. Liefert `{ status, new_best, previous_best_sec }`. Am 16.11.2026 in zurückgerollter Transaktion getestet (vor dem Wettkampftag abgelehnt, Abschluss mit Zwischenzeiten und neuer Bestzeit, zweiter Aufruf abgelehnt) und eingespielt. |
 | `replace_week_plan(p jsonb)` | `p = { week_start, today, generator_version, notes, workouts[] }`. Legt den Wochenplan an (Upsert je Woche), löscht nur Einheiten mit `status = 'planned'` und `scheduled_date >= today` und fügt die neuen ein. Neue Termine müssen in der Woche und ab heute liegen. Liefert `{ status, week_plan_id, removed, inserted }`. Ab Migration 0012 je Einheit optional `race_session_type` (Wettkampfplan); am 16.11.2026 in zurückgerollter Transaktion getestet (Typ gespeichert bzw. null, ungültiger Typ abgelehnt). |
 | `set_skill_progress(p_skill_slug, p_status, p_completed_stages, p_source, p_session_id?)` | Setzt Status und geschaffte Stufen eines Skill-Ziels (legt es bei Bedarf an), trägt fehlende Stufen in `skill_stage_log` ein (vorhandene behalten ihr Datum) und entfernt Einträge über der neuen Stufe. Am 05.11.2026 in zurückgerollter Transaktion getestet: Doppelaufruf ohne Dubletten, Stufe hoch/runter, Grenze von 3 aktiven Zielen, `later`/`achieved`, Löschen kaskadiert. |
 | `release_session_records(p_session_id)` | Nur `manual`/`trainer`: entfernt die Bestleistungen, die aus diesem Training stammen, und liefert die Übungs-Slugs (vor dem erneuten Speichern beim Bearbeiten). Ab Migration 0010 speichert `save_workout_session` zusätzlich `source`, `title`, `coach` (ohne `source` → `app`). |
@@ -372,5 +374,6 @@ Dateinamen folgen der Supabase-CLI: `supabase/migrations/<Zeitstempel>_<name>.sq
 | 0010 | `workout_sessions.source/title/coach`, Trainer-Termine, `release_session_records()`, `delete_logged_session()`, `offer_records()` | 6.2 |
 | 0011 | `races`, `planned_workouts.race_session_type` | 6.3a |
 | 0012 | `replace_week_plan()` speichert `race_session_type` | 6.3b |
+| 0013 | `races.result_splits`, `complete_race()` | 6.3d |
 
 Die Übungsbibliothek (2.4) kommt vor dem Onboarding (2.5), weil das Onboarding bevorzugte/unbeliebte Übungen und manuelle Bestleistungen auf Übungen bezieht.

@@ -15,6 +15,7 @@ const race: Race = {
   targetTimeSec: null,
   status: 'active',
   resultTimeSec: null,
+  resultSplits: null,
   resultSessionId: null,
 }
 
