@@ -1,7 +1,9 @@
 import { z } from 'zod'
 import {
   CATEGORIES,
+  COMBAT_SPORTS,
   EQUIPMENT,
+  GI_MODES,
   HYROX_STATIONS,
   MEASUREMENTS,
   MOVEMENT_PATTERNS,
@@ -27,6 +29,8 @@ export const loadParamsSchema = z.strictObject({
   distanceM: rangeSchema.optional(),
   durationSec: rangeSchema.optional(),
   calories: rangeSchema.optional(),
+  /** Zusatzgewicht in kg (z. B. bei eigenen Kampfsport-Drills); der Generator nutzt es nicht */
+  weightKg: rangeSchema.optional(),
   restSec: rangeSchema,
 })
 
@@ -72,6 +76,10 @@ const exerciseObject = z.strictObject({
   /** Nur für echte Stations-Übungen bzw. direkte Varianten davon. */
   hyroxStation: z.enum(HYROX_STATIONS).optional(),
   stressRegions: z.array(z.enum(STRESS_REGIONS)).default([]),
+  /** Nur Kategorie „combat": Kampfsportarten, in denen der Drill vorkommt. */
+  combatSports: z.array(z.enum(COMBAT_SPORTS)).default([]),
+  /** Nur bei BJJ-Drills: Gi, NoGi oder beides. */
+  giMode: z.enum(GI_MODES).optional(),
 })
 
 type ExerciseShape = z.output<typeof exerciseObject>
@@ -103,6 +111,7 @@ function checkExercise(exercise: ExerciseShape, ctx: z.RefinementCtx) {
     equipment: exercise.equipment,
     alternatives: exercise.alternatives,
     stressRegions: exercise.stressRegions,
+    combatSports: exercise.combatSports,
   }
   for (const [field, values] of Object.entries(arrays)) {
     if (hasDuplicates(values)) {
@@ -123,6 +132,22 @@ function checkExercise(exercise: ExerciseShape, ctx: z.RefinementCtx) {
       code: 'custom',
       path: ['hyroxStation'],
       message: 'hyroxStation nur bei Kategorie „hyrox"',
+    })
+  }
+
+  if ((exercise.category === 'combat') !== exercise.combatSports.length > 0) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['combatSports'],
+      message: 'Kampfsportarten genau bei Kategorie „combat" angeben',
+    })
+  }
+
+  if (exercise.giMode && !exercise.combatSports.includes('bjj')) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['giMode'],
+      message: 'giMode nur bei BJJ-Drills',
     })
   }
 }

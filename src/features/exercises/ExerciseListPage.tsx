@@ -33,6 +33,8 @@ import { useExerciseCatalog } from './useExerciseCatalog'
 const byLabel = (a: SelectOption<string>, b: SelectOption<string>) =>
   a.label.localeCompare(b.label, 'de')
 
+const LIBRARY_CATEGORIES = CATEGORIES.filter((c) => c !== 'combat')
+
 const MUSCLE_OPTIONS: SelectOption<ExerciseFilter['muscle']>[] = [
   { value: 'all', label: 'Alle Muskeln' },
   ...MUSCLE_GROUPS.map((m) => ({ value: m, label: MUSCLE_GROUP_LABELS[m] })).sort(byLabel),
@@ -49,7 +51,8 @@ export function ExerciseListPage() {
   const filter = parseExerciseFilter(searchParams)
   const { catalog, isSyncing } = useExerciseCatalog()
 
-  const exercises = catalog.data?.exercises
+  // Kampfsport-Drills haben eine eigene Bibliothek (/combat)
+  const exercises = catalog.data?.exercises.filter((e) => e.category !== 'combat')
   const visible = exercises ? filterExercises(exercises, filter) : []
 
   function updateFilter(patch: Partial<ExerciseFilter>) {
@@ -59,7 +62,7 @@ export function ExerciseListPage() {
   return (
     <>
       <PageHeader
-        title="Übungen"
+        title="Übungsbibliothek HYROX"
         subtitle={exercises ? `${exercises.length} Übungen in deiner Bibliothek` : 'Bibliothek'}
       />
 
@@ -91,7 +94,7 @@ export function ExerciseListPage() {
           >
             Alle
           </Chip>
-          {CATEGORIES.map((category) => (
+          {LIBRARY_CATEGORIES.map((category) => (
             <Chip
               key={category}
               selected={filter.category === category}

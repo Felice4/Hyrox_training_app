@@ -15,6 +15,7 @@ export const CATEGORIES = [
   'cooldown',
   'recovery',
   'skill',
+  'combat',
 ] as const
 export type Category = (typeof CATEGORIES)[number]
 export const CATEGORY_LABELS: Record<Category, string> = {
@@ -26,6 +27,7 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   cooldown: 'Cool-down',
   recovery: 'Regeneration',
   skill: 'Skills',
+  combat: 'Kampfsport',
 }
 
 export const TRAINING_TYPES = [
@@ -304,4 +306,44 @@ export const PREFERENCE_LABELS: Record<Preference, string> = {
   preferred: 'Bevorzugt',
   disliked: 'Unbeliebt',
   hidden: 'Ausgeblendet',
+}
+
+/**
+ * Kampfsportarten der Kampfsport-Bibliothek (docs/COMBAT.md). Reihenfolge = Anzeige.
+ * Drills der Kategorie „combat" gehören zu mindestens einer davon.
+ */
+export const COMBAT_SPORTS = [
+  'bjj',
+  'boxing',
+  'kickboxing',
+  'taekwondo',
+  'mma',
+  'wrestling',
+  'judo',
+] as const
+export type CombatSport = (typeof COMBAT_SPORTS)[number]
+export const COMBAT_SPORT_LABELS: Record<CombatSport, string> = {
+  bjj: 'Brazilian Jiu Jitsu',
+  boxing: 'Boxen',
+  kickboxing: 'Kickboxen',
+  taekwondo: 'Taekwondo',
+  mma: 'MMA',
+  wrestling: 'Wrestling',
+  judo: 'Judo',
+}
+
+/** BJJ: mit Gi, ohne Gi oder in beidem sinnvoll. */
+export const GI_MODES = ['gi', 'nogi', 'both'] as const
+export type GiMode = (typeof GI_MODES)[number]
+export const GI_MODE_LABELS: Record<GiMode, string> = {
+  gi: 'Gi',
+  nogi: 'NoGi',
+  both: 'Gi & NoGi',
+}
+
+/** Stufen der Kampfsport-Drills – entsprechen der Schwierigkeit 1–3. */
+export const COMBAT_LEVEL_LABELS: Record<Difficulty, string> = {
+  1: 'Grundlagen',
+  2: 'Fortgeschritten',
+  3: 'Advanced',
 }

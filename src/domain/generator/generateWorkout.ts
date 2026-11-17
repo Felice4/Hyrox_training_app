@@ -480,7 +480,10 @@ export function generateWorkout(input: WorkoutRequestInput): GeneratedWorkout {
 
   // 3. Übungspool
   const unavailable = request.unavailableEquipment ?? []
-  const pool = filterPool(input.exercises, profile, unavailable)
+  // Kampfsport-Drills plant der Generator nie ein (eigene Bibliothek, docs/COMBAT.md)
+  const pool = filterPool(input.exercises, profile, unavailable).filter(
+    (e) => e.category !== 'combat',
+  )
   if (unavailable.length > 0) {
     explanation.push(`Heute ohne: ${unavailable.map((e) => EQUIPMENT_LABELS[e]).join(', ')}.`)
   }

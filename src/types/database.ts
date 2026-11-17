@@ -63,10 +63,12 @@ export type Database = {
         Row: {
           alternative_slugs: string[]
           category: string
+          combat_sports: string[]
           created_at: string
           description: string
           difficulty: number
           equipment: string[]
+          gi_mode: string | null
           hyrox_station: string | null
           id: string
           instructions: string[]
@@ -89,10 +91,12 @@ export type Database = {
         Insert: {
           alternative_slugs?: string[]
           category: string
+          combat_sports?: string[]
           created_at?: string
           description?: string
           difficulty: number
           equipment?: string[]
+          gi_mode?: string | null
           hyrox_station?: string | null
           id?: string
           instructions?: string[]
@@ -115,10 +119,12 @@ export type Database = {
         Update: {
           alternative_slugs?: string[]
           category?: string
+          combat_sports?: string[]
           created_at?: string
           description?: string
           difficulty?: number
           equipment?: string[]
+          gi_mode?: string | null
           hyrox_station?: string | null
           id?: string
           instructions?: string[]

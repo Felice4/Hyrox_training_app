@@ -175,7 +175,10 @@ function ExerciseForm({
         />
         <SingleChoiceChips
           label="Kategorie"
-          options={options(CATEGORIES, CATEGORY_LABELS)}
+          options={options(
+            CATEGORIES.filter((c) => c !== 'combat'),
+            CATEGORY_LABELS,
+          )}
           value={draft.category}
           onChange={(category) => set({ category })}
         />

@@ -11,6 +11,7 @@
  * - Danach LIBRARY_VERSION um 1 erhöhen und `npm run test` ausführen.
  *   Die Tests prüfen alle Übungen (Felder, doppelte Slugs, Verweise auf Alternativen).
  */
+import { COMBAT_EXERCISES } from './combat'
 import { COOLDOWN_EXERCISES } from './cooldown'
 import { CORE_EXERCISES } from './core'
 import { ENDURANCE_EXERCISES } from './endurance'
@@ -25,7 +26,7 @@ import { STRENGTH_PUSH_EXERCISES } from './strength-push'
 import { WARMUP_EXERCISES } from './warmup'
 
 /** Bei JEDER Änderung an der Bibliothek um 1 erhöhen (löst den Abgleich mit der Datenbank aus). */
-export const LIBRARY_VERSION = 3
+export const LIBRARY_VERSION = 4
 
 /** Alle Übungen in Rohform, wie sie in den Dateien stehen. */
 export const RAW_EXERCISES: readonly ExerciseInput[] = [
@@ -40,6 +41,7 @@ export const RAW_EXERCISES: readonly ExerciseInput[] = [
   ...MOBILITY_EXERCISES,
   ...COOLDOWN_EXERCISES,
   ...SKILL_EXERCISES,
+  ...COMBAT_EXERCISES,
 ]
 
 /** Geprüfte Übungen mit ergänzten Standardwerten. */

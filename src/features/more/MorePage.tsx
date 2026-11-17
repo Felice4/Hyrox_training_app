@@ -6,6 +6,7 @@ import {
   ChevronRightIcon,
   DownloadIcon,
   FlagIcon,
+  GloveIcon,
   TargetIcon,
   UserIcon,
 } from '@/components/icons'
@@ -20,7 +21,8 @@ const SECTIONS: { to: string; label: string; icon: ComponentType<SVGProps<SVGSVG
   { to: '/goals', label: 'Skill-Ziele & Meilensteine', icon: TargetIcon },
   { to: '/profile', label: 'Profil & Trainingsziele', icon: UserIcon },
   { to: '/history', label: 'Trainingshistorie', icon: CalendarIcon },
-  { to: '/exercises', label: 'Übungsbibliothek', icon: BookIcon },
+  { to: '/exercises', label: 'Übungsbibliothek HYROX', icon: BookIcon },
+  { to: '/combat', label: 'Kampfsport-Bibliothek', icon: GloveIcon },
   { to: '/export', label: 'Datenexport', icon: DownloadIcon },
 ]
 

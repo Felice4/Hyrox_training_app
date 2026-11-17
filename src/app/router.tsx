@@ -133,6 +133,35 @@ export const router = createBrowserRouter([
                 ),
               },
               {
+                path: 'combat',
+                lazy: page(
+                  () => import('@/features/combat/CombatLibraryPage'),
+                  'CombatLibraryPage',
+                ),
+              },
+              {
+                path: 'combat/:sport',
+                lazy: page(() => import('@/features/combat/CombatSportPage'), 'CombatSportPage'),
+              },
+              {
+                path: 'combat/:sport/new',
+                lazy: page(
+                  () => import('@/features/combat/CombatDrillFormPage'),
+                  'CombatDrillFormPage',
+                ),
+              },
+              {
+                path: 'combat/:sport/drill/:slug',
+                lazy: page(() => import('@/features/combat/CombatDrillPage'), 'CombatDrillPage'),
+              },
+              {
+                path: 'combat/:sport/drill/:slug/edit',
+                lazy: page(
+                  () => import('@/features/combat/CombatDrillFormPage'),
+                  'CombatDrillFormPage',
+                ),
+              },
+              {
                 path: 'profile',
                 lazy: page(() => import('@/features/profile/ProfilePage'), 'ProfilePage'),
               },

@@ -39,6 +39,7 @@ export function describeLoad(load: LoadParams): LoadLine[] {
   if (load.distanceM) lines.push({ label: 'Strecke', value: formatDistance(load.distanceM) })
   if (load.durationSec) lines.push({ label: 'Dauer', value: formatDuration(load.durationSec) })
   if (load.calories) lines.push({ label: 'Kalorien', value: formatRange(load.calories, 'kcal') })
+  if (load.weightKg) lines.push({ label: 'Gewicht', value: formatRange(load.weightKg, 'kg') })
   if (load.restSec[1] > 0) {
     lines.push({ label: 'Pause', value: formatDuration(load.restSec) })
   }

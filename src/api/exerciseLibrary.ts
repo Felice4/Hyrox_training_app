@@ -20,6 +20,8 @@ export interface LibraryExerciseRow {
   alternative_slugs: string[]
   hyrox_station: string | null
   stress_regions: string[]
+  combat_sports: string[]
+  gi_mode: string | null
 }
 
 export function toLibraryRow(exercise: ExerciseDefinition): LibraryExerciseRow {
@@ -45,6 +47,8 @@ export function toLibraryRow(exercise: ExerciseDefinition): LibraryExerciseRow {
     alternative_slugs: [...exercise.alternatives],
     hyrox_station: exercise.hyroxStation ?? null,
     stress_regions: [...exercise.stressRegions],
+    combat_sports: [...exercise.combatSports],
+    gi_mode: exercise.giMode ?? null,
   }
 }
 

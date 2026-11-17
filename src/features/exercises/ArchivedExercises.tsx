@@ -6,7 +6,9 @@ import { useArchivedCustomExercises, useSetArchived } from './useExerciseActions
 export function ArchivedExercises() {
   const archived = useArchivedCustomExercises()
   const restore = useSetArchived()
-  if (!archived.data || archived.data.length === 0) return null
+  // Archivierte Kampfsport-Drills stehen bei ihrer Sportart (/combat)
+  const exercises = (archived.data ?? []).filter((e) => e.category !== 'combat')
+  if (exercises.length === 0) return null
   return (
     <Card className="mt-6 p-4">
       <h2 className="mb-1 font-semibold">Archivierte eigene Übungen</h2>
@@ -14,7 +16,7 @@ export function ArchivedExercises() {
         Werden nicht mehr eingeplant. Gespeicherte Trainings mit diesen Übungen bleiben erhalten.
       </p>
       <ul className="divide-y divide-line">
-        {archived.data.map((exercise) => (
+        {exercises.map((exercise) => (
           <li key={exercise.id} className="flex items-center justify-between gap-3 py-2">
             <span className="min-w-0 truncate">{exercise.name}</span>
             <Button

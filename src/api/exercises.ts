@@ -46,6 +46,8 @@ export function fromExerciseRow(row: ExerciseRow): CatalogExercise | null {
     alternatives: row.alternative_slugs,
     hyroxStation: row.hyrox_station ?? undefined,
     stressRegions: row.stress_regions,
+    combatSports: row.combat_sports,
+    giMode: row.gi_mode ?? undefined,
   })
   if (!parsed.success || (row.source !== 'library' && row.source !== 'custom')) {
     return null

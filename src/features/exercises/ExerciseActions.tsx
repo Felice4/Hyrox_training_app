@@ -22,6 +22,18 @@ export function ExerciseActions({ exercise }: { exercise: CatalogExercise }) {
   const preference = useSetPreference()
   const archive = useSetArchived()
   const isCustom = exercise.source === 'custom'
+  const combatSport = exercise.category === 'combat' ? exercise.combatSports[0] : undefined
+
+  // Kampfsport-Drills werden in der Kampfsport-Bibliothek verwaltet
+  if (combatSport) {
+    return (
+      <Card>
+        <Link to={`/combat/${combatSport}/drill/${exercise.slug}`} className={LINK_BUTTON}>
+          In der Kampfsport-Bibliothek öffnen
+        </Link>
+      </Card>
+    )
+  }
 
   function archiveExercise() {
     const confirmed = window.confirm(

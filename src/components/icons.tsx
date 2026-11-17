@@ -174,3 +174,13 @@ export function FlagIcon(props: IconProps) {
     </Icon>
   )
 }
+
+export function GloveIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M7 14V8.5A4.5 4.5 0 0 1 11.5 4h2A4.5 4.5 0 0 1 18 8.5V13a4 4 0 0 1-4 4H9.5" />
+      <path d="M7 11.5H5.5a2 2 0 0 0 0 4H7" />
+      <path d="M8 17v3h9v-3.5M11 9.5h4" />
+    </Icon>
+  )
+}
