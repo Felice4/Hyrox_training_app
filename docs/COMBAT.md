@@ -74,4 +74,41 @@ Die Logik ist rein und getestet:
 
 ## 5. Kampfsport-Training (6.4b)
 
-Siehe Abschnitt 6, folgt mit Schritt 6.4b.
+**Einstieg:**
+- Karte „Kampfsport-Training“ auf `/combat`
+- „Zum Kampfsport-Training hinzufügen“ auf jeder Drill-Seite
+- Seite `/combat/training`
+
+**Zusammenstellen:**
+- Drills aus allen Sportarten wählen, mit Suche und Sportart-Filter.
+- Je Drill ändern: Sätze, Wiederholungen oder Dauer (±15 s), Gewicht (nur bei Erfassung
+  mit Gewicht) und Pause.
+- Reihenfolge mit ↑/↓ ändern, Drills entfernen.
+- Die Auswahl wird lokal je Nutzer gespeichert (`hyrox-coach:combat-plan:<userId>`). So
+  bleibt sie beim Stöbern und für Wiederholungen erhalten. „Auswahl leeren“ setzt sie
+  zurück.
+
+**Ablauf:**
+- **Drill für Drill:** Jeder Drill wird mit seinen Sätzen absolviert, dann folgt der nächste.
+- **Zirkel:** Ab 2 Drills möglich, 2–20 Runden. Alle Drills laufen im Wechsel, die Pause
+  gilt nur nach dem letzten Drill einer Runde.
+
+**Workout** (`buildCombatWorkout` in `src/domain/combat/workout.ts`, getestet):
+
+| Eigenschaft | Wert |
+|---|---|
+| Version | `combat-1` |
+| Schwerpunkt | „Gemischt“ |
+| Intensität | „mittel“ |
+| Blöcke | ein Hauptblock, Rolle `skill`, Satzart `working` |
+| Vorgaben | Wiederholungen bzw. Dauer, Gewicht, Pause |
+| Geschätzte Dauer | 5 s je Wiederholung, 30 s Wechsel je Drill; Zieldauer mindestens 10 min |
+| Titel | „Kampfsport: BJJ · Boxen · …“, nach der jeweils ersten Sportart der Drills |
+
+- Neues optionales Feld `GeneratedWorkout.title`. `save_workout_session` speichert es
+  bereits seit Migration 0010 in `workout_sessions.title`. Verlauf und Kalender zeigen den
+  Titel statt des Schwerpunkts.
+- **Start** wie jedes Training (`useStartTraining`): mit Check-in-Verknüpfung, Rückfrage
+  bei laufendem Training, Countdown bei Zeit-Drills.
+- **Gespeichert** wird wie jedes andere Training: Verlauf, Kalender, Statistik (Gruppe
+  „Kampfsport“), Bestleistungen, Export. Keine Migration.

@@ -44,6 +44,7 @@ export const generatedWorkoutSchema = z
     blocks: z.array(workoutBlockSchema).min(1),
     explanation: z.array(z.string()),
     recoverySuggested: z.boolean(),
+    title: z.string().min(1).max(120).optional(),
   })
   .superRefine((workout, ctx) => {
     workout.blocks.forEach((block, bi) => {

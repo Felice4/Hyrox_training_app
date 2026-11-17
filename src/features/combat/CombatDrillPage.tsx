@@ -15,7 +15,9 @@ import {
 import { describeLoad } from '@/features/exercises/format'
 import { useSetArchived } from '@/features/exercises/useExerciseActions'
 import { useExerciseCatalog } from '@/features/exercises/useExerciseCatalog'
+import { addDrill } from '@/domain/combat/workout'
 import { parseSport } from './format'
+import { useCombatPlan } from './useCombatPlan'
 
 const LINK_BUTTON =
   'inline-flex min-h-12 items-center rounded-xl border border-line-strong bg-surface-raised px-5 font-semibold shadow-card transition duration-200 hover:bg-surface-high active:scale-[0.97]'
@@ -36,6 +38,7 @@ export function CombatDrillPage() {
   const navigate = useNavigate()
   const { catalog } = useExerciseCatalog()
   const archive = useSetArchived()
+  const { plan, update } = useCombatPlan()
   const sportPath = sport ? `/combat/${sport}` : '/combat'
   const backTo = backTarget(location.state, sportPath)
 
@@ -137,6 +140,18 @@ export function CombatDrillPage() {
             Erfassung im Training: {MEASUREMENT_LABELS[drill.measurement]}.
           </p>
         </Section>
+
+        <Card className="flex flex-col gap-3">
+          {plan.items.some((item) => item.slug === drill.slug) ? (
+            <Link to="/combat/training" className={LINK_BUTTON}>
+              ✓ Im Kampfsport-Training · ansehen
+            </Link>
+          ) : (
+            <Button onClick={() => update((p) => addDrill(p, drill))}>
+              Zum Kampfsport-Training hinzufügen
+            </Button>
+          )}
+        </Card>
 
         <Card className="flex flex-col gap-3">
           <div className="flex flex-wrap gap-2">

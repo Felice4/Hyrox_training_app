@@ -248,4 +248,6 @@ export interface GeneratedWorkout {
   explanation: string[]
   /** Tagesform sehr niedrig → regenerative Einheit wird empfohlen */
   recoverySuggested: boolean
+  /** Eigener Titel für Verlauf und Kalender, z. B. „Kampfsport: BJJ · Boxen" */
+  title?: string | undefined
 }

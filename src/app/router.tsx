@@ -140,6 +140,13 @@ export const router = createBrowserRouter([
                 ),
               },
               {
+                path: 'combat/training',
+                lazy: page(
+                  () => import('@/features/combat/CombatTrainingPage'),
+                  'CombatTrainingPage',
+                ),
+              },
+              {
                 path: 'combat/:sport',
                 lazy: page(() => import('@/features/combat/CombatSportPage'), 'CombatSportPage'),
               },

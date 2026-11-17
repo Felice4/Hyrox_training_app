@@ -6,11 +6,14 @@ import { Spinner } from '@/components/ui/Spinner'
 import { COMBAT_SPORTS, COMBAT_SPORT_LABELS } from '@/data/exercises/vocabulary'
 import { drillsForSport } from '@/domain/combat/drills'
 import { useExerciseCatalog } from '@/features/exercises/useExerciseCatalog'
+import { useCombatPlan } from './useCombatPlan'
 
 /** Kampfsport-Bibliothek: Übersicht der Sportarten (docs/COMBAT.md). */
 export function CombatLibraryPage() {
   const { catalog, isSyncing } = useExerciseCatalog()
   const exercises = catalog.data?.exercises ?? []
+  const { plan } = useCombatPlan()
+  const selected = plan.items.length
 
   return (
     <>
@@ -25,6 +28,21 @@ export function CombatLibraryPage() {
         title="Kampfsport"
         subtitle="Drills von Grundlagen bis Advanced – und deine eigenen aus Instagram & Co."
       />
+
+      <Link
+        to="/combat/training"
+        className="mb-4 flex min-h-16 items-center gap-4 rounded-2xl border border-accent/40 bg-accent/10 px-5 py-3 transition hover:bg-accent/15"
+      >
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="font-semibold">Kampfsport-Training</span>
+          <span className="text-sm text-fg-muted">
+            {selected > 0
+              ? `${selected} ${selected === 1 ? 'Drill' : 'Drills'} ausgewählt – anpassen und starten`
+              : 'Drills aus mehreren Sportarten kombinieren und starten'}
+          </span>
+        </span>
+        <ChevronRightIcon width={20} height={20} className="shrink-0 text-accent" />
+      </Link>
 
       {catalog.isPending ? (
         <div role="status" className="flex flex-col items-center gap-3 py-12 text-fg-muted">

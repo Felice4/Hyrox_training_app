@@ -22,6 +22,8 @@ export interface SaveSessionPayload {
     planned_workout_id: string | null
     /** Check-in des Tages (Migration 0006) */
     readiness_checkin_id: string | null
+    /** Eigener Titel, z. B. beim Kampfsport-Training (Migration 0010) */
+    title: string | null
   }
   exercises: {
     id: string
@@ -102,6 +104,7 @@ export function toSaveSessionPayload(
           : sessionLoad({ sessionRpe: feedback.sessionRpe, durationMin: activeSec / 60 }),
       planned_workout_id: orNull(session.plannedWorkoutId),
       readiness_checkin_id: orNull(session.readinessCheckinId),
+      title: orNull(session.workout.title),
     },
     exercises: session.exercises.map((exercise, position) => ({
       id: exercise.id,
