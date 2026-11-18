@@ -13,6 +13,7 @@ import type {
 } from '@/domain/generator'
 import { circuitRest, describeRest, summarizeItem } from './describe'
 import type { MovementPlacement } from '@/domain/movement/placement'
+import { hasMovementVideo } from '@/features/movement/videos'
 import { BLOCK_LABELS, FOCUS_LABELS, INTENSITY_LABELS } from './labels'
 import { MovementPracticeCard } from './MovementPracticeCard'
 import { SkillPracticeCard } from './SkillPracticeCard'
@@ -236,6 +237,11 @@ function ItemRow({
           className="font-semibold transition-colors hover:text-accent"
         >
           {item.exerciseName}
+          {hasMovementVideo(item.exerciseSlug) && (
+            <span className="ml-1.5" aria-label="mit Video">
+              🎥
+            </span>
+          )}
         </Link>
         <p className="mt-0.5 text-sm">
           <span className="font-medium text-accent">{summary.main}</span>

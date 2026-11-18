@@ -121,14 +121,57 @@ direkt unter „Skill üben“ die Karte **„Movement einbauen“** mit derselb
   einfügen.
 - In der Vorschau führt der Name einer Movement-Übung zur Seite im Movement Lab.
 
-## 6. Geplant
+## 6. Videos (6.5c)
 
-- **6.5c – Videos:**
-  - Privater Speicher-Bucket in Supabase (Migration). Lesen dürfen nur angemeldete Nutzer.
-    Hochgeladen wird nur über die Supabase-CLI des Entwicklers.
-  - Zuordnung Slug → Datei in `src/features/movement/videos.ts`.
-  - Komprimierung mit ffmpeg: etwa 720p, H.264, ohne Ton, plus Vorschaubild.
-  - Anzeige stumm in Schleife auf der Übungsseite.
-  - Im Trainingsmodus und in der Übungsansicht der Vorschau gibt es „▶ Video“.
-  - Nach dem ersten Ansehen wird das Video auf dem Gerät gespeichert und ist dann offline
-    verfügbar.
+**Speicher:** privater Supabase-Bucket `movement-videos` (Migration 0016,
+`docs/DATABASE.md` §4a).
+- Lesen dürfen nur angemeldete Nutzer.
+- Hochladen kann nur der Entwickler über die CLI, nie die App.
+- Die Videos liegen bewusst **nicht** im Repository, denn das GitHub-Repository ist
+  öffentlich. Rohvideos im Ordner `Videos_exercises/` sind über `.gitignore` ausgeschlossen.
+
+**Zuordnung:** `MOVEMENT_VIDEOS` in `src/features/movement/videos.ts` ordnet einen Slug einer
+Datei zu.
+- Dateiname: Slug plus Version, z. B. `movement-hip-switch-1.mp4`.
+- Ein neues Video derselben Übung bekommt eine neue Version. So lädt das Handy die neue
+  Fassung, und „Alle Videos offline speichern“ räumt alte Fassungen weg.
+- Ein Test prüft:
+  - Jeder Eintrag gehört zu einer Übung der Kategorie `movement`.
+  - Jeder Dateiname beginnt mit dem Slug.
+  - Kein Dateiname kommt doppelt vor.
+
+**Ablauf für neue Videos** (nur Entwickler):
+
+1. Nutzer legt das zugeschnittene Video in `Videos_exercises/` oder in den Chat und nennt
+   Übung, Beschreibung, Gruppe(n), Stufe und Herkunft.
+2. Komprimieren mit ffmpeg. Das ist ein lokales Werkzeug, keine Abhängigkeit der App:
+   - `ffmpeg-static` liegt in einem Temp-Ordner.
+   - Ergebnis: H.264, ohne Ton, längste Seite höchstens 960 px, 30 fps, CRF 28,
+     `+faststart`.
+   - Ein Testclip mit 5 s schrumpfte von 1,9 MB auf 0,5 MB.
+   ```
+   ffmpeg -i roh.mp4 -an -vf "scale='if(gt(iw,ih),min(960,iw),-2)':'if(gt(iw,ih),-2,min(960,ih))',fps=30" -c:v libx264 -preset slow -crf 28 -profile:v high -pix_fmt yuv420p -movflags +faststart movement-<slug>-1.mp4
+   ```
+3. Hochladen:
+   ```
+   npx supabase storage cp movement-<slug>-1.mp4 ss:///movement-videos/movement-<slug>-1.mp4 --content-type video/mp4 --linked --experimental
+   ```
+4. Die Übung in `src/data/exercises/movement.ts` eintragen, das Video in `MOVEMENT_VIDEOS`
+   eintragen und `LIBRARY_VERSION` erhöhen.
+
+**Anzeige:**
+- Auf der Übungsseite im Movement Lab: stumm, in Schleife, im Hochformat begrenzt.
+  Antippen hält das Video an.
+- Im Trainingsmodus gibt es beim aktuellen Satz **„▶ Video“** zum Aufklappen. Der Info-Knopf
+  führt bei Movement-Übungen zur Seite im Movement Lab.
+- 🎥 kennzeichnet Übungen mit Video in Listen, in der Auswahl und in der Trainingsvorschau.
+
+**Offline:**
+- Das Video wird mit Anmeldung über `storage.download` geladen.
+- Danach liegt es im Gerätespeicher (Cache Storage `movement-videos-v1`, unter dem
+  Dateinamen als Schlüssel) und wird als Datei abgespielt. Ab dem ersten Ansehen läuft es
+  also ohne Internet.
+- Auf `/movement` speichert die Karte **„Alle Videos offline speichern“** alle Videos auf
+  einmal, z. B. im WLAN vor dem Studio, und zeigt den Stand („3 von 5 gespeichert“).
+- Code: `src/features/movement/videoCache.ts`, `useMovementVideo.ts`, `MovementVideo.tsx`,
+  `VideoToggle.tsx`; API: `src/api/movementVideos.ts`.

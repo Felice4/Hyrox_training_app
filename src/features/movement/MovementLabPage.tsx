@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { ChevronLeftIcon, ChevronRightIcon, MoveIcon, SearchIcon } from '@/components/icons'
+import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { Spinner } from '@/components/ui/Spinner'
@@ -13,6 +14,7 @@ import {
 import { exercisesInGroup, isMovementExercise, matchesSearch } from '@/domain/movement/library'
 import { useExerciseCatalog } from '@/features/exercises/useExerciseCatalog'
 import { MovementListItem } from './MovementListItem'
+import { useOfflineVideos } from './useMovementVideo'
 import { useMovementPlan } from './useMovementPlan'
 
 /** Movement Lab: Übersicht der Gruppen und Suche (docs/MOVEMENT.md). */
@@ -136,6 +138,8 @@ export function MovementLabPage() {
         </>
       )}
 
+      <OfflineVideosCard />
+
       <p className="mt-4 text-xs text-fg-muted">
         {exercises.length === 0 &&
           'Das Movement Lab ist noch leer – Übungen kommen nach und nach dazu. '}
@@ -143,5 +147,36 @@ export function MovementLabPage() {
         Trainingsgenerator plant sie nie automatisch ein.
       </p>
     </>
+  )
+}
+
+/** „Alle Videos offline speichern" – einmal im WLAN, danach laufen sie im Studio ohne Netz. */
+function OfflineVideosCard() {
+  const { total, cached, saving, failed, saveAll } = useOfflineVideos()
+  if (total === 0) return null
+  const complete = cached === total
+  return (
+    <Card className="mt-4 flex flex-col gap-3">
+      <div>
+        <h2 className="font-semibold">Videos offline</h2>
+        <p className="text-sm text-fg-muted">
+          {cached === undefined
+            ? 'Wird geprüft …'
+            : `${cached} von ${total} ${total === 1 ? 'Video' : 'Videos'} auf diesem Gerät gespeichert.`}{' '}
+          Angesehene Videos werden automatisch gespeichert.
+        </p>
+      </div>
+      {!complete && (
+        <Button variant="secondary" loading={saving} onClick={() => void saveAll()}>
+          Alle Videos offline speichern
+        </Button>
+      )}
+      {failed > 0 && (
+        <p role="alert" className="text-sm text-danger">
+          {failed} {failed === 1 ? 'Video konnte' : 'Videos konnten'} nicht geladen werden. Bitte
+          Internetverbindung prüfen und erneut versuchen.
+        </p>
+      )}
+    </Card>
   )
 }

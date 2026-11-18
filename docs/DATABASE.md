@@ -327,6 +327,19 @@ Tests: Die Bibliothek wird per Vitest geprüft: alle Felder gültig laut Zod, Sl
 
 Die Datenbank prüft bei `exercises` nur die Grundstruktur (Slug-Format, Pflichtfelder, Schwierigkeit 1–3, `source`, `preference`). Die Wertelisten prüft die App mit Zod, damit neue Werte im Code keine Migration erfordern.
 
+### 4a. Speicher-Bucket `movement-videos` (Migration 0016)
+
+- Privater Bucket (`public = false`) für die Videos des Movement Lab: höchstens 10 MB je
+  Datei, nur `video/mp4`.
+- **Lesen:** Policy auf `storage.objects` für die Rolle `authenticated`, nur in diesem
+  Bucket. Die Videos sind Bibliotheksinhalte, keine Nutzerdaten. Weil die Registrierung
+  deaktiviert ist, kann nur das manuell angelegte Konto lesen; `anon` sieht nichts.
+- **Schreiben, Ändern, Löschen:** bewusst ohne Policy. Hochgeladen wird nur über die
+  Supabase-CLI des Entwicklers (`supabase storage cp … --linked --experimental`). In der
+  App lässt sich nichts hochladen.
+- Am 18.11.2026 in einer zurückgerollten Transaktion getestet: Bucket privat, angemeldet
+  lesbar, `anon` sieht nichts, Insert als `authenticated` abgelehnt. Danach eingespielt.
+
 ---
 
 ## 5. RPC-Funktionen (Postgres, `security invoker`)
@@ -380,5 +393,6 @@ Dateinamen folgen der Supabase-CLI: `supabase/migrations/<Zeitstempel>_<name>.sq
 | 0013 | `races.result_splits`, `complete_race()` | 6.3d |
 | 0014 | `exercises.combat_sports`, `exercises.gi_mode`; `sync_exercise_library()` übernimmt beide | 6.4a |
 | 0015 | `exercises.movement_groups`; `sync_exercise_library()` übernimmt das Feld | 6.5a |
+| 0016 | Speicher-Bucket `movement-videos` (privat) mit Lese-Policy für angemeldete Nutzer | 6.5c |
 
 Die Übungsbibliothek (2.4) kommt vor dem Onboarding (2.5), weil das Onboarding bevorzugte/unbeliebte Übungen und manuelle Bestleistungen auf Übungen bezieht.

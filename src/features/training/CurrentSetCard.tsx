@@ -19,6 +19,7 @@ import {
 } from '@/domain/session/session'
 import type { ActiveExercise, ActiveSession, ActiveSet } from '@/domain/session/types'
 import { BLOCK_LABELS } from '@/features/generator/labels'
+import { VideoToggle } from '@/features/movement/VideoToggle'
 import { formatDurationClock } from '@/lib/time'
 import { describeTarget } from './format'
 import { DurationInput } from './inputs/DurationInput'
@@ -80,7 +81,11 @@ export function CurrentSetCard({
             {exercise.exerciseName}
           </h1>
           <Link
-            to={`/exercises/${exercise.exerciseSlug}`}
+            to={
+              meta?.category === 'movement'
+                ? `/movement/exercise/${exercise.exerciseSlug}`
+                : `/exercises/${exercise.exerciseSlug}`
+            }
             state={{ backTo: '/training/active' }}
             className="grid size-11 shrink-0 place-items-center rounded-xl text-fg-muted transition hover:bg-surface-raised hover:text-fg"
             aria-label="Anleitung anzeigen"
@@ -105,6 +110,13 @@ export function CurrentSetCard({
         {exercise.note && set.type !== 'warmup' && (
           <p className="mt-2 text-sm text-fg-muted">{exercise.note}</p>
         )}
+        <div className="mt-3 empty:hidden">
+          <VideoToggle
+            key={exercise.exerciseSlug}
+            slug={exercise.exerciseSlug}
+            name={exercise.exerciseName}
+          />
+        </div>
       </div>
 
       {fields.includes('durationSec') && (

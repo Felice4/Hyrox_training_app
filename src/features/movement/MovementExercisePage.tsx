@@ -14,6 +14,7 @@ import {
 } from '@/data/exercises/vocabulary'
 import { addExercise } from '@/domain/movement/session'
 import { describeLoad } from '@/features/exercises/format'
+import { MovementVideo } from './MovementVideo'
 import { useExerciseCatalog } from '@/features/exercises/useExerciseCatalog'
 import { useMovementPlan } from './useMovementPlan'
 
@@ -97,6 +98,7 @@ export function MovementExercisePage() {
       </header>
 
       <div className="flex flex-col gap-4">
+        <MovementVideo slug={exercise.slug} name={exercise.name} />
         <Section title="Ablauf">
           <ol className="flex flex-col gap-2">
             {exercise.instructions.map((step, index) => (
