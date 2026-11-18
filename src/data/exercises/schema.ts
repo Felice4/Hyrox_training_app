@@ -6,6 +6,7 @@ import {
   GI_MODES,
   HYROX_STATIONS,
   MEASUREMENTS,
+  MOVEMENT_GROUPS,
   MOVEMENT_PATTERNS,
   MUSCLE_GROUPS,
   STRESS_REGIONS,
@@ -76,10 +77,15 @@ const exerciseObject = z.strictObject({
   /** Nur für echte Stations-Übungen bzw. direkte Varianten davon. */
   hyroxStation: z.enum(HYROX_STATIONS).optional(),
   stressRegions: z.array(z.enum(STRESS_REGIONS)).default([]),
-  /** Nur Kategorie „combat": Kampfsportarten, in denen der Drill vorkommt. */
+  /**
+   * Kategorie „combat": Kampfsportarten des Drills (Pflicht).
+   * Kategorie „movement": Herkunft der Übung, z. B. Wrestling (freiwillig).
+   */
   combatSports: z.array(z.enum(COMBAT_SPORTS)).default([]),
   /** Nur bei BJJ-Drills: Gi, NoGi oder beides. */
   giMode: z.enum(GI_MODES).optional(),
+  /** Nur Kategorie „movement": Gruppen im Movement Lab (mind. eine). */
+  movementGroups: z.array(z.enum(MOVEMENT_GROUPS)).default([]),
 })
 
 type ExerciseShape = z.output<typeof exerciseObject>
@@ -112,6 +118,7 @@ function checkExercise(exercise: ExerciseShape, ctx: z.RefinementCtx) {
     alternatives: exercise.alternatives,
     stressRegions: exercise.stressRegions,
     combatSports: exercise.combatSports,
+    movementGroups: exercise.movementGroups,
   }
   for (const [field, values] of Object.entries(arrays)) {
     if (hasDuplicates(values)) {
@@ -135,11 +142,20 @@ function checkExercise(exercise: ExerciseShape, ctx: z.RefinementCtx) {
     })
   }
 
-  if ((exercise.category === 'combat') !== exercise.combatSports.length > 0) {
+  const hasSports = exercise.combatSports.length > 0
+  if (exercise.category === 'combat' ? !hasSports : hasSports && exercise.category !== 'movement') {
     ctx.addIssue({
       code: 'custom',
       path: ['combatSports'],
-      message: 'Kampfsportarten genau bei Kategorie „combat" angeben',
+      message: 'Kampfsportarten nur bei „combat" (Pflicht) und „movement" (Herkunft)',
+    })
+  }
+
+  if ((exercise.category === 'movement') !== exercise.movementGroups.length > 0) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['movementGroups'],
+      message: 'Movement-Gruppen genau bei Kategorie „movement" angeben',
     })
   }
 

@@ -18,7 +18,7 @@ import {
   niceDistance,
   niceDuration,
 } from './dosing'
-import { buildHistoryIndex, filterPool } from './pool'
+import { buildHistoryIndex, filterPool, MANUAL_ONLY_CATEGORIES } from './pool'
 import { applyRaceDosing, buildRaceTemplate } from './raceTemplates'
 import { excludesFatiguedMuscles, scoreCandidate, SCORING, type ScoringContext } from './scoring'
 import {
@@ -480,9 +480,10 @@ export function generateWorkout(input: WorkoutRequestInput): GeneratedWorkout {
 
   // 3. Übungspool
   const unavailable = request.unavailableEquipment ?? []
-  // Kampfsport-Drills plant der Generator nie ein (eigene Bibliothek, docs/COMBAT.md)
+  // Movement Lab und frühere Kampfsport-Drills plant der Generator nie ein – Movement-
+  // Übungen kommen nur auf Wunsch ins Warm-up/Cool-down (docs/MOVEMENT.md)
   const pool = filterPool(input.exercises, profile, unavailable).filter(
-    (e) => e.category !== 'combat',
+    (e) => !MANUAL_ONLY_CATEGORIES.includes(e.category),
   )
   if (unavailable.length > 0) {
     explanation.push(`Heute ohne: ${unavailable.map((e) => EQUIPMENT_LABELS[e]).join(', ')}.`)

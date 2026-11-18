@@ -93,7 +93,7 @@ Check: Summe > 0. Der Generator normalisiert die Werte, die Summe muss also nich
 | source | text | `library` oder `custom` |
 | name | text | deutsch |
 | description | text | |
-| category | text | `hyrox`, `strength`, `endurance`, `mobility`, `warmup`, `cooldown`, `recovery`, `skill`, `combat` (Kampfsport-Drills, siehe `docs/COMBAT.md`) |
+| category | text | `hyrox`, `strength`, `endurance`, `mobility`, `warmup`, `cooldown`, `recovery`, `skill`, `combat` (frühere Kampfsport-Drills aus 6.4), `movement` (Movement Lab, siehe `docs/MOVEMENT.md`) |
 | training_types | text[] | mind. 1 aus `strength`, `hypertrophy`, `power`, `conditioning`, `endurance`, `mobility`, `stability`, `coordination`, `skill` |
 | movement_pattern | text | `squat`, `hinge`, `lunge`, `push_horizontal`, `push_vertical`, `pull_horizontal`, `pull_vertical`, `carry`, `core`, `locomotion`, `jump`, `full_body`, `isolation`, `mobility` |
 | primary_muscles | text[] | Werte aus der Muskelgruppen-Liste im Code |
@@ -106,8 +106,9 @@ Check: Summe > 0. Der Generator normalisiert die Werte, die Summe muss also nich
 | alternative_slugs | text[] | geeignete Alternativen |
 | hyrox_station | text null | `skierg`, `sled_push`, `sled_pull`, `burpee_broad_jump`, `row`, `farmers_carry`, `sandbag_lunges`, `wall_balls`, `run` |
 | stress_regions | text[] | Gelenke/Regionen mit hoher Belastung (für `limitation_regions`) |
-| combat_sports | text[] | Kampfsportarten eines Drills (`bjj`, `boxing`, `kickboxing`, `taekwondo`, `mma`, `wrestling`, `judo`); leer außer bei `combat` (Migration 0014) |
-| gi_mode | text null | BJJ-Drills: `gi`, `nogi`, `both` (Migration 0014) |
+| combat_sports | text[] | Kampfsportarten (`bjj`, `boxing`, `kickboxing`, `taekwondo`, `mma`, `wrestling`, `judo`): bei `combat` die Sportarten des Drills, bei `movement` die Herkunft (freiwillig); sonst leer (Migration 0014) |
+| gi_mode | text null | BJJ-Drills: `gi`, `nogi`, `both` (Migration 0014; seit 6.5 ungenutzt) |
+| movement_groups | text[] | Gruppen im Movement Lab (`mobility`, `footwork`, `ground`, `explosive`, `core`, `balance`, `flow`, `breathing`); genau bei `movement` mind. eine (Migration 0015) |
 | preference | text | `neutral`, `preferred`, `disliked`, `hidden`; Standard `neutral` |
 | is_archived | boolean | aus der Bibliothek entfernt oder eigene Übung gelöscht |
 | library_version | integer null | Version der Bibliothek beim letzten Abgleich |
@@ -378,5 +379,6 @@ Dateinamen folgen der Supabase-CLI: `supabase/migrations/<Zeitstempel>_<name>.sq
 | 0012 | `replace_week_plan()` speichert `race_session_type` | 6.3b |
 | 0013 | `races.result_splits`, `complete_race()` | 6.3d |
 | 0014 | `exercises.combat_sports`, `exercises.gi_mode`; `sync_exercise_library()` übernimmt beide | 6.4a |
+| 0015 | `exercises.movement_groups`; `sync_exercise_library()` übernimmt das Feld | 6.5a |
 
 Die Übungsbibliothek (2.4) kommt vor dem Onboarding (2.5), weil das Onboarding bevorzugte/unbeliebte Übungen und manuelle Bestleistungen auf Übungen bezieht.

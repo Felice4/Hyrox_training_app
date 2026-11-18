@@ -199,6 +199,8 @@ export const SLOT_ROLES = [
   'cooldown_cardio',
   'stretch',
   'skill',
+  /** Übung aus dem Movement Lab (Mobility-Einheit bzw. von Hand ins Warm-up/Cool-down) */
+  'movement',
 ] as const
 export type SlotRole = (typeof SLOT_ROLES)[number]
 
@@ -248,6 +250,6 @@ export interface GeneratedWorkout {
   explanation: string[]
   /** Tagesform sehr niedrig → regenerative Einheit wird empfohlen */
   recoverySuggested: boolean
-  /** Eigener Titel für Verlauf und Kalender, z. B. „Kampfsport: BJJ · Boxen" */
+  /** Eigener Titel für Verlauf und Kalender, z. B. „Mobility-Einheit: Mobilität · Flows" */
   title?: string | undefined
 }

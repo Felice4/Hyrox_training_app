@@ -8,7 +8,7 @@ import {
 import type { TrainingLevel } from '@/domain/profile/vocabulary'
 import { doseExercise } from './dosing'
 import { estimateWorkoutItem } from './generateWorkout'
-import { filterPool } from './pool'
+import { filterPool, MANUAL_ONLY_CATEGORIES } from './pool'
 import type {
   GeneratedWorkout,
   GeneratorExercise,
@@ -54,7 +54,7 @@ const sameFamily = (a: Category, b: Category) =>
  * 3. gleiche HYROX-Station bzw. gleiche Kategorie und Trainingsart,
  * 4. gleiche Kategorie (Warm-up, Mobility/Cool-down) bzw. gleiche Kategorie mit
  *    gemeinsamen Hauptmuskeln, 5. gemeinsame Hauptmuskeln.
- * Skill-Übungen nur, wenn die Übung selbst eine ist; Kampfsport-Drills nur untereinander.
+ * Skill-Übungen nur, wenn die Übung selbst eine ist; Movement-Übungen nur untereinander.
  * Es gelten dieselben Filter wie im Generator (Geräte, Einschränkungen, ausgeblendet).
  */
 export function suggestAlternatives(input: AlternativeInput): ExerciseSuggestion[] {
@@ -66,8 +66,10 @@ export function suggestAlternatives(input: AlternativeInput): ExerciseSuggestion
   const suggestions = pool.flatMap((candidate): ExerciseSuggestion[] => {
     if (exclude.has(candidate.slug)) return []
     if (candidate.category === 'skill' && original.category !== 'skill') return []
-    // Kampfsport-Drills nur untereinander tauschen
-    if ((candidate.category === 'combat') !== (original.category === 'combat')) return []
+    // Movement-Übungen (und frühere Kampfsport-Drills) nur innerhalb ihrer Kategorie tauschen
+    for (const manual of MANUAL_ONLY_CATEGORIES) {
+      if ((candidate.category === manual) !== (original.category === manual)) return []
+    }
     const curatedIndex = original.alternatives.indexOf(candidate.slug)
     const primaryOverlap = overlap(original.primaryMuscles, candidate.primaryMuscles)
     const samePattern = candidate.movementPattern === original.movementPattern

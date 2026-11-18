@@ -1,5 +1,11 @@
-import type { Equipment, HyroxStation } from '@/data/exercises/vocabulary'
+import type { Category, Equipment, HyroxStation } from '@/data/exercises/vocabulary'
 import type { Focus, GeneratorExercise, GeneratorProfile, HistorySession } from './types'
+
+/**
+ * Kategorien, die der Generator nie selbst einplant: das Movement Lab (nur von Hand ins
+ * Warm-up/Cool-down, docs/MOVEMENT.md) und die früheren Kampfsport-Drills.
+ */
+export const MANUAL_ONLY_CATEGORIES: readonly Category[] = ['movement', 'combat']
 
 /** Verfügbare Geräte heute: Profil minus „heute nicht verfügbar". */
 export function availableEquipment(

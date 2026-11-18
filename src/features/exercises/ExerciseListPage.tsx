@@ -33,7 +33,7 @@ import { useExerciseCatalog } from './useExerciseCatalog'
 const byLabel = (a: SelectOption<string>, b: SelectOption<string>) =>
   a.label.localeCompare(b.label, 'de')
 
-const LIBRARY_CATEGORIES = CATEGORIES.filter((c) => c !== 'combat')
+const LIBRARY_CATEGORIES = CATEGORIES.filter((c) => c !== 'movement')
 
 const MUSCLE_OPTIONS: SelectOption<ExerciseFilter['muscle']>[] = [
   { value: 'all', label: 'Alle Muskeln' },
@@ -51,8 +51,8 @@ export function ExerciseListPage() {
   const filter = parseExerciseFilter(searchParams)
   const { catalog, isSyncing } = useExerciseCatalog()
 
-  // Kampfsport-Drills haben eine eigene Bibliothek (/combat)
-  const exercises = catalog.data?.exercises.filter((e) => e.category !== 'combat')
+  // Movement-Übungen haben eine eigene Bibliothek (/movement)
+  const exercises = catalog.data?.exercises.filter((e) => e.category !== 'movement')
   const visible = exercises ? filterExercises(exercises, filter) : []
 
   function updateFilter(patch: Partial<ExerciseFilter>) {

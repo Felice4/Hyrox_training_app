@@ -176,7 +176,7 @@ function ExerciseForm({
         <SingleChoiceChips
           label="Kategorie"
           options={options(
-            CATEGORIES.filter((c) => c !== 'combat'),
+            CATEGORIES.filter((c) => c !== 'combat' && c !== 'movement'),
             CATEGORY_LABELS,
           )}
           value={draft.category}

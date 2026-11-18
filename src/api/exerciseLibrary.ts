@@ -22,6 +22,7 @@ export interface LibraryExerciseRow {
   stress_regions: string[]
   combat_sports: string[]
   gi_mode: string | null
+  movement_groups: string[]
 }
 
 export function toLibraryRow(exercise: ExerciseDefinition): LibraryExerciseRow {
@@ -49,6 +50,7 @@ export function toLibraryRow(exercise: ExerciseDefinition): LibraryExerciseRow {
     stress_regions: [...exercise.stressRegions],
     combat_sports: [...exercise.combatSports],
     gi_mode: exercise.giMode ?? null,
+    movement_groups: [...exercise.movementGroups],
   }
 }
 

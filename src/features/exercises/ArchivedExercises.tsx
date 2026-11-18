@@ -6,8 +6,8 @@ import { useArchivedCustomExercises, useSetArchived } from './useExerciseActions
 export function ArchivedExercises() {
   const archived = useArchivedCustomExercises()
   const restore = useSetArchived()
-  // Archivierte Kampfsport-Drills stehen bei ihrer Sportart (/combat)
-  const exercises = (archived.data ?? []).filter((e) => e.category !== 'combat')
+  // Movement-Übungen kommen nur aus der Bibliothek; eigene gibt es nicht
+  const exercises = (archived.data ?? []).filter((e) => e.category !== 'movement')
   if (exercises.length === 0) return null
   return (
     <Card className="mt-6 p-4">

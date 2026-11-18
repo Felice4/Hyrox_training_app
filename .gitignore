@@ -30,3 +30,5 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 *.local
+# Rohvideos für das Movement Lab (privat, werden komprimiert in Supabase Storage geladen)
+Videos_exercises/

@@ -22,14 +22,13 @@ export function ExerciseActions({ exercise }: { exercise: CatalogExercise }) {
   const preference = useSetPreference()
   const archive = useSetArchived()
   const isCustom = exercise.source === 'custom'
-  const combatSport = exercise.category === 'combat' ? exercise.combatSports[0] : undefined
 
-  // Kampfsport-Drills werden in der Kampfsport-Bibliothek verwaltet
-  if (combatSport) {
+  // Movement-Übungen werden im Movement Lab gezeigt (nie vom Generator eingeplant)
+  if (exercise.category === 'movement') {
     return (
       <Card>
-        <Link to={`/combat/${combatSport}/drill/${exercise.slug}`} className={LINK_BUTTON}>
-          In der Kampfsport-Bibliothek öffnen
+        <Link to={`/movement/exercise/${exercise.slug}`} className={LINK_BUTTON}>
+          Im Movement Lab öffnen
         </Link>
       </Card>
     )
@@ -43,6 +42,33 @@ export function ExerciseActions({ exercise }: { exercise: CatalogExercise }) {
     archive.mutate(
       { id: exercise.id, archived: true },
       { onSuccess: () => void navigate('/exercises', { replace: true }) },
+    )
+  }
+
+  // Frühere eigene Kampfsport-Drills (6.4): nur noch archivieren, nicht bearbeiten
+  if (exercise.category === 'combat') {
+    return (
+      <Card className="flex flex-col gap-3">
+        <p className="text-sm text-fg-muted">
+          Früherer Kampfsport-Drill. Die Kampfsport-Bibliothek wurde durch das Movement Lab ersetzt;
+          gespeicherte Trainings bleiben erhalten.
+        </p>
+        {isCustom && (
+          <Button
+            variant="ghost"
+            className="self-start"
+            loading={archive.isPending}
+            onClick={archiveExercise}
+          >
+            Archivieren
+          </Button>
+        )}
+        {archive.isError && (
+          <p role="alert" className="text-sm text-danger">
+            Archivieren fehlgeschlagen. Bitte versuche es erneut.
+          </p>
+        )}
+      </Card>
     )
   }
 

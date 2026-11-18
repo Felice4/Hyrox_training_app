@@ -76,6 +76,7 @@ export type Database = {
           library_version: number | null
           load_params: Json
           measurement: string
+          movement_groups: string[]
           movement_pattern: string
           name: string
           preference: string
@@ -104,6 +105,7 @@ export type Database = {
           library_version?: number | null
           load_params: Json
           measurement: string
+          movement_groups?: string[]
           movement_pattern: string
           name: string
           preference?: string
@@ -132,6 +134,7 @@ export type Database = {
           library_version?: number | null
           load_params?: Json
           measurement?: string
+          movement_groups?: string[]
           movement_pattern?: string
           name?: string
           preference?: string

@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react'
-import { createBrowserRouter } from 'react-router'
+import { createBrowserRouter, Navigate } from 'react-router'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { RequireAuth } from '@/features/auth/RequireAuth'
 import { CalendarPage } from '@/features/calendar/CalendarPage'
@@ -133,41 +133,32 @@ export const router = createBrowserRouter([
                 ),
               },
               {
-                path: 'combat',
+                path: 'movement',
+                lazy: page(() => import('@/features/movement/MovementLabPage'), 'MovementLabPage'),
+              },
+              {
+                path: 'movement/training',
                 lazy: page(
-                  () => import('@/features/combat/CombatLibraryPage'),
-                  'CombatLibraryPage',
+                  () => import('@/features/movement/MobilitySessionPage'),
+                  'MobilitySessionPage',
                 ),
               },
               {
-                path: 'combat/training',
+                path: 'movement/exercise/:slug',
                 lazy: page(
-                  () => import('@/features/combat/CombatTrainingPage'),
-                  'CombatTrainingPage',
+                  () => import('@/features/movement/MovementExercisePage'),
+                  'MovementExercisePage',
                 ),
               },
               {
-                path: 'combat/:sport',
-                lazy: page(() => import('@/features/combat/CombatSportPage'), 'CombatSportPage'),
-              },
-              {
-                path: 'combat/:sport/new',
+                path: 'movement/:group',
                 lazy: page(
-                  () => import('@/features/combat/CombatDrillFormPage'),
-                  'CombatDrillFormPage',
+                  () => import('@/features/movement/MovementGroupPage'),
+                  'MovementGroupPage',
                 ),
               },
-              {
-                path: 'combat/:sport/drill/:slug',
-                lazy: page(() => import('@/features/combat/CombatDrillPage'), 'CombatDrillPage'),
-              },
-              {
-                path: 'combat/:sport/drill/:slug/edit',
-                lazy: page(
-                  () => import('@/features/combat/CombatDrillFormPage'),
-                  'CombatDrillFormPage',
-                ),
-              },
+              // Frühere Kampfsport-Bibliothek (6.4) → Movement Lab
+              { path: 'combat/*', element: <Navigate to="/movement" replace /> },
               {
                 path: 'profile',
                 lazy: page(() => import('@/features/profile/ProfilePage'), 'ProfilePage'),

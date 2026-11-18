@@ -16,6 +16,7 @@ export const CATEGORIES = [
   'recovery',
   'skill',
   'combat',
+  'movement',
 ] as const
 export type Category = (typeof CATEGORIES)[number]
 export const CATEGORY_LABELS: Record<Category, string> = {
@@ -28,6 +29,7 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   recovery: 'Regeneration',
   skill: 'Skills',
   combat: 'Kampfsport',
+  movement: 'Movement Lab',
 }
 
 export const TRAINING_TYPES = [
@@ -309,8 +311,8 @@ export const PREFERENCE_LABELS: Record<Preference, string> = {
 }
 
 /**
- * Kampfsportarten der Kampfsport-Bibliothek (docs/COMBAT.md). Reihenfolge = Anzeige.
- * Drills der Kategorie „combat" gehören zu mindestens einer davon.
+ * Kampfsportarten. Bei Movement-Übungen die Herkunft (z. B. „aus dem Wrestling",
+ * docs/MOVEMENT.md); bei den früheren Kampfsport-Drills (Kategorie „combat") die Sportart.
  */
 export const COMBAT_SPORTS = [
   'bjj',
@@ -341,9 +343,39 @@ export const GI_MODE_LABELS: Record<GiMode, string> = {
   both: 'Gi & NoGi',
 }
 
-/** Stufen der Kampfsport-Drills – entsprechen der Schwierigkeit 1–3. */
-export const COMBAT_LEVEL_LABELS: Record<Difficulty, string> = {
-  1: 'Grundlagen',
-  2: 'Fortgeschritten',
-  3: 'Advanced',
+/**
+ * Gruppen des Movement Lab (docs/MOVEMENT.md §2). Reihenfolge = Anzeige.
+ * Übungen der Kategorie „movement" gehören zu mindestens einer Gruppe.
+ */
+export const MOVEMENT_GROUPS = [
+  'mobility',
+  'footwork',
+  'ground',
+  'explosive',
+  'core',
+  'balance',
+  'flow',
+  'breathing',
+] as const
+export type MovementGroup = (typeof MOVEMENT_GROUPS)[number]
+export const MOVEMENT_GROUP_LABELS: Record<MovementGroup, string> = {
+  mobility: 'Mobilität',
+  footwork: 'Beinarbeit & Koordination',
+  ground: 'Bodenbewegungen',
+  explosive: 'Explosivität',
+  core: 'Rumpf & Stabilität',
+  balance: 'Balance & Körpergefühl',
+  flow: 'Flows',
+  breathing: 'Atmung & Entspannung',
+}
+/** Kurzbeschreibung je Gruppe mit dem Nutzen für HYROX. */
+export const MOVEMENT_GROUP_HINTS: Record<MovementGroup, string> = {
+  mobility: 'Hüfte, Brustwirbelsäule, Schultern, Sprunggelenke – für tiefe Wall Balls und Lunges',
+  footwork: 'Rhythmus, Schrittfolgen, Seilspringen – für Laufökonomie und schnelle Übergänge',
+  ground: 'Shrimps, Rollen, Aufstehen – für Burpees und schnelles Hochkommen vom Boden',
+  explosive: 'Sprawls, Level Changes, Sprünge – für Burpee Broad Jumps und Antritt',
+  core: 'Bridges, Rotation, Spannung – für Sled, Farmers Carry und Rudern',
+  balance: 'Einbeinig, Gleichgewicht, Körperwahrnehmung – für stabile Knie und Sprunggelenke',
+  flow: 'Fließende Abläufe aus mehreren Bewegungen – zum Aufwärmen oder als aktive Pause',
+  breathing: 'Atemübungen und Entspannung – zum Runterfahren im Cool-down',
 }

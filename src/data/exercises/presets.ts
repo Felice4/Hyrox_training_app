@@ -48,14 +48,12 @@ export const LOAD = {
   skillHold: { sets: [3, 6], durationSec: [5, 20], restSec: [60, 120] },
   /** Skill-Block: Dehnung für Spagat, Brücke, Pike (je Seite, falls einseitig). */
   skillStretch: { sets: [2, 3], durationSec: [30, 90], restSec: [15, 30] },
-  /** Kampfsport: Technik-Wiederholungen (je Seite, falls einseitig). */
-  combatReps: { sets: [3, 5], reps: [5, 10], restSec: [30, 60] },
-  /** Kampfsport: Runden wie im Wettkampf (Schattenboxen, Sandsack, Pratzen, Sparring). */
-  combatRounds: { sets: [3, 5], durationSec: [120, 180], restSec: [45, 60] },
-  /** Kampfsport: kürzere Drill-Intervalle (Partnerdrill, Bewegungsdrill). */
-  combatDrill: { sets: [3, 5], durationSec: [45, 90], restSec: [30, 45] },
-  /** Kampfsport: harte Kondition (Sprawls, Zirkel). */
-  combatConditioning: { sets: [4, 6], durationSec: [20, 40], restSec: [20, 40] },
+  /** Movement Lab: Bewegung mit Wiederholungen (je Seite, falls einseitig). */
+  movementReps: { sets: [1, 3], reps: [6, 10], restSec: [0, 30] },
+  /** Movement Lab: Bewegung oder Position nach Zeit (je Seite, falls einseitig). */
+  movementTime: { sets: [1, 3], durationSec: [30, 60], restSec: [0, 30] },
+  /** Movement Lab: Flow oder längerer Ablauf. */
+  movementFlow: { sets: [1, 3], durationSec: [60, 120], restSec: [0, 30] },
   /** Tragen mit Gewicht über kurze Strecken. */
   carry: { sets: [3, 4], distanceM: [20, 40], restSec: [60, 90] },
 } satisfies Record<string, LoadParams>

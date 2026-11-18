@@ -175,12 +175,14 @@ export function FlagIcon(props: IconProps) {
   )
 }
 
-export function GloveIcon(props: IconProps) {
+/** Laufende Figur – Movement Lab. */
+export function MoveIcon(props: IconProps) {
   return (
     <Icon {...props}>
-      <path d="M7 14V8.5A4.5 4.5 0 0 1 11.5 4h2A4.5 4.5 0 0 1 18 8.5V13a4 4 0 0 1-4 4H9.5" />
-      <path d="M7 11.5H5.5a2 2 0 0 0 0 4H7" />
-      <path d="M8 17v3h9v-3.5M11 9.5h4" />
+      <circle cx="14.5" cy="4.5" r="1.75" />
+      <path d="M9 10l3.5-2.5 3 2.5 3 .5" />
+      <path d="M12.5 7.5L10.5 13l3.5 2.5-1 5" />
+      <path d="M10.5 13L8 16.5l-3.5.5" />
     </Icon>
   )
 }
