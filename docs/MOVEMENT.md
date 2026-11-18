@@ -96,15 +96,33 @@ Warm-up/Cool-down verwendet.
 
 Statistik: Trainierte Movement-Übungen erscheinen in der Gruppe „Movement Lab“.
 
-## 5. Geplant
+## 5. Movement im Warm-up/Cool-down (6.5b)
 
-- **6.5b – Movement im Warm-up/Cool-down:** In der Trainingsvorschau (Generator und
-  geplante Einheiten) gibt es eine Karte **„Movement einbauen“** direkt bei „Skill üben“,
-  mit derselben Bedienung.
-  - Man wählt Warm-up oder Cool-down und dann Übungen aus dem Movement Lab.
-  - Die Übungen werden mit der unteren Dosierung eingefügt. Einzelne lassen sich wieder
-    entfernen oder gegen andere Movement-Übungen tauschen.
-  - Während des Trainings kann man keine Übungen einfügen.
+In der Trainingsvorschau des Generators und bei geplanten Einheiten im Kalender gibt es
+direkt unter „Skill üben“ die Karte **„Movement einbauen“** mit derselben Bedienung:
+
+- „Übung einbauen“ öffnet die Auswahl:
+  - Zuerst wählt man **Warm-up oder Cool-down**.
+  - Darunter steht der `MovementPicker` mit Suche und Gruppen.
+  - Jede angetippte Übung wird sofort eingebaut, „Fertig“ schließt die Auswahl.
+- Eingebaute Übungen stehen mit ihrer Stelle in der Karte und lassen sich dort entfernen.
+  Mit dem normalen Tauschen-Symbol lassen sie sich nur gegen andere Movement-Übungen
+  tauschen.
+- Die Logik steckt in `src/domain/movement/placement.ts` (getestet):
+  - `addMovement` fügt mit der **unteren Dosierung** ein (Rolle `movement`, Satzart
+    `working`, geschätzt mit 5 s je Wiederholung und 15 s Wechsel).
+  - Im Block steht die Übung **vor den Skill-Übungen**, die am Ende bleiben.
+  - Fehlt der Block, wird er angelegt: das Warm-up am Anfang, das Cool-down am Ende.
+  - Keine Übung kommt doppelt vor, und nur Übungen der Kategorie `movement` werden
+    eingebaut.
+  - `removeMovement` entfernt nur Movement-Einträge. Ein leerer Block fällt weg, die
+    geschätzte Dauer wird neu berechnet.
+- Hauptteil und Kondition sind **nie** möglich. Während des Trainings kann man nichts
+  einfügen.
+- In der Vorschau führt der Name einer Movement-Übung zur Seite im Movement Lab.
+
+## 6. Geplant
+
 - **6.5c – Videos:**
   - Privater Speicher-Bucket in Supabase (Migration). Lesen dürfen nur angemeldete Nutzer.
     Hochgeladen wird nur über die Supabase-CLI des Entwicklers.

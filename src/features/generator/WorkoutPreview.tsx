@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
+import type { CatalogExercise } from '@/api/exercises'
 import { InfoIcon, RefreshIcon, SwapIcon } from '@/components/icons'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -11,7 +12,9 @@ import type {
   WorkoutItem,
 } from '@/domain/generator'
 import { circuitRest, describeRest, summarizeItem } from './describe'
+import type { MovementPlacement } from '@/domain/movement/placement'
 import { BLOCK_LABELS, FOCUS_LABELS, INTENSITY_LABELS } from './labels'
+import { MovementPracticeCard } from './MovementPracticeCard'
 import { SkillPracticeCard } from './SkillPracticeCard'
 import type { SkillOption } from './skillOptions'
 import { SwapPicker } from './SwapPicker'
@@ -36,6 +39,12 @@ interface WorkoutPreviewProps {
     onAdd: (practice: SkillPractice) => void
     onRemove: (skillSlug: string) => void
   }
+  /** „Movement einbauen": Movement-Lab-Übungen ins Warm-up/Cool-down (ohne Angabe ausgeblendet) */
+  movement?: {
+    exercises: readonly CatalogExercise[]
+    onAdd: (exercise: CatalogExercise, placement: MovementPlacement) => void
+    onRemove: (exerciseSlug: string) => void
+  }
 }
 
 export function WorkoutPreview({
@@ -50,6 +59,7 @@ export function WorkoutPreview({
   startHint,
   startDisabled = false,
   skills,
+  movement,
 }: WorkoutPreviewProps) {
   const [showWhy, setShowWhy] = useState(false)
   const [swapping, setSwapping] = useState<string | null>(null)
@@ -110,6 +120,15 @@ export function WorkoutPreview({
           options={skills.options}
           onAdd={skills.onAdd}
           onRemove={skills.onRemove}
+        />
+      )}
+
+      {movement && (
+        <MovementPracticeCard
+          workout={workout}
+          exercises={movement.exercises}
+          onAdd={movement.onAdd}
+          onRemove={movement.onRemove}
         />
       )}
 
@@ -208,7 +227,11 @@ function ItemRow({
     <div className="flex items-start gap-3">
       <div className="min-w-0 flex-1">
         <Link
-          to={`/exercises/${item.exerciseSlug}`}
+          to={
+            item.role === 'movement'
+              ? `/movement/exercise/${item.exerciseSlug}`
+              : `/exercises/${item.exerciseSlug}`
+          }
           state={{ backTo }}
           className="font-semibold transition-colors hover:text-accent"
         >

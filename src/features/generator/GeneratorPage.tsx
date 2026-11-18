@@ -17,6 +17,7 @@ import {
   type WorkoutRequest,
 } from '@/domain/generator'
 import { filterPool } from '@/domain/generator/pool'
+import { addMovement, removeMovement } from '@/domain/movement/placement'
 import type { SkillGoal } from '@/domain/skills/goals'
 import { useAuth } from '@/features/auth/authContext'
 import { useExerciseCatalog } from '@/features/exercises/useExerciseCatalog'
@@ -236,6 +237,13 @@ function Generator({
             }),
           onRemove: (skillSlug) =>
             setStored({ ...stored, workout: removeSkill(stored.workout, skillSlug) }),
+        }}
+        movement={{
+          exercises,
+          onAdd: (exercise, placement) =>
+            setStored({ ...stored, workout: addMovement(stored.workout, exercise, placement) }),
+          onRemove: (slug) =>
+            setStored({ ...stored, workout: removeMovement(stored.workout, slug) }),
         }}
         onSwap={(blockIndex, itemIndex, suggestion) =>
           setStored({

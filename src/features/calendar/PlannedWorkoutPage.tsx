@@ -17,6 +17,7 @@ import {
   type WorkoutRequest,
 } from '@/domain/generator'
 import { filterPool } from '@/domain/generator/pool'
+import { addMovement, removeMovement } from '@/domain/movement/placement'
 import { GeneratorForm } from '@/features/generator/GeneratorForm'
 import { newSeed, toGeneratorProfile, toSkillBlockSetting } from '@/features/generator/inputs'
 import { skillOptions } from '@/features/generator/skillOptions'
@@ -400,6 +401,11 @@ function WorkoutView({
             }),
           ),
         onRemove: (skillSlug) => onChange(removeSkill(workout, skillSlug)),
+      }}
+      movement={{
+        exercises: data.exercises,
+        onAdd: (exercise, placement) => onChange(addMovement(workout, exercise, placement)),
+        onRemove: (slug) => onChange(removeMovement(workout, slug)),
       }}
       onSwap={(blockIndex, itemIndex, suggestion) =>
         onChange(
