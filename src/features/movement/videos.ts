@@ -21,6 +21,14 @@ export const MOVEMENT_VIDEOS: Readonly<Record<string, string>> = {
   'movement-hindu-pushup': 'movement-hindu-pushup-1.mp4',
   'movement-lunge-dumbbell-press': 'movement-lunge-dumbbell-press-1.mp4',
   'movement-wide-stance-thoracic-rotation': 'movement-wide-stance-thoracic-rotation-1.mp4',
+  'movement-worlds-greatest-stretch-rotation': 'movement-worlds-greatest-stretch-rotation-1.mp4',
+  'movement-seated-straddle-leg-lifts': 'movement-seated-straddle-leg-lifts-1.mp4',
+  'movement-deep-squat-kneeling-hip-switch': 'movement-deep-squat-kneeling-hip-switch-1.mp4',
+  'movement-seated-straddle-rotational-reach': 'movement-seated-straddle-rotational-reach-1.mp4',
+  'movement-sumo-squat-rotational-lunge': 'movement-sumo-squat-rotational-lunge-1.mp4',
+  'movement-seated-alternating-hip-rotations': 'movement-seated-alternating-hip-rotations-1.mp4',
+  'movement-90-90-hip-switch-forward-fold': 'movement-90-90-hip-switch-forward-fold-1.mp4',
+  'movement-walkout-pike-pushup-flow': 'movement-walkout-pike-pushup-flow-1.mp4',
 }
 
 export function movementVideoFile(slug: string): string | undefined {
