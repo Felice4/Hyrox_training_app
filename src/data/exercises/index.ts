@@ -26,7 +26,7 @@ import { STRENGTH_PUSH_EXERCISES } from './strength-push'
 import { WARMUP_EXERCISES } from './warmup'
 
 /** Bei JEDER Änderung an der Bibliothek um 1 erhöhen (löst den Abgleich mit der Datenbank aus). */
-export const LIBRARY_VERSION = 7
+export const LIBRARY_VERSION = 8
 
 /** Alle Übungen in Rohform, wie sie in den Dateien stehen. */
 export const RAW_EXERCISES: readonly ExerciseInput[] = [

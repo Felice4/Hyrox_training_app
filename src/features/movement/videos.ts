@@ -10,6 +10,7 @@
 export const MOVEMENT_VIDEOS: Readonly<Record<string, string>> = {
   'movement-burpee-plate-overhead': 'movement-burpee-plate-overhead-1.mp4',
   'movement-typewriter-pushup': 'movement-typewriter-pushup-1.mp4',
+  'movement-deep-squat-thoracic-rotation': 'movement-deep-squat-thoracic-rotation-1.mp4',
 }
 
 export function movementVideoFile(slug: string): string | undefined {

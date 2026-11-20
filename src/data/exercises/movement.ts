@@ -92,4 +92,34 @@ export const MOVEMENT_EXERCISES: ExerciseInput[] = [
       'Achte darauf, deine Schultern nicht zu überlasten.',
     ],
   },
+  {
+    slug: 'movement-deep-squat-thoracic-rotation',
+    name: 'Deep Squat Thoracic Rotation',
+    description:
+      'Verbesserung der Beweglichkeit in Hüfte, Sprunggelenken und Brustwirbelsäule sowie der Rotationsfähigkeit des Oberkörpers.',
+    category: 'movement',
+    movementGroups: ['mobility'],
+    trainingTypes: ['mobility'],
+    movementPattern: 'mobility',
+    primaryMuscles: ['upper_back', 'obliques', 'adductors'],
+    secondaryMuscles: ['glutes', 'calves'],
+    difficulty: 1,
+    measurement: 'reps',
+    loadParams: LOAD.movementReps,
+    stressRegions: ['knee', 'ankle'],
+    instructions: [
+      'Stelle deine Füße etwas breiter als hüftbreit auf und gehe in eine tiefe Kniebeuge.',
+      'Halte deine Fersen möglichst am Boden und positioniere eine Hand zur Stabilisierung vor dir.',
+      'Drehe deinen Oberkörper kontrolliert zur Seite und strecke den anderen Arm Richtung Decke.',
+      'Folge der Bewegung mit deinem Blick und kehre anschließend in die Ausgangsposition zurück.',
+      'Wiederhole die Rotation auf der anderen Seite.',
+    ],
+    hyroxBenefit:
+      'Fördert eine aufrechte und stabile Haltung in der tiefen Kniebeuge, insbesondere bei Wall Balls. Die verbesserte Hüft- und Sprunggelenksbeweglichkeit unterstützt außerdem Lunges und andere tiefe Bewegungspositionen.',
+    techniqueCues: [
+      'Halte die Fersen möglichst am Boden und die Knie in Richtung deiner Zehenspitzen.',
+      'Rotiere hauptsächlich aus der Brustwirbelsäule, ohne die Bewegung zu erzwingen.',
+      'Führe die Rotation langsam und kontrolliert aus.',
+    ],
+  },
 ]
