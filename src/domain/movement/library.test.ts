@@ -6,7 +6,9 @@ import { HIP_SWITCH, MOVEMENT_FIXTURES, SHRIMP } from './testFixtures'
 
 describe('Movement Lab', () => {
   it('liefert nur Movement-Übungen der Gruppe, alphabetisch', () => {
-    const mixed = [...MOVEMENT_FIXTURES, ...EXERCISE_LIBRARY]
+    // Nur fremde Kategorien beimischen – echte Movement-Übungen kommen laufend dazu
+    const others = EXERCISE_LIBRARY.filter((e) => e.category !== 'movement')
+    const mixed = [...MOVEMENT_FIXTURES, ...others]
     expect(exercisesInGroup(mixed, 'mobility').map((e) => e.slug)).toEqual(['movement-hip-switch'])
     expect(exercisesInGroup(mixed, 'core')).toEqual([SHRIMP])
   })

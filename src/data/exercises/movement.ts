@@ -62,4 +62,34 @@ export const MOVEMENT_EXERCISES: ExerciseInput[] = [
       'Achte beim Aufrichten auf einen stabilen Stand.',
     ],
   },
+  {
+    slug: 'movement-typewriter-pushup',
+    name: 'Typewriter Push-ups (Seitliche Liegestütze)',
+    description:
+      'Verbesserung der Schulterstabilität, Rumpfspannung, Oberkörperkraft und kontrollierten Gewichtsverlagerung.',
+    category: 'movement',
+    movementGroups: ['core'],
+    trainingTypes: ['stability', 'strength'],
+    movementPattern: 'push_horizontal',
+    primaryMuscles: ['chest', 'triceps', 'front_delts'],
+    secondaryMuscles: ['abs', 'obliques'],
+    difficulty: 3,
+    measurement: 'reps',
+    loadParams: LOAD.movementReps,
+    stressRegions: ['shoulder', 'wrist'],
+    instructions: [
+      'Beginne in einer Liegestützposition mit etwas breiter aufgestellten Händen.',
+      'Senke deinen Oberkörper Richtung Boden.',
+      'Verlagere dein Gewicht abwechselnd nach links und rechts.',
+      'Halte deinen Körper dabei möglichst tief und deinen Rumpf angespannt.',
+      'Führe die Bewegung kontrolliert und fließend aus.',
+    ],
+    hyroxBenefit:
+      'Unterstützt die Stabilität und Kraftausdauer des Oberkörpers, insbesondere beim Sled Push und bei Burpees.',
+    techniqueCues: [
+      'Halte deinen Rumpf angespannt und vermeide ein starkes Durchhängen der Hüfte.',
+      'Verlagere dein Gewicht kontrolliert zwischen beiden Armen.',
+      'Achte darauf, deine Schultern nicht zu überlasten.',
+    ],
+  },
 ]
