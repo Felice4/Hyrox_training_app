@@ -86,6 +86,13 @@ const exerciseObject = z.strictObject({
   giMode: z.enum(GI_MODES).optional(),
   /** Nur Kategorie „movement": Gruppen im Movement Lab (mind. eine). */
   movementGroups: z.array(z.enum(MOVEMENT_GROUPS)).default([]),
+  /**
+   * Nur Kategorie „movement": wobei die Übung für HYROX hilft. Steht nur im Code (wird
+   * nicht in die Datenbank übertragen) und erscheint auf der Übungsseite im Movement Lab.
+   */
+  hyroxBenefit: z.string().min(10).max(400).optional(),
+  /** Nur Kategorie „movement": kurze Technikhinweise (nur im Code, wie hyroxBenefit). */
+  techniqueCues: z.array(z.string().min(5).max(200)).max(8).default([]),
 })
 
 type ExerciseShape = z.output<typeof exerciseObject>
@@ -119,6 +126,7 @@ function checkExercise(exercise: ExerciseShape, ctx: z.RefinementCtx) {
     stressRegions: exercise.stressRegions,
     combatSports: exercise.combatSports,
     movementGroups: exercise.movementGroups,
+    techniqueCues: exercise.techniqueCues,
   }
   for (const [field, values] of Object.entries(arrays)) {
     if (hasDuplicates(values)) {
@@ -156,6 +164,17 @@ function checkExercise(exercise: ExerciseShape, ctx: z.RefinementCtx) {
       code: 'custom',
       path: ['movementGroups'],
       message: 'Movement-Gruppen genau bei Kategorie „movement" angeben',
+    })
+  }
+
+  if (
+    exercise.category !== 'movement' &&
+    (exercise.hyroxBenefit !== undefined || exercise.techniqueCues.length > 0)
+  ) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['hyroxBenefit'],
+      message: 'HYROX-Nutzen und Technikhinweise nur bei Kategorie „movement"',
     })
   }
 

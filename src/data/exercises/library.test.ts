@@ -124,6 +124,27 @@ describe('Schema-Regeln', () => {
     expect(result.success).toBe(false)
   })
 
+  it('erlaubt HYROX-Nutzen und Technikhinweise nur im Movement Lab', () => {
+    expect(
+      exerciseDefinitionSchema.safeParse({ ...valid, hyroxBenefit: 'Hilft bei den Burpees.' })
+        .success,
+    ).toBe(false)
+    expect(
+      exerciseDefinitionSchema.safeParse({ ...valid, techniqueCues: ['Rumpf stabil halten.'] })
+        .success,
+    ).toBe(false)
+    expect(
+      exerciseDefinitionSchema.safeParse({
+        ...valid,
+        category: 'movement',
+        movementGroups: ['ground'],
+        measurement: 'reps',
+        hyroxBenefit: 'Hilft bei den Burpees.',
+        techniqueCues: ['Rumpf stabil halten.'],
+      }).success,
+    ).toBe(true)
+  })
+
   it('erlaubt hyroxStation nur in der Kategorie HYROX', () => {
     const result = exerciseDefinitionSchema.safeParse({ ...valid, hyroxStation: 'run' })
     expect(result.success).toBe(false)

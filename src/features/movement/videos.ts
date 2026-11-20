@@ -7,7 +7,9 @@
  * derselben Übung die Version erhöhen – so lädt das Handy die neue Fassung statt der
  * gespeicherten.
  */
-export const MOVEMENT_VIDEOS: Readonly<Record<string, string>> = {}
+export const MOVEMENT_VIDEOS: Readonly<Record<string, string>> = {
+  'movement-burpee-plate-overhead': 'movement-burpee-plate-overhead-1.mp4',
+}
 
 export function movementVideoFile(slug: string): string | undefined {
   return Object.hasOwn(MOVEMENT_VIDEOS, slug) ? MOVEMENT_VIDEOS[slug] : undefined

@@ -46,6 +46,12 @@ Zusätzlich hat jede Übung:
   `movement` Pflicht, sonst leer. `sync_exercise_library` übernimmt das Feld.
 - `combatSports` ist bei `movement` freiwillig (Herkunft) und bei `combat` Pflicht. Bei allen
   anderen Kategorien ist es verboten (Schema-Prüfung).
+- **HYROX-Nutzen und Technikhinweise:** `hyroxBenefit` und `techniqueCues` sind nur bei
+  `movement` erlaubt. Sie stehen **nur im Code**, werden nicht in die Datenbank übertragen
+  (keine Migration nötig) und erscheinen auf der Übungsseite (über `getLibraryExercise`).
+- **Vorgaben des Nutzers → Felder:** „Beschreibung“ → `instructions` (in Schritte geteilt),
+  „Trainingsziel“ → `description`, „HYROX-Nutzen“ → `hyroxBenefit`, „Technikhinweise“ →
+  `techniqueCues`.
 - **Belastungsvorlagen:** `LOAD.movementReps` (1–3 × 6–10), `movementTime` (1–3 × 30–60 s)
   und `movementFlow` (1–3 × 60–120 s), jeweils mit 0–30 s Pause.
 - **Generator:** `MANUAL_ONLY_CATEGORIES = ['movement', 'combat']` in `pool.ts`.
@@ -152,10 +158,12 @@ Datei zu.
    ```
    ffmpeg -i roh.mp4 -an -vf "scale='if(gt(iw,ih),min(960,iw),-2)':'if(gt(iw,ih),-2,min(960,ih))',fps=30" -c:v libx264 -preset slow -crf 28 -profile:v high -pix_fmt yuv420p -movflags +faststart movement-<slug>-1.mp4
    ```
-3. Hochladen:
+3. Hochladen – aus dem Ordner des Videos mit **relativem** Pfad (ein Windows-Pfad wie
+   `C:\…` wird als entfernte Adresse gelesen: „Unsupported operation“):
    ```
-   npx supabase storage cp movement-<slug>-1.mp4 ss:///movement-videos/movement-<slug>-1.mp4 --content-type video/mp4 --linked --experimental
+   npx --prefix <repo> supabase storage cp movement-<slug>-1.mp4 ss:///movement-videos/movement-<slug>-1.mp4 --content-type video/mp4 --linked --experimental --workdir <repo>
    ```
+   Kontrolle: `npx supabase storage ls ss:///movement-videos/ --linked --experimental`.
 4. Die Übung in `src/data/exercises/movement.ts` eintragen, das Video in `MOVEMENT_VIDEOS`
    eintragen und `LIBRARY_VERSION` erhöhen.
 

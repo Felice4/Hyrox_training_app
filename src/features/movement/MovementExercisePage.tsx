@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Spinner } from '@/components/ui/Spinner'
+import { getLibraryExercise } from '@/data/exercises'
 import {
   COMBAT_SPORT_LABELS,
   DIFFICULTY_LABELS,
@@ -39,6 +40,8 @@ export function MovementExercisePage() {
   const exercise = catalog.data?.exercises.find(
     (e) => e.slug === params.slug && e.category === 'movement',
   )
+  // HYROX-Nutzen und Technikhinweise stehen nur im Code (nicht in der Datenbank)
+  const coaching = exercise ? getLibraryExercise(exercise.slug) : undefined
   const fallback = exercise ? `/movement/${exercise.movementGroups[0]}` : '/movement'
   const backTo = backTarget(location.state, fallback)
 
@@ -99,6 +102,11 @@ export function MovementExercisePage() {
 
       <div className="flex flex-col gap-4">
         <MovementVideo slug={exercise.slug} name={exercise.name} />
+        {coaching?.hyroxBenefit && (
+          <Section title="HYROX-Nutzen">
+            <p>{coaching.hyroxBenefit}</p>
+          </Section>
+        )}
         <Section title="Ablauf">
           <ol className="flex flex-col gap-2">
             {exercise.instructions.map((step, index) => (
@@ -111,6 +119,21 @@ export function MovementExercisePage() {
             ))}
           </ol>
         </Section>
+
+        {coaching && coaching.techniqueCues.length > 0 && (
+          <Section title="Technikhinweise">
+            <ul className="flex flex-col gap-2">
+              {coaching.techniqueCues.map((cue) => (
+                <li key={cue} className="flex gap-3">
+                  <span aria-hidden="true" className="text-accent">
+                    •
+                  </span>
+                  <span>{cue}</span>
+                </li>
+              ))}
+            </ul>
+          </Section>
+        )}
 
         <Section title="Empfohlene Dosierung">
           <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
