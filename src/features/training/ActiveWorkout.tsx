@@ -247,6 +247,7 @@ function SwapPanel({
     profile,
     excludeSlugs: session.exercises.map((e) => e.exerciseSlug),
     limit: Infinity,
+    scope: 'all',
   })
 
   return (

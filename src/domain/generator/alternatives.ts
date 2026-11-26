@@ -26,6 +26,11 @@ export interface AlternativeInput {
   excludeSlugs?: readonly string[] | undefined
   /** Höchstzahl (Standard 5); `Infinity` liefert alle ähnlichen Übungen der Bibliothek */
   limit?: number | undefined
+  /**
+   * `similar` (Standard): nur ähnliche Übungen. `all`: zusätzlich alle übrigen Übungen der
+   * Bibliothek (nach den ähnlichen, `related: false`) – für den freien Tausch.
+   */
+  scope?: 'similar' | 'all' | undefined
 }
 
 export interface ExerciseSuggestion {
@@ -33,6 +38,8 @@ export interface ExerciseSuggestion {
   /** Kurzer Grund für die Anzeige */
   reason: string
   similarity: number
+  /** Ähnliche Übung (vergleichbarer Trainingseffekt); `false` nur bei `scope: 'all'` */
+  related: boolean
 }
 
 const overlap = <T>(a: readonly T[], b: readonly T[]) => a.filter((x) => b.includes(x)).length
@@ -54,7 +61,8 @@ const sameFamily = (a: Category, b: Category) =>
  * 3. gleiche HYROX-Station bzw. gleiche Kategorie und Trainingsart,
  * 4. gleiche Kategorie (Warm-up, Mobility/Cool-down) bzw. gleiche Kategorie mit
  *    gemeinsamen Hauptmuskeln, 5. gemeinsame Hauptmuskeln.
- * Skill-Übungen nur, wenn die Übung selbst eine ist; Movement-Übungen nur untereinander.
+ * Skill-Übungen nur, wenn die Übung selbst eine ist (außer bei `scope: 'all'`);
+ * Movement-Übungen immer nur untereinander (nur Warm-up/Cool-down, docs/MOVEMENT.md).
  * Es gelten dieselben Filter wie im Generator (Geräte, Einschränkungen, ausgeblendet).
  */
 export function suggestAlternatives(input: AlternativeInput): ExerciseSuggestion[] {
@@ -62,10 +70,13 @@ export function suggestAlternatives(input: AlternativeInput): ExerciseSuggestion
   if (!original) return []
   const exclude = new Set([original.slug, ...(input.excludeSlugs ?? [])])
   const pool = filterPool(input.exercises, input.profile, input.unavailableEquipment ?? [])
+  const all = input.scope === 'all'
 
   const suggestions = pool.flatMap((candidate): ExerciseSuggestion[] => {
     if (exclude.has(candidate.slug)) return []
-    if (candidate.category === 'skill' && original.category !== 'skill') return []
+    // Skill-Übungen gelten nur für Skill-Übungen als ähnlich (freier Tausch: unter „Alle")
+    const skillOnly = candidate.category === 'skill' && original.category !== 'skill'
+    if (skillOnly && !all) return []
     // Movement-Übungen (und frühere Kampfsport-Drills) nur innerhalb ihrer Kategorie tauschen
     for (const manual of MANUAL_ONLY_CATEGORIES) {
       if ((candidate.category === manual) !== (original.category === manual)) return []
@@ -82,7 +93,10 @@ export function suggestAlternatives(input: AlternativeInput): ExerciseSuggestion
 
     let base: number
     let reason: string
-    if (curatedIndex >= 0) {
+    if (skillOnly) {
+      base = -100
+      reason = CATEGORY_LABELS[candidate.category]
+    } else if (curatedIndex >= 0) {
       base = 100 - curatedIndex
       reason = 'Empfohlene Alternative'
     } else if (samePattern && primaryOverlap > 0) {
@@ -104,6 +118,9 @@ export function suggestAlternatives(input: AlternativeInput): ExerciseSuggestion
       base = 0
       const shared = original.primaryMuscles.filter((m) => candidate.primaryMuscles.includes(m))
       reason = `Ähnliche Muskeln (${shared.map((m) => MUSCLE_GROUP_LABELS[m]).join(', ')})`
+    } else if (all) {
+      base = -100
+      reason = CATEGORY_LABELS[candidate.category]
     } else {
       return []
     }
@@ -115,7 +132,7 @@ export function suggestAlternatives(input: AlternativeInput): ExerciseSuggestion
       overlap(original.secondaryMuscles, candidate.secondaryMuscles) +
       (candidate.measurement === original.measurement ? 5 : 0) +
       (candidate.preference === 'preferred' ? 3 : candidate.preference === 'disliked' ? -5 : 0)
-    return [{ exercise: candidate, reason, similarity }]
+    return [{ exercise: candidate, reason, similarity, related: base > -100 }]
   })
 
   return suggestions

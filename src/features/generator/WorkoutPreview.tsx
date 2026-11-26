@@ -25,7 +25,7 @@ interface WorkoutPreviewProps {
   onRegenerate: () => void
   onEdit: () => void
   onSwitchToRecovery: () => void
-  /** Liefert alle ähnlichen Übungen zum Austausch, die besten zuerst */
+  /** Liefert alle Übungen zum Austausch: ähnliche zuerst (`related`), dann alle übrigen */
   alternativesFor: (exerciseSlug: string) => ExerciseSuggestion[]
   onSwap: (blockIndex: number, itemIndex: number, suggestion: ExerciseSuggestion) => void
   onStart: () => void

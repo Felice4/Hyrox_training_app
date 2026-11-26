@@ -206,6 +206,8 @@ Reihenfolge der Kandidaten:
 
 Skill-Übungen erscheinen nur als Ersatz für Skill-Übungen. Die Oberfläche zeigt zuerst die 5 besten Vorschläge; „Alle ähnlichen Übungen durchsuchen" listet alle Kandidaten (Stufen 1–5, `limit: Infinity`) mit Suche nach Namen – in der Vorschau, im Kalender und im laufenden Training (`SwapPicker`, Schritt 5.3).
 
+**Freier Tausch (6.6, Wunsch des Nutzers):** Mit `scope: 'all'` hängt `suggestAlternatives` nach den ähnlichen Übungen (`related: true`, Reihenfolge unverändert) alle übrigen Übungen der Bibliothek an (`related: false`, Grund = Kategorie). Dabei sind auch Skill-Übungen erlaubt. Weiterhin gelten die Filter des Generators (Geräte, Einschränkungen, ausgeblendete Übungen), und Movement-Übungen werden nur untereinander getauscht. Der `SwapPicker` zeigt die 5 besten ähnlichen Vorschläge und darunter „Alle ähnlichen Übungen durchsuchen“ sowie „Alle Übungen der Bibliothek durchsuchen“. In der Suche wechselt ein Umschalter zwischen „Ähnliche“ und „Alle Übungen“; gesucht wird in Name und Kategorie.
+
 Danach werden dieselben Filter wie im Pool (Equipment, Einschränkungen, ausgeblendet) angewendet. Sortiert wird nach Ähnlichkeit (Muskelüberlappung, Messart gleich) und Präferenz. Die Dosierung wird übernommen bzw. für die neue Messart umgerechnet. Gewichte werden **nicht** übertragen, wenn sich das Gerät ändert.
 
 ---

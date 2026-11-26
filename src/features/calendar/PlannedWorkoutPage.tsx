@@ -387,6 +387,7 @@ function WorkoutView({
           profile,
           excludeSlugs: slugsInWorkout,
           limit: Infinity,
+          scope: 'all',
         })
       }
       skills={{

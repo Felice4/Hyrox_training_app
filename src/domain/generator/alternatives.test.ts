@@ -140,6 +140,43 @@ describe('suggestAlternatives – Pflichttest 4 (SPEC §15)', () => {
     expect(slugs.some((e) => e.category === 'skill')).toBe(true)
   })
 
+  it('liefert beim freien Tausch alle Übungen – die ähnlichen zuerst und unverändert', () => {
+    const similar = suggestAlternatives({
+      exerciseSlug: 'back-squat',
+      exercises: LIBRARY,
+      profile,
+      limit: Infinity,
+    })
+    const all = suggestAlternatives({
+      exerciseSlug: 'back-squat',
+      exercises: LIBRARY,
+      profile,
+      limit: Infinity,
+      scope: 'all',
+    })
+    expect(all.length).toBeGreaterThan(similar.length)
+    expect(all.slice(0, similar.length)).toEqual(similar)
+    expect(similar.every((s) => s.related)).toBe(true)
+    const others = all.slice(similar.length)
+    expect(others.every((s) => !s.related)).toBe(true)
+    // Auch fremde Übungen (z. B. Oberkörper oder Skills) sind dabei
+    expect(others.some((s) => s.exercise.category === 'skill')).toBe(true)
+    expect(others.some((s) => s.exercise.primaryMuscles.includes('lats'))).toBe(true)
+  })
+
+  it('freier Tausch: Movement-Übungen nur untereinander, Filter wie im Generator', () => {
+    const all = suggestAlternatives({
+      exerciseSlug: 'back-squat',
+      exercises: LIBRARY,
+      profile: { ...profile, availableEquipment: [] },
+      limit: Infinity,
+      scope: 'all',
+    })
+    expect(all.some((s) => s.exercise.category === 'movement')).toBe(false)
+    expect(all.every((s) => s.exercise.equipment.length === 0)).toBe(true)
+    expect(all.some((s) => s.exercise.slug === 'back-squat')).toBe(false)
+  })
+
   it('findet für eine unbekannte Übung nichts', () => {
     expect(
       suggestAlternatives({ exerciseSlug: 'gibt-es-nicht', exercises: LIBRARY, profile }),

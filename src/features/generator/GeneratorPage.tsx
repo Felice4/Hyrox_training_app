@@ -221,6 +221,7 @@ function Generator({
             unavailableEquipment: stored.request.unavailableEquipment,
             excludeSlugs: slugsInWorkout,
             limit: Infinity,
+            scope: 'all',
           })
         }
         skills={{
